@@ -8,15 +8,49 @@
  * whole choreography on a second visit so it still reads as an entrance
  * without making anyone sit through it again.
  *
- * Portlets are choreographed rather than animated together. Each one gets its
- * own start time and then runs its own internal build independently, so the
- * board assembles as a sequence of separate components arriving rather than
- * as one composition fading up. */
+ * The entrance runs in two stages, and the split is what keeps it from reading
+ * as scattered popping. Stage one is structural: every portlet shell fades and
+ * settles on a quick stagger, so the page establishes itself as a complete
+ * layout of empty frames before anything is drawn inside them. Stage two is
+ * the content, and it is ordered by horizontal position across the entire
+ * board — not by band, not by DOM order — so the charts draw themselves in as
+ * one continuous sweep travelling left to right, crossing band boundaries on
+ * the way. Each chart's own internal staging (axis, line, points, labels) then
+ * nests inside its slot in that sweep rather than competing with it.
+ *
+ * The sweep only ever knows where a chart is and when its turn comes. What a
+ * chart does with its turn is entirely the chart's business, so chart forms
+ * can be swapped without touching anything here. */
 
 import { Portlet } from "./portlet.js";
-import { setMotionScale } from "./anim.js";
+import { setMotionScale, reducedMotion } from "./anim.js";
 
 const ENTRANCES = ["rise", "left", "right"];
+
+/* shellStep/bandStep pace stage one; settle is the gap between the last shell
+ * starting and the first chart drawing; sweep is how long the left-to-right
+ * pass takes to cross the board. scale compresses every chart's internal
+ * sequence so the whole thing lands inside the budget a presenter can talk
+ * over — roughly 1.7s cold, under a second on return. */
+const TIMING = {
+  entry: { shellStep: 17, bandStep: 48, settle: 280, sweep: 290, scale: 0.53 },
+  replay: { shellStep: 9, bandStep: 26, settle: 160, sweep: 170, scale: 0.38 }
+};
+
+/* Horizontal centre of an element measured against the panel, accumulated up
+ * the offsetParent chain so it holds however the bands are positioned. Uses
+ * offset geometry rather than getBoundingClientRect deliberately: the shells
+ * are mid-entrance and carry a translate, and a measured rect would fold that
+ * displacement into the ordering. */
+function centreWithin(el, root) {
+  let x = el.offsetWidth / 2;
+  let node = el;
+  while (node && node !== root) {
+    x += node.offsetLeft;
+    node = node.offsetParent;
+  }
+  return x;
+}
 
 export class TabController {
   constructor({ stage, nav, indicator, tabs, deps }) {
@@ -33,6 +67,10 @@ export class TabController {
     this.seen = new Set();
     this.activeId = null;
     this.enterTimers = [];
+    // Every scheduled step carries the id of the sweep that queued it, so a
+    // superseded sweep cannot act even if one of its timers fires in the same
+    // tick it was cancelled in.
+    this.sweepId = 0;
   }
 
   init() {
@@ -170,7 +208,12 @@ export class TabController {
         portlet.cancel();
         portlet.el.classList.remove("is-entered", "is-live");
       });
+      // Retiring the outgoing panel is deferred until its exit transition has
+      // run, which means the viewer can be back on it before this lands. If
+      // they are, leave it alone — otherwise a quick there-and-back takes the
+      // board off screen and nothing brings it back.
       window.setTimeout(() => {
+        if (this.activeId === previousId) return;
         previous.classList.remove("is-active", "is-exiting");
       }, 320);
     }
@@ -188,31 +231,57 @@ export class TabController {
     if (this.deps.onTabChange) this.deps.onTabChange(id);
   }
 
-  /* Assigns each portlet its own start time, then leaves it alone. Bands are
-   * offset from each other so the board reads top to bottom, and a small
-   * deterministic jitter keeps a row of four from landing like a metronome. */
+  /* Stage one lays the page out; stage two sweeps across it left to right.
+   * Both tabs run this, so the exec board and the trend board enter the same
+   * way even though nothing they contain is alike. */
   choreograph(id, { replay }) {
-    const scale = replay ? 0.55 : 1;
-    setMotionScale(scale);
-
     const list = this.byTab.get(id) || [];
-    const bandStep = replay ? 90 : 190;
-    const itemStep = replay ? 48 : 104;
+    if (!list.length) return;
 
-    list.forEach((portlet) => {
-      const jitter = (portlet.ordinal * 37) % 60;
-      const delay = Math.round(
-        (portlet.bandIndex * bandStep + portlet.ordinal * itemStep + jitter) * (replay ? 0.6 : 1)
-      );
+    const sweep = (this.sweepId += 1);
+    const still = reducedMotion();
+    const t = replay ? TIMING.replay : TIMING.entry;
+    setMotionScale(still ? 1 : t.scale);
 
-      const timer = window.setTimeout(() => {
-        portlet.el.classList.add("is-entered");
-        // The shell lands first, then its contents draw — so each component
-        // visibly builds itself rather than arriving finished.
-        portlet.build(replay ? 80 : 150);
-      }, delay);
-      this.enterTimers.push(timer);
+    // Before anything is on screen: veil every chart. On a return visit the
+    // charts are still sitting there finished, and letting them show through
+    // stage one would mean the board arrives complete and is then wiped.
+    list.forEach((portlet) => portlet.primeChart());
+
+    // All geometry read in one pass, before a single style is written, so the
+    // sweep costs one layout rather than one per portlet.
+    const panel = this.panels.get(id);
+    const centres = list.map((portlet) => centreWithin(portlet.el, panel));
+    const left = Math.min(...centres);
+    const span = Math.max(1, Math.max(...centres) - left);
+
+    /* ---- stage one: the sections arrive ---- */
+    let lastShell = 0;
+    list.forEach((portlet, i) => {
+      const delay = still ? 0 : portlet.bandIndex * t.bandStep + i * t.shellStep;
+      lastShell = Math.max(lastShell, delay);
+      this.schedule(delay, sweep, () => portlet.el.classList.add("is-entered"));
     });
+
+    /* ---- stage two: the visualisations draw in ---- */
+    const opens = still ? 0 : lastShell + t.settle;
+    list.forEach((portlet, i) => {
+      const across = (centres[i] - left) / span;
+      const delay = still ? 0 : Math.round(opens + across * t.sweep);
+      this.schedule(delay, sweep, () => portlet.build(0));
+    });
+  }
+
+  /* Queues one step of a sweep, discarding it if a later sweep has started. */
+  schedule(delay, sweep, run) {
+    if (delay <= 0) {
+      run();
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      if (sweep === this.sweepId) run();
+    }, delay);
+    this.enterTimers.push(timer);
   }
 
   /* Re-runs the current tab's choreography without a tab change. Used by the
@@ -233,9 +302,13 @@ export class TabController {
     this.portlets.forEach((portlet) => portlet.render());
   }
 
+  /* Cancels the in-flight sweep. Bumping the id as well as clearing the timers
+   * is what makes a fast tab switch safe: anything already queued is orphaned
+   * rather than left to land on a tab that has moved on. */
   clearTimers() {
     this.enterTimers.forEach((timer) => window.clearTimeout(timer));
     this.enterTimers = [];
+    this.sweepId += 1;
   }
 
   positionIndicator() {

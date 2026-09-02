@@ -2,7 +2,7 @@
  * measured against and a gauge ring would imply one that does not exist. */
 
 import { toneOf, toneColor, tierMeta } from "../palette.js";
-import { countUp, scramble, fadeIn, wait } from "../anim.js";
+import { countUp, scramble, fadeIn, wait, veil } from "../anim.js";
 
 export function mount(host, ctx) {
   const { metrics, tier, isDirect } = ctx;
@@ -48,6 +48,9 @@ export function mount(host, ctx) {
 
   host.appendChild(wrap);
 
+  const curtain = veil([value, yoy, bar, caption, footnote]);
+  curtain.hide();
+
   async function build(signal) {
     const display = metrics.display || "";
     const candidates = isDirect ? (ctx.portlet.directMode || {}).candidates : null;
@@ -69,5 +72,5 @@ export function mount(host, ctx) {
     bar.classList.add("is-live");
   }
 
-  return { build };
+  return { build, prime: curtain.hide, settle: curtain.settle };
 }

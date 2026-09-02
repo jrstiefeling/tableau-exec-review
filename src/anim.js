@@ -56,6 +56,40 @@ export function wait(ms, signal) {
   });
 }
 
+/* --------------------------------- veils --------------------------------- */
+
+/* Hides everything a chart is going to reveal, from the moment it is built.
+ *
+ * Without this a chart is mounted at full opacity and then each element is
+ * slammed to zero when its turn in the build sequence arrives — so a panel
+ * whose sequence spans a second and a half is painted, then blinks out in
+ * pieces, then draws itself in. That was the blinking: not one dropped frame
+ * but every element visible for as long as it took the sequence to reach it.
+ *
+ * settle() is the safety net. If a build path skips a node — a conditional
+ * marker, an aborted sequence that resumed — the node is restored rather than
+ * left invisible, so veiling can never cost content.
+ *
+ * Under reduced motion this is inert in both directions: nothing is hidden,
+ * because nothing is going to be animated back. */
+export function veil(nodes) {
+  const list = nodes.flat(Infinity).filter(Boolean);
+  return {
+    nodes: list,
+    hide() {
+      if (reducedMotion()) return;
+      list.forEach((node) => {
+        node.style.opacity = "0";
+      });
+    },
+    settle() {
+      list.forEach((node) => {
+        node.style.opacity = "1";
+      });
+    }
+  };
+}
+
 /* ------------------------------- numerals -------------------------------- */
 
 /* Splits an authored display string into the pieces needed to interpolate it.
@@ -305,6 +339,25 @@ export function fadeIn(node, opts = {}) {
     node.style.transition = "";
     node.style.transform = "";
   });
+}
+
+/* Fades to a partial opacity. For fills that are meant to stay translucent —
+ * a trend area behind its line — where reaching 1 would drown the mark. */
+export function fadeTo(node, to, opts = {}) {
+  const { duration = 520, delay = 0, easing = EASE_SOFT, signal } = opts;
+
+  if (reducedMotion()) {
+    node.style.opacity = String(to);
+    return Promise.resolve();
+  }
+
+  node.style.transition = "none";
+  node.style.opacity = "0";
+  void node.getBoundingClientRect();
+  node.style.transition = `opacity ${d(duration)}ms ${easing} ${d(delay)}ms`;
+  node.style.opacity = String(to);
+
+  return wait(delay + duration, signal).then(() => {});
 }
 
 /* Fades a set of nodes in on a cascade. The per-item step is capped in total

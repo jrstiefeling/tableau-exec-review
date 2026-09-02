@@ -401,15 +401,27 @@ export class Portlet {
     this.deps.inspector.open(this.el, { flip: true });
   }
 
+  /* Hides everything the chart is about to draw. The choreographer calls this
+   * across the whole tab before stage 1 begins, so the shells arrive as empty
+   * frames rather than as finished charts waiting to be wiped and redrawn. */
+  primeChart() {
+    if (this.chart && this.chart.prime) this.chart.prime();
+  }
+
   build(delay = 0) {
     this.cancel();
     this.controller = new AbortController();
     const { signal } = this.controller;
     this.el.classList.add("is-live");
+    this.primeChart();
 
-    const run = () => {
+    const run = async () => {
       if (signal.aborted || !this.chart) return;
-      this.chart.build(signal);
+      const chart = this.chart;
+      await chart.build(signal);
+      // Whatever the sequence did not reach — a conditional marker, a branch
+      // this metric skips — is restored rather than left veiled.
+      if (!signal.aborted && chart.settle) chart.settle();
     };
 
     if (delay > 0) {

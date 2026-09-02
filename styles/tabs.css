@@ -8,6 +8,7 @@
 
 .tabnav {
   position: relative;
+  flex: none;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -182,10 +183,81 @@
 
 /* ------------------------------- responsive ------------------------------- */
 
+/* The topbar runs brand, tabs, legend and two buttons on one row, which stops
+   fitting well before the layout does. The legend and the keyboard hint are
+   the two things a viewer can lose without losing anything they need, so they
+   go first and the tabs keep their full width. */
+@media (max-width: 1200px) {
+  .trust-legend,
+  .statusbar-hint {
+    display: none;
+  }
+
+  /* Dropping the eyebrow and tightening the row buys back enough width for the
+     board's name to stay whole. A truncated title reads as a bug; a missing
+     strapline does not. */
+  .topbar-eyebrow {
+    display: none;
+  }
+
+  .topbar {
+    gap: 14px;
+  }
+
+  .ghost-btn,
+  .pill-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 1180px) {
   .band[data-layout="panels"] {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Short viewports — 1024x768 being the one that matters, since it is what a
+   projector or a shared screen tends to be. The board still has to compose to
+   one screen, so rather than change the layout this reclaims height from the
+   chrome (topbar, panel head, status bar, gaps) and hands it to the bands.
+   The narrative band takes the largest share of what is reclaimed because it
+   is the only one whose content is a list that can run long. */
+@media (max-height: 860px) {
+  :root {
+    --gap: clamp(6px, 0.9vw, 11px);
+  }
+
+  .topbar {
+    padding: 7px clamp(14px, 2.2vw, 26px);
+  }
+
+  .statusbar {
+    padding: 5px clamp(14px, 2.2vw, 26px);
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
+
+  .panel {
+    inset: 9px clamp(12px, 2vw, 26px);
+    gap: 8px;
+  }
+
+  .panel-headline {
+    font-size: clamp(16px, 1.7vw, 22px);
+  }
+
+  /* The mix band carries a stacked bar, a legend and a paragraph of reading,
+     so it is the one that actually runs out of room first — it takes the
+     larger share, and the narrative band gives it up because its rails already
+     scroll and losing a row costs nothing. */
+  .panel[data-tab="exec"] .panel-bands {
+    grid-template-rows: minmax(0, 0.78fr) minmax(0, 0.98fr) minmax(0, 1.24fr);
+  }
+
+  .mix {
+    gap: 4px;
   }
 }
 

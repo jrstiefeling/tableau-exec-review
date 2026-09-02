@@ -7,7 +7,7 @@
  * work out by dividing in their head. */
 
 import { palette, toneOf, toneColor, tierMeta } from "../palette.js";
-import { countUp, fadeIn, growFrom, stagger, wait } from "../anim.js";
+import { countUp, fadeIn, growFrom, stagger, wait, veil } from "../anim.js";
 
 export function mount(host, ctx) {
   const { metrics, tier, isDirect } = ctx;
@@ -115,6 +115,9 @@ export function mount(host, ctx) {
 
   host.appendChild(wrap);
 
+  const curtain = veil([head, segEls, legendEls, insight]);
+  curtain.hide();
+
   async function build(signal) {
     fadeIn(head, { duration: 420, y: 6, signal });
     countUp(totalEl, metrics.totalDisplay || "", { delay: 60, duration: 900, signal });
@@ -130,5 +133,5 @@ export function mount(host, ctx) {
     fadeIn(insight, { delay: 320, duration: 520, y: 8, signal });
   }
 
-  return { build };
+  return { build, prime: curtain.hide, settle: curtain.settle };
 }

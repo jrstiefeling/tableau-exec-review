@@ -22,7 +22,9 @@
 
 import { chartRoot, svgEl, group, text, linePath, smoothPath, linearScale, padHit } from "../svg.js";
 import { palette, toneOf, toneColor, tierMeta } from "../palette.js";
-import { countUp, strokeDraw, dashDraw, fadeIn, stagger, wait } from "../anim.js";
+import {
+  countUp, strokeDraw, dashDraw, fadeIn, fadeTo, stagger, wait, veil, reducedMotion
+} from "../anim.js";
 
 /* The viewBox is kept close to the aspect ratio of the grid cell it lands in.
  * preserveAspectRatio letterboxes anything that does not match, and a panel
@@ -171,6 +173,7 @@ export function mount(host, ctx) {
   }
 
   /* ---- points ---- */
+  const dotCores = [];
   const dots = points.map((pt) => {
     const partial = pt.i >= partialFrom;
     const detached = partial && isFlow;
@@ -188,9 +191,9 @@ export function mount(host, ctx) {
     });
     padHit(dot, 14);
     if (detached) {
-      marks.appendChild(
-        svgEl("circle", { cx: pt.x, cy: pt.y, r: 1.5, fill: accent, class: "trend-dot-core" })
-      );
+      const core = svgEl("circle", { cx: pt.x, cy: pt.y, r: 1.5, fill: accent, class: "trend-dot-core" });
+      marks.appendChild(core);
+      dotCores.push(core);
     }
 
     const yoy = (metrics.yoy || [])[pt.i];
@@ -249,6 +252,21 @@ export function mount(host, ctx) {
   /* ---- exact values, revealed when the panel is expanded ---- */
   wrap.appendChild(buildDetail());
   host.appendChild(wrap);
+
+  const curtain = veil([
+    head, baseline, zeroTick, line, breakRule,
+    ghostLink, ghost, ghostLabel,
+    dots, dotCores, labels, partialNote, caption
+  ]);
+
+  function prime() {
+    curtain.hide();
+    // The area is handled apart from the veil: build fades it to 0.1, not to 1,
+    // so settling it would flood the panel.
+    if (!reducedMotion()) area.style.opacity = "0";
+  }
+
+  prime();
 
   function buildDetail() {
     const detail = document.createElement("div");
@@ -323,8 +341,7 @@ export function mount(host, ctx) {
     await wait(260, signal);
 
     strokeDraw(line, { duration: 900, signal });
-    area.style.transition = "opacity 700ms cubic-bezier(.4,0,.2,1) 420ms";
-    area.style.opacity = "0.1";
+    fadeTo(area, 0.1, { delay: 420, duration: 700, signal });
 
     await wait(560, signal);
     stagger(labels, { step: 44, duration: 320, y: 4, signal });
@@ -332,7 +349,7 @@ export function mount(host, ctx) {
 
     await wait(360, signal);
     if (breakRule) dashDraw(breakRule, { duration: 420, signal });
-    stagger(dots.slice(joinedCount), { step: 90, duration: 420, y: 0, scaleFrom: 0.2, signal });
+    stagger([...dots.slice(joinedCount), ...dotCores], { step: 90, duration: 420, y: 0, scaleFrom: 0.2, signal });
     if (partialNote) fadeIn(partialNote, { delay: 180, duration: 400, y: 4, signal });
 
     await wait(280, signal);
@@ -342,5 +359,5 @@ export function mount(host, ctx) {
     fadeIn(caption, { delay: 160, duration: 460, y: 6, signal });
   }
 
-  return { build };
+  return { build, prime, settle: curtain.settle };
 }

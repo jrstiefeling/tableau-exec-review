@@ -8,7 +8,7 @@
  * seven metrics with nothing connecting them. */
 
 import { tierMeta } from "../palette.js";
-import { fadeIn, wait } from "../anim.js";
+import { fadeIn, wait, veil } from "../anim.js";
 
 export function mount(host, ctx) {
   const { metrics, tier, isDirect } = ctx;
@@ -92,6 +92,9 @@ export function mount(host, ctx) {
 
   host.appendChild(list);
 
+  const curtain = veil([items]);
+  curtain.hide();
+
   async function build(signal) {
     for (let i = 0; i < items.length; i += 1) {
       fadeIn(items[i], { duration: 420, y: 10, x: -8, signal });
@@ -100,5 +103,5 @@ export function mount(host, ctx) {
     }
   }
 
-  return { build };
+  return { build, prime: curtain.hide, settle: curtain.settle };
 }

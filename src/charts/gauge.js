@@ -8,7 +8,7 @@
 
 import { chartRoot, svgEl, arcPath, text, group } from "../svg.js";
 import { palette, toneOf, planTone, toneColor, tierMeta } from "../palette.js";
-import { countUp, scramble, sweepArc, fadeIn, wait } from "../anim.js";
+import { countUp, scramble, sweepArc, fadeIn, wait, veil } from "../anim.js";
 
 const W = 132;
 const H = 132;
@@ -148,6 +148,9 @@ export function mount(host, ctx) {
   wrap.appendChild(readout);
   host.appendChild(wrap);
 
+  const curtain = veil([svg, centreValue, centreLabel, value, yoy, planChip, bar, caption]);
+  curtain.hide();
+
   async function build(signal) {
     const display = metrics.display || "";
     const candidates = isDirect ? (ctx.portlet.directMode || {}).candidates : null;
@@ -179,5 +182,5 @@ export function mount(host, ctx) {
     bar.classList.add("is-live");
   }
 
-  return { build };
+  return { build, prime: curtain.hide, settle: curtain.settle };
 }

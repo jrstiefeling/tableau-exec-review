@@ -6,14 +6,17 @@
   min-height: 0;
   perspective: 1400px;
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.52s var(--ease), transform 0.62s var(--ease);
+  transform: translateY(18px);
+  /* Stage one of the entrance. Deliberately brisk: this is only the empty
+     frame arriving, and the charts cannot start drawing until it has settled,
+     so every millisecond here is spent before anything interesting happens. */
+  transition: opacity 0.3s var(--ease), transform 0.34s var(--ease);
 }
 
 /* Entrance direction varies by position so a row of four tiles does not
    arrive as four identical slides. */
-.portlet[data-entrance="left"] { transform: translate(-30px, 10px); }
-.portlet[data-entrance="right"] { transform: translate(30px, 10px); }
+.portlet[data-entrance="left"] { transform: translate(-22px, 8px); }
+.portlet[data-entrance="right"] { transform: translate(22px, 8px); }
 
 .portlet.is-entered {
   opacity: 1;
@@ -717,7 +720,10 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* `safe` matters on short viewports: a plain centred column overflows at
+     both ends when its content outgrows the band, so the top of the stat gets
+     painted over the portlet head rather than simply running out of room. */
+  justify-content: safe center;
   gap: clamp(4px, 0.7vh, 7px);
 }
 
@@ -746,7 +752,7 @@
   display: flex;
   flex-direction: column;
   gap: clamp(4px, 0.8vh, 9px);
-  justify-content: center;
+  justify-content: safe center;
 }
 
 /* The mix card carries the most stacked content of any tile on the board, so

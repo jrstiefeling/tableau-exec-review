@@ -7,7 +7,7 @@
  * why they render severed rather than simply absent in direct mode. */
 
 import { tierMeta } from "../palette.js";
-import { fadeIn, wait } from "../anim.js";
+import { fadeIn, wait, veil } from "../anim.js";
 
 export function mount(host, ctx) {
   const { metrics, tier, isDirect } = ctx;
@@ -91,6 +91,9 @@ export function mount(host, ctx) {
 
   host.appendChild(rail);
 
+  const curtain = veil([cardEls]);
+  curtain.hide();
+
   async function build(signal) {
     // Cards arrive one at a time rather than as a block, so the rail reads as
     // a list being told rather than a paragraph being pasted.
@@ -101,5 +104,5 @@ export function mount(host, ctx) {
     }
   }
 
-  return { build };
+  return { build, prime: curtain.hide, settle: curtain.settle };
 }
