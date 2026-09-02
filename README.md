@@ -4,6 +4,8 @@ A two-tab executive dashboard that argues for the Tableau semantic layer by show
 
 Every number on it is illustrative mock data. Nothing here queries Tableau, Org62, or any MCP endpoint.
 
+**Live:** https://jrstiefeling.github.io/tableau-exec-review/
+
 ## Running it
 
 ```bash
@@ -14,6 +16,22 @@ python3 -m http.server 8000
 No build step, no dependencies, no framework. Plain ES modules, hand-built SVG.
 
 Opening `index.html` straight off the filesystem also works — `file://` blocks the `fetch` of `data/board.json`, so the app falls back to the copy embedded in `src/fallback.js` and shows a notice saying so.
+
+## Deploying
+
+GitHub Pages serves this repo as-is from `main` at the root — there is nothing to build, so a push is the deploy. Pages redeploys in about a minute.
+
+```bash
+git push
+```
+
+If you fork this or move it, enable Pages once with:
+
+```bash
+gh api -X POST repos/OWNER/REPO/pages -f "source[branch]=main" -f "source[path]=/"
+```
+
+`.nojekyll` is committed so Pages serves every file verbatim instead of running the contents through Jekyll.
 
 ## What it is
 
