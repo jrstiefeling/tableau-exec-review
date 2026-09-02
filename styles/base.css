@@ -1,0 +1,501 @@
+/* Design tokens, page chrome, and the two theme states.
+ *
+ * The governed board and the direct-only board are one class apart. Direct
+ * mode drains rather than inverts: the surfaces stay dark, the accents
+ * collapse toward grey, and the board keeps rendering perfectly well. That is
+ * the honest version of the argument — losing the semantic layer does not
+ * break the dashboard, it quietly stops it telling you which way is good. */
+
+:root {
+  --ink: #eef2fb;
+  --ink-soft: #9aa6c2;
+  --ink-dim: #6b7796;
+
+  --surface: #080b16;
+  --surface-raised: rgba(20, 26, 46, 0.72);
+  --surface-high: rgba(30, 38, 63, 0.86);
+  --surface-solid: #101527;
+
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.17);
+
+  --accent: #38bdf8;
+  --glow: rgba(56, 189, 248, 0.35);
+
+  --pos: #2dd4a7;
+  --warn: #f0b429;
+  --neg: #ff6b5a;
+
+  --tier-green: #2dd4a7;
+  --tier-yellow: #e5ac4d;
+  --tier-red: #ff7a5c;
+  --tier-grey: #b7c0d1;
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --theme-transition: background-color 0.6s var(--ease), color 0.6s var(--ease),
+    border-color 0.6s var(--ease), box-shadow 0.6s var(--ease);
+
+  --radius: 14px;
+  --gap: clamp(8px, 1.1vw, 16px);
+}
+
+body.direct-mode {
+  --ink: #c8cdd8;
+  --ink-soft: #848c9c;
+  --ink-dim: #646b7a;
+
+  --surface: #101216;
+  --surface-raised: rgba(30, 33, 40, 0.72);
+  --surface-high: rgba(42, 46, 55, 0.86);
+  --surface-solid: #1a1d24;
+
+  --line: rgba(255, 255, 255, 0.07);
+  --line-strong: rgba(255, 255, 255, 0.13);
+
+  --accent: #8b93a5;
+  --glow: rgba(139, 147, 165, 0.18);
+
+  --pos: #8a9299;
+  --warn: #9a8f76;
+  --neg: #a8776e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  /* Nothing on this board scrolls. Every tab is composed to one viewport, so
+     the whole state of the quarter is legible without moving. */
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: var(--theme-transition);
+}
+
+/* A slow drift of two off-screen lights, so the dark surface reads as depth
+   rather than as a flat black rectangle. Drained along with everything else
+   in direct mode. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -30%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 42% at 18% 12%, rgba(56, 189, 248, 0.16), transparent 70%),
+    radial-gradient(40% 38% at 84% 78%, rgba(167, 139, 250, 0.13), transparent 72%);
+  opacity: 1;
+  transition: opacity 0.8s var(--ease), filter 0.8s var(--ease);
+}
+
+body.direct-mode::before {
+  opacity: 0.28;
+  filter: grayscale(1);
+}
+
+/* Flex rather than grid rows: the notice bar is display:none most of the
+   time, and a hidden grid item is simply not placed — which would silently
+   shift the stage and the status bar into each other's rows. */
+.app {
+  position: relative;
+  z-index: 1;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* --------------------------------- topbar --------------------------------- */
+
+.topbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 28px);
+  padding: clamp(10px, 1.6vh, 18px) clamp(16px, 2.4vw, 32px);
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent);
+  transition: var(--theme-transition);
+}
+
+.topbar-id {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.topbar-mark {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 8px;
+  background: conic-gradient(from 140deg, var(--accent), #a78bfa, var(--pos), var(--accent));
+  box-shadow: 0 0 18px var(--glow);
+  transition: var(--theme-transition), filter 0.6s var(--ease);
+}
+
+body.direct-mode .topbar-mark {
+  filter: grayscale(1) brightness(0.7);
+}
+
+.topbar-titles {
+  min-width: 0;
+}
+
+.topbar-eyebrow {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+.topbar-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.3vw, 18px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.topbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1vw, 14px);
+}
+
+/* ------------------------------ trust legend ------------------------------ */
+
+.trust-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  transition: var(--theme-transition);
+}
+
+.trust-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tier-green);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tier-green) 22%, transparent);
+  transition: background-color 0.4s var(--ease), box-shadow 0.4s var(--ease);
+}
+
+.trust-legend-dot[data-tier="red"] {
+  background: var(--tier-red);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tier-red) 22%, transparent);
+}
+
+/* --------------------------------- buttons -------------------------------- */
+
+.ghost-btn,
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-raised);
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: var(--theme-transition), transform 0.2s var(--ease);
+}
+
+.ghost-btn:hover,
+.pill-btn:hover {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line-strong));
+  transform: translateY(-1px);
+}
+
+.pill-btn[aria-pressed="true"] {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface-raised));
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.pill-btn-glyph {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  position: relative;
+}
+
+.pill-btn-glyph::before,
+.pill-btn-glyph::after {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pill-btn-glyph::before {
+  top: -4px;
+  left: -4px;
+}
+
+.pill-btn-glyph::after {
+  bottom: -4px;
+  right: -4px;
+}
+
+body.direct-mode .ghost-btn {
+  border-color: color-mix(in srgb, var(--tier-red) 45%, var(--line-strong));
+  color: var(--ink);
+}
+
+/* --------------------------------- notice --------------------------------- */
+
+.notice {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px clamp(16px, 2.4vw, 32px);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--warn) 12%, var(--surface-solid));
+  font-size: 12.5px;
+  color: var(--ink);
+}
+
+.notice[hidden] {
+  display: none;
+}
+
+.notice-dismiss {
+  margin-left: auto;
+  border: 0;
+  background: none;
+  font-size: 17px;
+  line-height: 1;
+  color: var(--ink-soft);
+  padding: 2px 6px;
+}
+
+/* --------------------------------- stage ---------------------------------- */
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  perspective: 1800px;
+}
+
+.stage-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.42s var(--ease);
+}
+
+.stage-scrim.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ------------------------------ graph overlay ----------------------------- */
+
+.graph-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+}
+
+.graph-layer.is-visible {
+  opacity: 1;
+}
+
+.stage.is-inspecting .graph-layer {
+  opacity: 0;
+}
+
+.graph-edge {
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px var(--glow));
+}
+
+.graph-edge-lineage {
+  stroke: var(--ink-dim);
+  stroke-width: 1;
+  stroke-dasharray: 3 6;
+  filter: none;
+  opacity: 0.75;
+}
+
+.graph-edge-derived {
+  stroke: #a78bfa;
+  stroke-dasharray: 7 4;
+}
+
+.graph-edge-broken {
+  stroke: var(--tier-red);
+  stroke-width: 1.6;
+  stroke-dasharray: 4 5;
+  filter: none;
+  opacity: 0.85;
+}
+
+.graph-edge-broken-mark {
+  fill: var(--tier-red);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.graph-edge-label {
+  fill: var(--ink-soft);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+/* ------------------------------- status bar ------------------------------- */
+
+.statusbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px clamp(16px, 2.4vw, 32px);
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--ink-dim);
+  letter-spacing: 0.02em;
+  transition: var(--theme-transition);
+}
+
+.statusbar-sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.statusbar-spacer {
+  margin-left: auto;
+}
+
+.statusbar-hint {
+  opacity: 0.72;
+}
+
+/* --------------------------------- tooltip -------------------------------- */
+
+.tooltip {
+  position: fixed;
+  z-index: 200;
+  max-width: 320px;
+  padding: 10px 13px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: color-mix(in srgb, var(--surface-solid) 94%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.55);
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.45;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.18s var(--ease-soft), transform 0.18s var(--ease-soft);
+}
+
+.tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ------------------------------- strikethrough ---------------------------- */
+
+/* Struck text is tinted with its own trust tier, so a struck phrase says why
+   it is struck and not merely that it is. */
+.strike {
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+
+.strike-red { color: var(--tier-red); text-decoration-color: var(--tier-red); }
+.strike-grey { color: var(--tier-grey); text-decoration-color: var(--tier-grey); }
+.strike-yellow { color: var(--tier-yellow); text-decoration-color: var(--tier-yellow); }
+.strike-green { color: var(--tier-green); text-decoration-color: var(--tier-green); }
+
+/* --------------------------------- motion --------------------------------- */
+
+/* Charts also check this in JS and jump to their final state, so this rule is
+   a backstop for the CSS-driven transitions rather than the whole story. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* SVG transforms need the shape's own box as the origin, not the viewport. */
+.anim-grow {
+  transform-box: fill-box;
+}

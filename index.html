@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="doc-title">Analytics Business Review</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/base.css" />
+    <link rel="stylesheet" href="./styles/tabs.css" />
+    <link rel="stylesheet" href="./styles/portlets.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="topbar-id">
+          <span class="topbar-mark" aria-hidden="true"></span>
+          <div class="topbar-titles">
+            <p class="topbar-eyebrow" id="topbar-eyebrow">Tableau MCP · Semantic Layer</p>
+            <p class="topbar-name" id="topbar-name">Analytics Business Review</p>
+          </div>
+        </div>
+
+        <nav class="tabnav" id="tabnav" aria-label="Review sections">
+          <span class="tabnav-indicator" id="tabnav-indicator" aria-hidden="true"></span>
+        </nav>
+
+        <div class="topbar-actions">
+          <span class="trust-legend" id="trust-legend">
+            <span class="trust-legend-dot" data-tier="green" aria-hidden="true"></span>
+            <span class="trust-legend-text" id="trust-legend-text">Governed · Tableau semantic layer</span>
+          </span>
+          <button
+            id="graph-toggle"
+            class="pill-btn"
+            type="button"
+            aria-pressed="false"
+            title="Show which portlets resolve to the same certified measure (G)"
+          >
+            <span class="pill-btn-glyph" aria-hidden="true"></span>
+            Knowledge graph
+          </button>
+          <button id="layer-toggle" class="ghost-btn" type="button" aria-pressed="false">
+            See it without the Knowledge Layer
+          </button>
+        </div>
+      </header>
+
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden>
+        <span class="notice-text" id="notice-text"></span>
+        <button id="notice-dismiss" class="notice-dismiss" type="button" aria-label="Dismiss notice">×</button>
+      </div>
+
+      <main class="stage" id="stage">
+        <div class="stage-scrim" id="stage-scrim" aria-hidden="true"></div>
+        <svg class="graph-layer" id="graph-layer" aria-hidden="true"></svg>
+      </main>
+
+      <footer class="statusbar">
+        <span class="statusbar-item" id="status-period">—</span>
+        <span class="statusbar-sep" aria-hidden="true"></span>
+        <span class="statusbar-item" id="status-freshness">—</span>
+        <span class="statusbar-sep" aria-hidden="true"></span>
+        <span class="statusbar-item" id="status-scope">—</span>
+        <span class="statusbar-spacer"></span>
+            <span class="statusbar-item statusbar-hint">1–2 or ← → to switch · G knowledge graph · K knowledge layer · Esc to close</span>
+      </footer>
+    </div>
+
+    <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

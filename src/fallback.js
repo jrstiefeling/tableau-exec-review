@@ -1,0 +1,1229 @@
+/* GENERATED FILE — do not edit by hand.
+ *
+ * Byte-for-byte copy of data/board.json, embedded so the board still renders
+ * when that file cannot be fetched. Regenerate with:
+ *
+ *   node scripts/sync-fallback.mjs
+ */
+
+export const FALLBACK_BOARD = {
+  "meta": {
+    "board": "Analytics Business Review",
+    "period": "Q2 FY27",
+    "org": "Analytics Business Unit",
+    "generatedAt": "2026-09-01T09:00:00-07:00",
+    "dataMode": "mock",
+    "dataModeLabel": "Illustrative mock snapshot",
+    "freshness": "Sep 1, 2026 · 9:00 AM PT",
+    "scope": "Analytics BU · RLS-scoped to viewer hierarchy",
+    "note": "Illustrative figures. Every portlet carries an authored semantic block and a directMode block so the same content can be read as governed or as ungoverned without authoring it twice.",
+    "sdm": "Analytics Revenue SDM",
+    "certifiedBy": "Analytics RevOps"
+  },
+  "tabs": [
+    {
+      "id": "exec",
+      "label": "Q2 Exec Summary",
+      "kicker": "Quarter to date",
+      "headline": "Q2 FY27 lands short of plan on every growth measure",
+      "accent": "#38BDF8",
+      "bands": [
+        {
+          "id": "hero",
+          "layout": "hero",
+          "portlets": [
+            {
+              "id": "kpi-nnaov",
+              "kind": "gauge",
+              "label": "NNAOV",
+              "sublabel": "Net new annual order value",
+              "accent": "#FF6B5A",
+              "metrics": {
+                "value": 6,
+                "display": "$6M",
+                "unit": "$M",
+                "yoy": -75,
+                "yoyDisplay": "-75% Y/Y",
+                "plan": 15,
+                "planDisplay": "15% of plan",
+                "goodDirection": "up",
+                "planGoodDirection": "up",
+                "caption": "Weakest attainment on the board"
+              },
+              "semantic": {
+                "metricName": "Net New Annual Order Value",
+                "definition": "ACV booked on net-new-logo closed-won opportunities, excluding expansion and renewal, at fiscal-quarter grain.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "NNAOV (certified)",
+                "grain": "Fiscal quarter × Business unit",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Org62 Account",
+                  "FinPlan FY27 Target"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Exec Review",
+                "why": "Net-new is the one measure that cannot be reconstructed from opportunity records alone — it depends on a governed first-purchase test against account history."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "$6.0M",
+                  "$11.2M",
+                  "$4.4M"
+                ],
+                "missing": "A governed net-new-logo test — Org62 offers a manually-maintained Type picklist, a New_Logo__c checkbox, and a first-close-date derivation that disagree",
+                "effect": "Three defensible NNAOV values with no arbiter, so the -75% Y/Y read cannot be defended in the room",
+                "thesisTag": "T1",
+                "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
+                "risk": "Present a headline decline that is off by up to 87% and call it settled",
+                "trustCost": "A confident wrong number costs more trust than a flagged unknown",
+                "metrics": {
+                  "display": "$6.0 / $11.2 / $4.4M",
+                  "planDisplay": "plan basis undefined",
+                  "yoyDisplay": "-75% Y/Y (unverifiable)",
+                  "caption": "Three candidate definitions, no arbiter"
+                }
+              }
+            },
+            {
+              "id": "kpi-acv",
+              "kind": "gauge",
+              "label": "ACV",
+              "sublabel": "Annual contract value booked",
+              "accent": "#38BDF8",
+              "metrics": {
+                "value": 82,
+                "display": "$82M",
+                "unit": "$M",
+                "yoy": -28,
+                "yoyDisplay": "-28% Y/Y",
+                "plan": 70,
+                "planDisplay": "70% of plan",
+                "goodDirection": "up",
+                "planGoodDirection": "up",
+                "caption": "Splits $24M Embedded / $58M Agentic"
+              },
+              "semantic": {
+                "metricName": "Annual Contract Value",
+                "definition": "Annualized contract value on closed-won opportunities, normalized to a 12-month term, net of ramp and multi-year discounting.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "ACV (certified)",
+                "grain": "Fiscal quarter × Business unit × Product motion",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Product SKU Taxonomy",
+                  "FinPlan FY27 Target"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Exec Review",
+                "why": "This is the same certified ACV measure the Five Year Trend tab resolves against — which is why the two tabs reconcile rather than merely look similar."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "$82M",
+                  "$96M",
+                  "$74M"
+                ],
+                "missing": "A governed ACV formula — Amount, Tableau_Amount__c, Analytics_Amount__c, and AmountConverted__c all coexist on Opportunity with no defined winner",
+                "effect": "The $82M headline moves by $22M depending on which Amount column the query author reaches for",
+                "thesisTag": "T1",
+                "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
+                "risk": "Two teams present two different ACV numbers for the same quarter in the same week",
+                "trustCost": "Every downstream number that divides by ACV inherits the ambiguity",
+                "metrics": {
+                  "display": "$82 / $96 / $74M",
+                  "planDisplay": "plan basis undefined",
+                  "yoyDisplay": "-28% Y/Y (unverifiable)",
+                  "caption": "Four candidate Amount columns, no defined winner"
+                }
+              }
+            },
+            {
+              "id": "kpi-attrition",
+              "kind": "gauge",
+              "label": "Attrition",
+              "sublabel": "Churned annual contract value",
+              "accent": "#F0B429",
+              "metrics": {
+                "value": 75,
+                "display": "$75M",
+                "unit": "$M",
+                "yoy": -12,
+                "yoyDisplay": "-12% Y/Y",
+                "plan": 104,
+                "planDisplay": "104% of plan",
+                "goodDirection": "down",
+                "planGoodDirection": "down",
+                "caption": "Falling year over year, still over plan"
+              },
+              "semantic": {
+                "metricName": "Attrition ACV",
+                "definition": "ACV lost to non-renewal and downsell in the period, measured against the prior-period contract book. Lower is better; the certified measure carries that polarity.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "Attrition ACV (certified)",
+                "grain": "Fiscal quarter × Business unit",
+                "lineage": [
+                  "Org62 Contract",
+                  "Revenue Recognition Ledger",
+                  "FinPlan FY27 Target"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Exec Review",
+                "why": "Polarity is part of the certified definition. Because the measure declares lower-is-better, 104% of plan renders as over-plan churn automatically — nobody has to remember to color that cell differently by hand.",
+                "polarityNote": "Slide-level color coding is applied by the deck author. Here the direction of good comes from the measure itself, so -12% Y/Y reads positive and 104% of plan reads as a miss."
+              },
+              "directMode": {
+                "tier": "grey",
+                "candidates": [
+                  "requires manual reconstruction"
+                ],
+                "missing": "A point-in-time contract book — Org62 stores current contract state, not the prior-period snapshot attrition is measured against",
+                "effect": "Attrition has to be rebuilt by hand from history objects each quarter, and the polarity is whatever the deck author decides to color it",
+                "thesisTag": "T2",
+                "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
+                "risk": "Rebuild the number differently each quarter and read a trend that is really a methodology change",
+                "trustCost": "A trend line nobody can reproduce is not a trend line",
+                "metrics": {
+                  "display": "reconstruct",
+                  "planDisplay": "no prior-period baseline",
+                  "yoyDisplay": "-12% Y/Y (unreproducible)",
+                  "caption": "No point-in-time contract book to measure against"
+                }
+              }
+            },
+            {
+              "id": "kpi-pipegen",
+              "kind": "gauge",
+              "label": "Pipegen",
+              "sublabel": "Pipeline generated in period",
+              "accent": "#A78BFA",
+              "metrics": {
+                "value": 789,
+                "display": "$789M",
+                "unit": "$M",
+                "yoy": -8,
+                "yoyDisplay": "-8% Y/Y",
+                "plan": 79,
+                "planDisplay": "79% of plan",
+                "goodDirection": "up",
+                "planGoodDirection": "up",
+                "caption": "Closest to plan of the four"
+              },
+              "semantic": {
+                "metricName": "Pipeline Generation",
+                "definition": "ACV of opportunities that entered a qualified stage during the period, counted at first qualification and never recounted on later stage moves.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "Pipeline Generation (certified)",
+                "grain": "Fiscal quarter × Business unit × Source",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Org62 Opportunity History",
+                  "FinPlan FY27 Target"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Exec Review",
+                "why": "The never-recount rule is the whole measure. Without it, an opportunity that moves backward and forward through qualification inflates pipegen every time it crosses the line."
+              },
+              "directMode": {
+                "tier": "yellow",
+                "candidates": [
+                  "$789M",
+                  "$0.9B+ if stage re-entries recount"
+                ],
+                "missing": "The never-recount-on-re-entry rule — Org62 has CreatedDate and stage history, but no governed statement of which crossing counts",
+                "effect": "Workable, but the number silently inflates whenever an opportunity bounces back through qualification",
+                "thesisTag": "T3",
+                "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
+                "risk": "Report pipeline coverage that is inflated by re-entries and plan against it",
+                "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud",
+                "metrics": {
+                  "planDisplay": "79% of plan (rule undeclared)",
+                  "caption": "Stage re-entry rule left to the query author"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "mix",
+          "layout": "mix",
+          "portlets": [
+            {
+              "id": "mix-acv",
+              "kind": "mixBar",
+              "label": "ACV by product motion",
+              "sublabel": "Embedded is growing into a shrinking base",
+              "accent": "#2DD4A7",
+              "metrics": {
+                "total": 82,
+                "totalDisplay": "$82M",
+                "unit": "$M",
+                "segments": [
+                  {
+                    "id": "embedded",
+                    "label": "Embedded Analytics",
+                    "detail": "TabNext & CRMA",
+                    "value": 24,
+                    "display": "$24M",
+                    "yoy": 54,
+                    "yoyDisplay": "+54% Y/Y",
+                    "goodDirection": "up",
+                    "color": "#2DD4A7"
+                  },
+                  {
+                    "id": "agentic",
+                    "label": "Agentic Analytics",
+                    "detail": "Tab Cloud & Server",
+                    "value": 58,
+                    "display": "$58M",
+                    "yoy": -41,
+                    "yoyDisplay": "-41% Y/Y",
+                    "goodDirection": "up",
+                    "color": "#38BDF8"
+                  }
+                ],
+                "insight": "Embedded is now <strong>29% of Q2 ACV</strong>, up from 14% a year ago — but it is taking share of a base that shrank 28%. The mix is rotating faster than the total is falling.",
+                "caption": "$82M total · Embedded share 29%"
+              },
+              "semantic": {
+                "metricName": "ACV by Product Motion",
+                "definition": "Certified ACV split by the product-motion grouping that maps every SKU to exactly one of Embedded or Agentic.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "ACV (certified)",
+                "grain": "Fiscal quarter × Product motion",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Product SKU Taxonomy"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Exec Review",
+                "why": "The split adds to the same certified $82M as the ACV tile above because both resolve to one measure. The mix insight only exists because the SKU-to-motion mapping is governed rather than re-derived per deck."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "no product-motion grouping exists"
+                ],
+                "missing": "The SKU-to-motion taxonomy — Org62 stores product codes, not the Embedded / Agentic grouping the business reasons in",
+                "effect": "The split cannot be produced at all, so the mix-rotation insight disappears rather than degrades",
+                "thesisTag": "T4",
+                "thesis": "Business vocabulary is an asset that has to live somewhere shared — otherwise every analysis rebuilds the same grouping by hand, slightly differently.",
+                "risk": "Miss that Embedded nearly doubled its share while the base fell",
+                "trustCost": "The insight is not wrong, it is absent — the most expensive failure mode",
+                "metrics": {
+                  "insight": "Without a governed SKU-to-motion taxonomy there is no Embedded / Agentic split to report — only an undifferentiated $82M.",
+                  "caption": "No product-motion grouping available"
+                }
+              }
+            },
+            {
+              "id": "hc-ae",
+              "kind": "statTile",
+              "label": "Account Executive HC",
+              "sublabel": "Selling capacity",
+              "accent": "#7DD3FC",
+              "metrics": {
+                "value": 745,
+                "display": "745",
+                "unit": "#",
+                "yoy": -21,
+                "yoyDisplay": "-21% Y/Y",
+                "goodDirection": "up",
+                "caption": "Down 159 heads year over year",
+                "footnote": "AMER PACE AE count represents 69% of total Apps team, proportional to the FinPlan breakout."
+              },
+              "semantic": {
+                "metricName": "AE Capacity",
+                "definition": "Count of quota-carrying account executives active on the last day of the period, excluding open requisitions and leaves.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "AE Capacity (certified)",
+                "grain": "Fiscal period end × Business unit",
+                "lineage": [
+                  "Workday Headcount",
+                  "Org62 User"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Exec Review",
+                "why": "Capacity is a stock measured at a point in time, not a flow accumulated across one. The semantic layer carries that distinction, which is what stops it being averaged or annualized downstream."
+              },
+              "directMode": {
+                "tier": "yellow",
+                "candidates": [
+                  "745 as of today",
+                  "no as-of-quarter-end value"
+                ],
+                "missing": "Point-in-time headcount — the join between Workday and Org62 users resolves as-of-today, not as-of-period-end",
+                "effect": "Every historical quarter silently restates itself as people join and leave",
+                "thesisTag": "T2",
+                "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
+                "risk": "Compare this quarter's capacity against a prior quarter that has quietly changed since it closed",
+                "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud",
+                "metrics": {
+                  "caption": "As-of-today only — prior quarters restate"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "narrative",
+          "layout": "narrative",
+          "portlets": [
+            {
+              "id": "going-well",
+              "kind": "cardRail",
+              "label": "Going Well",
+              "sublabel": "Q2 FY27",
+              "accent": "#2DD4A7",
+              "metrics": {
+                "tone": "positive",
+                "cards": [
+                  {
+                    "n": 1,
+                    "title": "Repositioned Tableau",
+                    "body": "as an Agentic Analytics Platform at Tableau Conference, driving strong excitement across the #DataFam community and customer base (NPS up significantly).",
+                    "links": [
+                      "mix-acv"
+                    ]
+                  },
+                  {
+                    "n": 2,
+                    "title": "Launched Tableau Customer Pitch",
+                    "body": "and market message that is resonating and unlocking enterprise opportunities, as demonstrated on the EMEA roadshow in June.",
+                    "links": [
+                      "kpi-pipegen"
+                    ]
+                  },
+                  {
+                    "n": 3,
+                    "title": "Revised product strategy",
+                    "body": "in May and drove rapid innovation build cycles around Knowledge Graph, Tableau AI Studio, and Proactive Intelligence.",
+                    "links": [
+                      "mix-acv"
+                    ]
+                  },
+                  {
+                    "n": 4,
+                    "title": "Customer Zero",
+                    "body": "launched Tableau Next in Slackbot for Sales.",
+                    "links": [
+                      "mix-acv"
+                    ]
+                  },
+                  {
+                    "n": 5,
+                    "title": "Leadership Hiring",
+                    "body": "Chief Success Officer, Chief Marketing Officer, Global Solutions &amp; AI Readiness Leader, Head of Market Strategy; and alignment for CRO and GTM market for H2.",
+                    "links": [
+                      "hc-ae"
+                    ]
+                  }
+                ]
+              },
+              "semantic": {
+                "metricName": "Q2 Wins Narrative",
+                "definition": "Qualitative wins authored by the BU leadership team, each tagged to the certified measure it is claimed to move.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": null,
+                "grain": "Fiscal quarter × Business unit",
+                "lineage": [
+                  "Exec Review Narrative",
+                  "Org62 Opportunity"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics BU Chief of Staff",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Exec Review",
+                "why": "Each claim carries a link to the certified measure it is supposed to move, so a qualitative win can be checked against a governed number instead of standing on its own."
+              },
+              "directMode": {
+                "tier": "grey",
+                "candidates": [
+                  "claims with no measure attached"
+                ],
+                "missing": "The tag from each narrative claim to the certified measure it moves",
+                "effect": "Five wins that read well and cannot be checked against anything",
+                "thesisTag": "T4",
+                "thesis": "Business vocabulary is an asset that has to live somewhere shared — otherwise every analysis rebuilds the same grouping by hand, slightly differently.",
+                "risk": "Carry a win forward for three quarters after the number behind it turned",
+                "trustCost": "Narrative that outlives its evidence",
+                "metrics": {
+                  "tone": "muted"
+                }
+              }
+            },
+            {
+              "id": "h2-focus",
+              "kind": "cardRail",
+              "label": "H2 Focus",
+              "sublabel": "FY27",
+              "accent": "#38BDF8",
+              "metrics": {
+                "tone": "forward",
+                "cards": [
+                  {
+                    "n": 1,
+                    "title": "Immersive AE + SE Enablement",
+                    "body": "Deliver an elite, full-scale enablement program focusing on deep technical value, discovery, sales motions, LOB use cases, and customer success stories.",
+                    "links": [
+                      "hc-ae"
+                    ]
+                  },
+                  {
+                    "n": 2,
+                    "title": "Laulima &amp; Dreamforce Readiness",
+                    "body": "Deliver a refreshed market message, strategy, and integrated campaign including live vibe-coded app demos and sessions showcasing key customer innovations.",
+                    "links": [
+                      "kpi-pipegen"
+                    ]
+                  },
+                  {
+                    "n": 3,
+                    "title": "Scaled Proactive Customer Investment Motion",
+                    "body": "Operationalize a fully programmatic retention and value-recovery framework across FDEs, Professional Services, AWS, and Partners.",
+                    "links": [
+                      "kpi-attrition"
+                    ]
+                  },
+                  {
+                    "n": 4,
+                    "title": "Continued rapid product innovation",
+                    "body": "across Generative Data Apps, Tableau Studio, Knowledge Graph, Teams integration, Project Beacon, Command Center, and Private Connect for GCP and Azure.",
+                    "links": [
+                      "mix-acv"
+                    ]
+                  }
+                ]
+              },
+              "semantic": {
+                "metricName": "H2 Focus Commitments",
+                "definition": "Forward commitments for H2 FY27, each tagged to the certified measure it is intended to move.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": null,
+                "grain": "Fiscal half × Business unit",
+                "lineage": [
+                  "Exec Review Narrative",
+                  "FinPlan FY27 Target"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics BU Chief of Staff",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Exec Review",
+                "why": "A commitment tagged to a governed measure can be reviewed next quarter against that same measure. An untagged commitment can only be reviewed against memory."
+              },
+              "directMode": {
+                "tier": "grey",
+                "candidates": [
+                  "commitments with no measure attached"
+                ],
+                "missing": "The tag from each commitment to the certified measure that will judge it",
+                "effect": "H2 commitments become unfalsifiable — there is no agreed number to review them against in January",
+                "thesisTag": "T4",
+                "thesis": "Business vocabulary is an asset that has to live somewhere shared — otherwise every analysis rebuilds the same grouping by hand, slightly differently.",
+                "risk": "Review H2 against whichever number is most flattering at the time",
+                "trustCost": "Commitments that cannot be graded",
+                "metrics": {
+                  "tone": "muted"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trend",
+      "label": "Five Year Trend",
+      "kicker": "FY23 → FY27 H1",
+      "headline": "A five-year erosion with six named drivers",
+      "accent": "#60A5FA",
+      "periods": [
+        "FY23",
+        "FY24",
+        "FY25",
+        "FY26",
+        "FY27 H1"
+      ],
+      "partialFrom": 4,
+      "partialNote": "FY27 H1 is a half year. Full-year columns and the H1 column are not directly comparable, so H1 is plotted detached from the trajectory rather than joined to it.",
+      "bands": [
+        {
+          "id": "drivers",
+          "layout": "drivers",
+          "portlets": [
+            {
+              "id": "drivers",
+              "kind": "driverRail",
+              "label": "What is driving it",
+              "sublabel": "Hover a driver to light the metrics it explains",
+              "accent": "#60A5FA",
+              "metrics": {
+                "drivers": [
+                  {
+                    "n": 1,
+                    "title": "Product Transitions",
+                    "affects": [
+                      "trend-acv",
+                      "trend-nnaov",
+                      "trend-aov"
+                    ]
+                  },
+                  {
+                    "n": 2,
+                    "title": "Sales Capacity &amp; Model",
+                    "affects": [
+                      "trend-ae-capacity",
+                      "trend-ae-productivity"
+                    ]
+                  },
+                  {
+                    "n": 3,
+                    "title": "Customer Confusion",
+                    "affects": [
+                      "trend-nnaov",
+                      "trend-attrition"
+                    ]
+                  },
+                  {
+                    "n": 4,
+                    "title": "Rapidly Evolving Competitive Landscape",
+                    "affects": [
+                      "trend-nnaov",
+                      "trend-attrition",
+                      "trend-acv"
+                    ]
+                  },
+                  {
+                    "n": 5,
+                    "title": "Eroded Tableau motions: Partner, New Logo, Success",
+                    "affects": [
+                      "trend-nnaov",
+                      "trend-attrition"
+                    ]
+                  },
+                  {
+                    "n": 6,
+                    "title": "Accounting treatment: 5pt headwind in FY27",
+                    "affects": [
+                      "trend-revenue",
+                      "trend-acv"
+                    ]
+                  }
+                ]
+              },
+              "semantic": {
+                "metricName": "Trend Drivers",
+                "definition": "Leadership-authored causes for the five-year trajectory, each mapped to the certified measures it is claimed to explain.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": null,
+                "grain": "Fiscal year × Business unit",
+                "lineage": [
+                  "Exec Review Narrative"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics BU Chief of Staff",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Five Year Trend",
+                "why": "The driver-to-measure mapping is what turns a list of causes into something checkable. Hovering a driver lights exactly the metrics it claims, so an unsupported claim is visible as an empty highlight."
+              },
+              "directMode": {
+                "tier": "grey",
+                "candidates": [
+                  "six causes, no mapping"
+                ],
+                "missing": "The mapping from each driver to the measures it explains",
+                "effect": "Six plausible causes floating beside seven metrics, with nothing connecting them",
+                "thesisTag": "T4",
+                "thesis": "Business vocabulary is an asset that has to live somewhere shared — otherwise every analysis rebuilds the same grouping by hand, slightly differently.",
+                "risk": "Attribute the decline to the driver that is easiest to fix",
+                "trustCost": "Causes that cannot be tested against the numbers beside them"
+              }
+            }
+          ]
+        },
+        {
+          "id": "panels",
+          "layout": "panels",
+          "portlets": [
+            {
+              "id": "trend-ae-capacity",
+              "kind": "trendPanel",
+              "label": "AE Capacity",
+              "sublabel": "Quota-carrying heads",
+              "accent": "#7DD3FC",
+              "metrics": {
+                "unit": "#",
+                "periodType": "stock",
+                "series": [
+                  1101,
+                  953,
+                  920,
+                  904,
+                  745
+                ],
+                "display": [
+                  "1,101",
+                  "953",
+                  "920",
+                  "904",
+                  "745"
+                ],
+                "yoy": [
+                  "0%",
+                  "-13%",
+                  "-3%",
+                  "-2%",
+                  "-18%"
+                ],
+                "cagr": null,
+                "goodDirection": "up",
+                "headline": "745",
+                "headlineNote": "FY27 H1 — a point-in-time count",
+                "caption": "Down 356 heads since FY23",
+                "footnote": "AMER PACE AE count represents 69% of total Apps team, proportional to the FinPlan breakout."
+              },
+              "semantic": {
+                "metricName": "AE Capacity",
+                "definition": "Count of quota-carrying account executives active on the last day of the fiscal period.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "AE Capacity (certified)",
+                "grain": "Fiscal period end × Business unit",
+                "lineage": [
+                  "Workday Headcount",
+                  "Org62 User",
+                  "Fiscal Calendar"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Five Year Trend",
+                "why": "Capacity is a stock, so the semantic layer refuses to annualize it. 745 heads at H1 is 745 heads — doubling it would be meaningless, and the measure knows that."
+              },
+              "directMode": {
+                "tier": "yellow",
+                "candidates": [
+                  "745 as of today"
+                ],
+                "missing": "Point-in-time headcount per fiscal period end",
+                "effect": "Closed years restate themselves as the Workday join resolves to today",
+                "thesisTag": "T2",
+                "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
+                "risk": "Read a five-year capacity trend that changes every time it is run",
+                "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud"
+              }
+            },
+            {
+              "id": "trend-ae-productivity",
+              "kind": "trendPanel",
+              "label": "AE Productivity",
+              "sublabel": "ACV per quota-carrying AE",
+              "accent": "#A78BFA",
+              "metrics": {
+                "unit": "$K",
+                "periodType": "flow",
+                "series": [
+                  566,
+                  638,
+                  599,
+                  549,
+                  200
+                ],
+                "display": [
+                  "$566 K",
+                  "$638 K",
+                  "$599 K",
+                  "$549 K",
+                  "$200 K"
+                ],
+                "yoy": [
+                  "-3%",
+                  "13%",
+                  "-6%",
+                  "-8%",
+                  "-6%"
+                ],
+                "cagr": null,
+                "runRate": 400,
+                "runRateDisplay": "$400 K",
+                "goodDirection": "up",
+                "headline": "$549 K",
+                "headlineNote": "FY26 — last full year",
+                "caption": "H1 annualizes to $400 K, below every full year shown"
+              },
+              "semantic": {
+                "metricName": "AE Productivity",
+                "definition": "Certified ACV divided by certified AE Capacity for the same fiscal period and business unit.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "AE Productivity (derived)",
+                "derivedFrom": [
+                  "ACV (certified)",
+                  "AE Capacity (certified)"
+                ],
+                "grain": "Fiscal year × Business unit",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Workday Headcount",
+                  "Fiscal Calendar"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Five Year Trend",
+                "why": "A derived measure is only as governed as its inputs. Because both ACV and AE Capacity are certified at the same grain, this ratio reconciles with the ACV and Capacity panels rather than drifting from them."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "$200K",
+                  "$268K",
+                  "$181K"
+                ],
+                "missing": "Both inputs at a matching grain — an ambiguous ACV numerator divided by an as-of-today capacity denominator",
+                "effect": "Ambiguity compounds: two ungoverned inputs produce a ratio with a wider spread than either",
+                "thesisTag": "T1",
+                "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
+                "risk": "Set quota capacity models on a productivity figure with a 48% spread",
+                "trustCost": "Derived measures inherit and multiply every upstream ambiguity"
+              }
+            },
+            {
+              "id": "trend-acv",
+              "kind": "trendPanel",
+              "label": "ACV",
+              "sublabel": "Annual contract value booked",
+              "accent": "#38BDF8",
+              "metrics": {
+                "unit": "$M",
+                "periodType": "flow",
+                "series": [
+                  623,
+                  608,
+                  551,
+                  496,
+                  150
+                ],
+                "display": [
+                  "$623 M",
+                  "$608 M",
+                  "$551 M",
+                  "$496 M",
+                  "$150 M"
+                ],
+                "yoy": [
+                  "-3%",
+                  "-2%",
+                  "-9%",
+                  "-10%",
+                  "-23%"
+                ],
+                "cagr": [
+                  "4%",
+                  "-3%",
+                  "-6%",
+                  "-10%",
+                  "-15%"
+                ],
+                "runRate": 300,
+                "runRateDisplay": "$300 M",
+                "goodDirection": "up",
+                "headline": "$496 M",
+                "headlineNote": "FY26 — last full year",
+                "caption": "Decline steepening: -3% to -10% across four years"
+              },
+              "semantic": {
+                "metricName": "Annual Contract Value",
+                "definition": "Annualized contract value on closed-won opportunities, normalized to a 12-month term, net of ramp and multi-year discounting.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "ACV (certified)",
+                "grain": "Fiscal year × Business unit",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Product SKU Taxonomy",
+                  "Fiscal Calendar"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Five Year Trend",
+                "why": "Same certified measure as the ACV tile on the Exec Summary tab, at a different grain. That is why the two tabs reconcile — turn on the knowledge graph to see the link."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "$496M",
+                  "$580M",
+                  "$447M"
+                ],
+                "missing": "A governed ACV formula — four competing Amount columns on Opportunity with no defined winner",
+                "effect": "A five-year trajectory whose slope depends on which Amount column each year was built from",
+                "thesisTag": "T1",
+                "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
+                "risk": "Read a decline that is partly a change in query authorship",
+                "trustCost": "Every downstream number that divides by ACV inherits the ambiguity"
+              }
+            },
+            {
+              "id": "trend-attrition",
+              "kind": "trendPanel",
+              "label": "Attrition",
+              "sublabel": "Churned annual contract value",
+              "accent": "#F0B429",
+              "metrics": {
+                "unit": "$M",
+                "periodType": "flow",
+                "series": [
+                  200,
+                  262,
+                  320,
+                  331,
+                  139
+                ],
+                "display": [
+                  "$200 M",
+                  "$262 M",
+                  "$320 M",
+                  "$331 M",
+                  "$139 M"
+                ],
+                "yoy": [
+                  "4%",
+                  "31%",
+                  "22%",
+                  "3%",
+                  "-8%"
+                ],
+                "cagr": [
+                  "n/a",
+                  "17%",
+                  "27%",
+                  "12%",
+                  "-3%"
+                ],
+                "runRate": 278,
+                "runRateDisplay": "$278 M",
+                "goodDirection": "down",
+                "headline": "$331 M",
+                "headlineNote": "FY26 — last full year",
+                "caption": "First improvement in five years: -8% Y/Y at H1"
+              },
+              "semantic": {
+                "metricName": "Attrition ACV",
+                "definition": "ACV lost to non-renewal and downsell in the period, measured against the prior-period contract book. Lower is better; the certified measure carries that polarity.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "Attrition ACV (certified)",
+                "grain": "Fiscal year × Business unit",
+                "lineage": [
+                  "Org62 Contract",
+                  "Revenue Recognition Ledger",
+                  "Fiscal Calendar"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Five Year Trend",
+                "why": "Because the measure declares lower-is-better, the -8% at H1 renders as the only green reading on this panel automatically — the polarity is not a color choice made in the deck."
+              },
+              "directMode": {
+                "tier": "grey",
+                "candidates": [
+                  "requires manual reconstruction per year"
+                ],
+                "missing": "A point-in-time contract book for each of five prior periods",
+                "effect": "Five years each rebuilt by hand, so the trend partly measures how the method changed",
+                "thesisTag": "T2",
+                "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
+                "risk": "Celebrate a -8% improvement that is a methodology artifact",
+                "trustCost": "A trend line nobody can reproduce is not a trend line"
+              }
+            },
+            {
+              "id": "trend-aov",
+              "kind": "trendPanel",
+              "label": "AOV",
+              "sublabel": "Annual order value book",
+              "accent": "#2DD4A7",
+              "metrics": {
+                "unit": "$M",
+                "periodType": "stock",
+                "series": [
+                  2797,
+                  3184,
+                  3397,
+                  3544,
+                  3594
+                ],
+                "display": [
+                  "$2797 M",
+                  "$3184 M",
+                  "$3397 M",
+                  "$3544 M",
+                  "$3594 M"
+                ],
+                "yoy": [
+                  "16%",
+                  "14%",
+                  "7%",
+                  "4%",
+                  "4%"
+                ],
+                "cagr": [
+                  "20%",
+                  "15%",
+                  "10%",
+                  "5%",
+                  "4%"
+                ],
+                "goodDirection": "up",
+                "headline": "$3594 M",
+                "headlineNote": "FY27 H1 — a book balance, not a half-year flow",
+                "caption": "Still growing, but growth halved every two years"
+              },
+              "semantic": {
+                "metricName": "Annual Order Value",
+                "definition": "Total annualized value of the active order book at period end. A balance, not an accumulation.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "AOV (certified)",
+                "grain": "Fiscal period end × Business unit",
+                "lineage": [
+                  "Revenue Recognition Ledger",
+                  "Org62 Contract",
+                  "Fiscal Calendar"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Five Year Trend",
+                "why": "AOV is a stock. The measure declares that, so nothing downstream offers to annualize the H1 figure — the run-rate ghost that appears on flow panels is deliberately absent here."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "$3594M",
+                  "$7188M if H1 is doubled"
+                ],
+                "missing": "The stock-versus-flow declaration — nothing stops a half-year book balance being annualized like a flow",
+                "effect": "H1 gets doubled to $7,188M by anyone treating this row like the ACV row above it",
+                "thesisTag": "T3",
+                "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
+                "risk": "Double a balance and report a book twice its real size",
+                "trustCost": "The error looks exactly like the correct operation on the row above"
+              }
+            },
+            {
+              "id": "trend-nnaov",
+              "kind": "trendPanel",
+              "label": "NNAOV",
+              "sublabel": "Net new annual order value",
+              "accent": "#FF6B5A",
+              "metrics": {
+                "unit": "$M",
+                "periodType": "flow",
+                "series": [
+                  423,
+                  345,
+                  231,
+                  166,
+                  11
+                ],
+                "display": [
+                  "$423 M",
+                  "$345 M",
+                  "$231 M",
+                  "$166 M",
+                  "$11 M"
+                ],
+                "yoy": [
+                  "-6%",
+                  "-18%",
+                  "-33%",
+                  "-28%",
+                  "-74%"
+                ],
+                "cagr": [
+                  null,
+                  "-13%",
+                  "-26%",
+                  "-31%",
+                  "-85%"
+                ],
+                "runRate": 22,
+                "runRateDisplay": "$22 M",
+                "goodDirection": "up",
+                "headline": "$166 M",
+                "headlineNote": "FY26 — last full year",
+                "caption": "Down 97% from FY23 on an H1 run-rate basis"
+              },
+              "semantic": {
+                "metricName": "Net New Annual Order Value",
+                "definition": "Order value booked on net-new-logo accounts, excluding expansion and renewal, at fiscal-year grain.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "NNAOV (certified)",
+                "grain": "Fiscal year × Business unit",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Org62 Account",
+                  "Fiscal Calendar"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Five Year Trend",
+                "why": "Same certified measure as the NNAOV tile on the Exec Summary tab. The quarter figure and the five-year figure resolve against one definition, so the two tabs cannot disagree."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "$166M",
+                  "$310M",
+                  "$122M"
+                ],
+                "missing": "A governed net-new-logo test across five years of account history",
+                "effect": "The steepest decline on the board becomes the least defensible number on the board",
+                "thesisTag": "T1",
+                "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
+                "risk": "Build the FY28 new-logo plan on a baseline that could be off by 2.5x",
+                "trustCost": "A confident wrong number costs more trust than a flagged unknown"
+              }
+            },
+            {
+              "id": "trend-rules",
+              "kind": "rulesCard",
+              "label": "How this tab reads",
+              "sublabel": "Rules applied to every panel",
+              "accent": "#8FA3C8",
+              "metrics": {
+                "rules": [
+                  {
+                    "title": "Flow vs stock",
+                    "body": "A flow accumulates across a period, so FY27 H1 is plotted detached and offered a run-rate ghost. A stock is a balance read at a point in time, so its H1 reading joins the line and is never annualised."
+                  },
+                  {
+                    "title": "Zero baseline",
+                    "body": "Every value axis starts at zero. A padded baseline makes each decline look steeper, and at this size nobody would notice it had been truncated."
+                  },
+                  {
+                    "title": "Polarity",
+                    "body": "Direction of good comes from the measure. Attrition declares lower-is-better, so its falling H1 figure reads as the only good news on the tab without anyone recolouring a cell."
+                  },
+                  {
+                    "title": "Colour threshold",
+                    "body": "Movements inside ±10% render amber, beyond it red or green — one stated threshold rather than a per-cell judgement."
+                  }
+                ]
+              },
+              "semantic": {
+                "metricName": "Presentation Rules",
+                "definition": "The comparability, scaling, polarity and threshold rules the semantic layer applies to every measure on this tab.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": null,
+                "grain": "Applies to all measures on this tab",
+                "lineage": [
+                  "Semantic Model Definition"
+                ],
+                "rls": "Not scoped — rules apply to every viewer identically",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Five Year Trend",
+                "why": "These rules are the semantic layer doing its job. They are properties of the measures, so every chart, export and agent reading those measures inherits them — nobody has to remember to apply them, and nobody can quietly not."
+              },
+              "directMode": {
+                "tier": "grey",
+                "candidates": [
+                  "rules live in each analyst's head"
+                ],
+                "missing": "Any place for a rule to live except the head of whoever built the chart",
+                "effect": "Four rules that have to be remembered, re-explained and re-applied by every person and every agent that touches these numbers",
+                "thesisTag": "T3",
+                "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
+                "risk": "Two analysts produce two defensible versions of the same tab",
+                "trustCost": "Consistency becomes a matter of diligence rather than a property of the data"
+              }
+            },
+            {
+              "id": "trend-revenue",
+              "kind": "trendPanel",
+              "label": "Revenue",
+              "sublabel": "Recognized revenue",
+              "accent": "#60A5FA",
+              "metrics": {
+                "unit": "$M",
+                "periodType": "flow",
+                "series": [
+                  2670,
+                  3100,
+                  3421,
+                  3659,
+                  1726
+                ],
+                "display": [
+                  "$2670 M",
+                  "$3100 M",
+                  "$3421 M",
+                  "$3659 M",
+                  "$1726 M"
+                ],
+                "yoy": [
+                  null,
+                  "16%",
+                  "10%",
+                  "7%",
+                  "-5%"
+                ],
+                "cagr": null,
+                "runRate": 3452,
+                "runRateDisplay": "$3452 M",
+                "goodDirection": "up",
+                "headline": "$3659 M",
+                "headlineNote": "FY26 — last full year",
+                "caption": "First decline in five years, with a 5pt FY27 accounting headwind"
+              },
+              "semantic": {
+                "metricName": "Recognized Revenue",
+                "definition": "Revenue recognized in the fiscal period per the revenue recognition ledger, mapped to the fiscal calendar.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "Revenue (certified)",
+                "grain": "Fiscal year × Business unit",
+                "lineage": [
+                  "Revenue Recognition Ledger",
+                  "Fiscal Calendar"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Five Year Trend",
+                "why": "The FY27 accounting treatment change is carried in the measure as a documented 5pt headwind, so the -5% is read against a stated basis rather than compared naively to prior years."
+              },
+              "directMode": {
+                "tier": "yellow",
+                "candidates": [
+                  "$1726M H1",
+                  "no note of the 5pt treatment change"
+                ],
+                "missing": "The documented FY27 accounting treatment change attached to the measure",
+                "effect": "The -5% reads as pure business decline, with the 5pt treatment headwind invisible",
+                "thesisTag": "T3",
+                "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
+                "risk": "Attribute an accounting change to sales execution",
+                "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};

@@ -1,0 +1,237 @@
+{
+  "_readme": "Forward-looking runbook describing the query shapes an agent WOULD use if this board were ever pointed at live Tableau data. Nothing here has been executed. The app as shipped is mock-only: data/board.json is the single source of truth, there is no live tier in the fetch chain, and no code path in src/ reads this file. It exists so that 'switch this over to live data' is a documented procedure rather than an improvisation. Every LUID, SDM apiName, workspace id, dashboard id and metric apiName below is written as a <TBD: ...> placeholder on purpose — see guardrails.neverHardcodeIdentifiers.",
+
+  "status": {
+    "mode": "mock",
+    "liveWired": false,
+    "executed": false,
+    "note": "The semantic blocks in data/board.json (SDM name, measure, grain, lineage, RLS, certifiedBy, freshness) are authored illustrative demo content, not the results of live lookups. Do not treat them as discovered identifiers, and do not copy them into the placeholders below."
+  },
+
+  "board": {
+    "name": "Analytics Business Review",
+    "period": "Q2 FY27",
+    "org": "Analytics Business Unit",
+    "tabs": ["exec", "trend"],
+    "portletCount": 17,
+    "sdmDisplayName": "Analytics Revenue SDM",
+    "sdmApiName": "<TBD: resolve via list_semantic_models / search_assets at runtime>",
+    "workspaceId": "<TBD: resolve via list_workspaces at runtime>",
+    "dashboardIds": {
+      "exec": "<TBD: resolve via search_assets(type=dashboard) at runtime>",
+      "trend": "<TBD: resolve via search_assets(type=dashboard) at runtime>"
+    }
+  },
+
+  "connections": {
+    "tableauCloudMcp": {
+      "tool": "query-datasource",
+      "datasourceLuid": "<TBD: published-datasource LUID, resolve via list-datasources at runtime>",
+      "notes": "Published-datasource LUIDs only — never a workbook or view LUID. Do not use get-view-data. There is no 'limit' key in this schema. Every ACV, NNAOV, attrition, pipegen and revenue query must carry an explicit date filter; omitting it returns all history and silently changes the meaning of every number on the board.",
+      "filterSchemas": {
+        "set": "{ field: { fieldCaption }, filterType: 'SET', values: [...] }",
+        "dateRange": "{ field: { fieldCaption }, filterType: 'QUANTITATIVE_DATE', quantitativeFilterType: 'RANGE', minDate, maxDate }",
+        "numericRange": "{ field: { fieldCaption }, filterType: 'QUANTITATIVE_NUMERICAL', quantitativeFilterType: 'RANGE', min, max }"
+      }
+    },
+    "tableauNextMcp": {
+      "server": "Tableau Next MCP",
+      "notes": "A different server, schema and auth from Tableau Cloud MCP. Do not mix tool calls or identifiers between the two. This board's provenance model — certified measure, grain, lineage, RLS, certifiedBy, freshness — maps onto the semantic-model surface here, which is the reason the app makes the argument it does. Every identifier must come from a live discovery call in the actual runtime environment on every run.",
+      "discoveryFirstWorkflow": "Discovery is step 0, never assumed. (1) Locate the workspace and semantic model: list_workspaces, search_assets, list_semantic_models. (2) Understand what is queryable before asking anything: get_semantic_model for scope and business preferences, list_semantic_model_metrics plus get_semantic_model_metric for governed KPIs, list_semantic_model_measures / list_semantic_model_dimensions for available fields, list_semantic_model_calculated_measures for derived fields such as AE Productivity, get_semantic_model_logical_view when the join shape matters. (3) Only then retrieve numbers."
+    }
+  },
+
+  "guardrails": {
+    "neverHardcodeIdentifiers": "No SDM apiName, workspace id, dashboard id, metric apiName or datasource LUID may be hardcoded from memory or copied from a previous version of this file. Every one must come from a live list_* / search_assets / get_* call in the runtime environment, every run. Any concrete-looking identifier found in a draft of this catalog should be treated as unverified and re-discovered.",
+    "verifyGrainBeforeComparing": "Confirm the grain a measure is returned at before putting two numbers beside each other. The Q2 ACV tile and the FY23-FY27 ACV panel are only reconcilable because they resolve to one certified measure at two grains; two similar numbers at unstated grains are not evidence of agreement.",
+    "verifyPeriodType": "Every trend measure must carry a stock-or-flow determination before it is plotted. Flows may be annualised and must not be compared half-year to full-year; stocks are balances read at a point in time, are directly comparable across periods, and must never be annualised. Getting this wrong is the single most likely way to produce a confidently wrong chart from correct data.",
+    "polarityFromMeasure": "Take direction-of-good from the certified measure, not from the deck. Attrition is lower-is-better; a hand-applied colour will eventually contradict it.",
+    "rlsIsNotOptional": "Results are row-level scoped to the viewer's hierarchy. A query run under a service identity will not match what a viewer sees, and the difference will look like a data bug rather than a permissions one.",
+    "noCredentialsInThisFile": "This file holds query shapes and field captions only. It must never contain tokens, secrets or connection strings."
+  },
+
+  "portlets": {
+    "kpi-nnaov": {
+      "tab": "exec",
+      "measure": "NNAOV (certified)",
+      "metricApiName": "<TBD: resolve via list_semantic_model_metrics>",
+      "grain": "Fiscal quarter × Business unit",
+      "periodType": "flow",
+      "goodDirection": "up",
+      "needs": ["value", "yoy", "planAttainment"],
+      "queryShape": "analyze_data(utterance: 'Net new annual order value for the Analytics business unit in Q2 FY27, with prior-year same-quarter and plan attainment', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Confirm the net-new-logo test is a property of the certified measure and not a filter added by the query. The whole point of this tile is that the test cannot be reconstructed from opportunity records alone."
+    },
+    "kpi-acv": {
+      "tab": "exec",
+      "measure": "ACV (certified)",
+      "metricApiName": "<TBD: resolve via list_semantic_model_metrics>",
+      "grain": "Fiscal quarter × Business unit × Product motion",
+      "periodType": "flow",
+      "goodDirection": "up",
+      "needs": ["value", "yoy", "planAttainment"],
+      "queryShape": "analyze_data(utterance: 'Booked ACV for the Analytics business unit in Q2 FY27, with prior-year same-quarter and plan attainment', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Must resolve to the same certified measure as trend-acv. If the two are different measures the knowledge-graph link between the tabs is a claim the data does not support, and the graph overlay should not draw it."
+    },
+    "kpi-attrition": {
+      "tab": "exec",
+      "measure": "Attrition ACV (certified)",
+      "metricApiName": "<TBD: resolve via list_semantic_model_metrics>",
+      "grain": "Fiscal quarter × Business unit",
+      "periodType": "flow",
+      "goodDirection": "down",
+      "needs": ["value", "yoy", "planAttainment"],
+      "queryShape": "analyze_data(utterance: 'Attrition ACV for the Analytics business unit in Q2 FY27 against the prior-period contract book, with plan attainment', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Confirm the measure declares lower-is-better and that the prior-period contract book is a point-in-time snapshot rather than current contract state. Both are load-bearing for how this tile renders."
+    },
+    "kpi-pipegen": {
+      "tab": "exec",
+      "measure": "Pipeline Generation (certified)",
+      "metricApiName": "<TBD: resolve via list_semantic_model_metrics>",
+      "grain": "Fiscal quarter × Business unit × Source",
+      "periodType": "flow",
+      "goodDirection": "up",
+      "needs": ["value", "yoy", "planAttainment"],
+      "queryShape": "analyze_data(utterance: 'Pipeline generated by the Analytics business unit in Q2 FY27, counted at first qualification, with prior-year same-quarter and plan attainment', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Confirm the never-recount-on-stage-re-entry rule is inside the measure. If it is applied in the query instead, the number will inflate silently the moment someone rewrites the query."
+    },
+    "mix-acv": {
+      "tab": "exec",
+      "measure": "ACV (certified)",
+      "grain": "Fiscal quarter × Product motion",
+      "periodType": "flow",
+      "needs": ["segmentValues", "segmentYoy", "total", "sharePct"],
+      "queryShape": "analyze_data(utterance: 'Q2 FY27 booked ACV for the Analytics business unit split by product motion, Embedded versus Agentic, with prior-year same-quarter by segment', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "The Embedded / Agentic grouping must come from a governed SKU-to-motion dimension, not from a keyword match on product name. Confirm the segments sum to the same certified total as kpi-acv before rendering the share figure."
+    },
+    "hc-ae": {
+      "tab": "exec",
+      "measure": "AE Capacity (certified)",
+      "grain": "Fiscal period end × Business unit",
+      "periodType": "stock",
+      "goodDirection": "up",
+      "needs": ["value", "yoy"],
+      "queryShape": "analyze_data(utterance: 'Quota-carrying account executive headcount for the Analytics business unit as of the end of Q2 FY27, with the same point last year', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Must be as-of-period-end, not as-of-today. An as-of-today join will restate closed quarters and the restatement will not be visible in the result."
+    },
+    "going-well": {
+      "tab": "exec",
+      "measure": null,
+      "source": "Authored narrative. Not a query.",
+      "needs": ["cards", "links"],
+      "queryShape": "None. The cards are authored in data/board.json. The only live element would be validating that each card's `links` array points at a measure that still exists — list_semantic_model_metrics and check membership.",
+      "verify": "A card whose linked measure no longer exists should surface as a broken tag rather than silently rendering as a plain claim."
+    },
+    "h2-focus": {
+      "tab": "exec",
+      "measure": null,
+      "source": "Authored narrative. Not a query.",
+      "needs": ["cards", "links"],
+      "queryShape": "None. Same link-validation shape as going-well.",
+      "verify": "Same as going-well."
+    },
+    "drivers": {
+      "tab": "trend",
+      "measure": null,
+      "source": "Authored narrative. Not a query.",
+      "needs": ["drivers", "affects"],
+      "queryShape": "None. Each driver's `affects` array is validated against the portlet ids present on the trend tab.",
+      "verify": "A driver that affects nothing, or affects every metric, is worth flagging to the author — both are signs the mapping has stopped carrying information."
+    },
+    "trend-ae-capacity": {
+      "tab": "trend",
+      "measure": "AE Capacity (certified)",
+      "grain": "Fiscal period end × Business unit",
+      "periodType": "stock",
+      "goodDirection": "up",
+      "needs": ["series[5]", "yoy[5]"],
+      "queryShape": "analyze_data(utterance: 'Quota-carrying AE headcount for the Analytics business unit at the end of each fiscal year FY23 through FY26 and at the end of FY27 H1', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Stock. The FY27 H1 column joins the trajectory and must not be offered a run-rate. Confirm periodType from the measure before plotting."
+    },
+    "trend-ae-productivity": {
+      "tab": "trend",
+      "measure": "AE Productivity (derived)",
+      "derivedFrom": ["ACV (certified)", "AE Capacity (certified)"],
+      "grain": "Fiscal year × Business unit",
+      "periodType": "flow",
+      "goodDirection": "up",
+      "needs": ["series[5]", "yoy[5]", "runRate"],
+      "queryShape": "list_semantic_model_calculated_measures to confirm the ratio is a governed calculated measure, then analyze_data(utterance: 'ACV per quota-carrying AE for the Analytics business unit by fiscal year FY23 through FY27 H1', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "If the ratio is not a governed calculated measure, do not compute it client-side from two separately-fetched numbers — that is precisely the ungoverned path this portlet exists to warn about. Fetch it as a measure or render it as unavailable."
+    },
+    "trend-acv": {
+      "tab": "trend",
+      "measure": "ACV (certified)",
+      "grain": "Fiscal year × Business unit",
+      "periodType": "flow",
+      "goodDirection": "up",
+      "needs": ["series[5]", "yoy[5]", "cagr[5]", "runRate"],
+      "queryShape": "analyze_data(utterance: 'Booked ACV for the Analytics business unit by fiscal year FY23 through FY26 and for FY27 H1, with year-over-year change and two-year CAGR', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Flow. FY27 H1 is a half year and is plotted detached. Must resolve to the same certified measure as kpi-acv."
+    },
+    "trend-attrition": {
+      "tab": "trend",
+      "measure": "Attrition ACV (certified)",
+      "grain": "Fiscal year × Business unit",
+      "periodType": "flow",
+      "goodDirection": "down",
+      "needs": ["series[5]", "yoy[5]", "cagr[5]", "runRate"],
+      "queryShape": "analyze_data(utterance: 'Attrition ACV for the Analytics business unit by fiscal year FY23 through FY26 and for FY27 H1, with year-over-year change and two-year CAGR', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Flow, lower-is-better. Each year must be measured against that year's prior-period contract book, not against the current one."
+    },
+    "trend-aov": {
+      "tab": "trend",
+      "measure": "AOV (certified)",
+      "grain": "Fiscal period end × Business unit",
+      "periodType": "stock",
+      "goodDirection": "up",
+      "needs": ["series[5]", "yoy[5]", "cagr[5]"],
+      "queryShape": "analyze_data(utterance: 'Total active annual order value book for the Analytics business unit at the end of each fiscal year FY23 through FY26 and at the end of FY27 H1', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Stock. This is the highest-risk row on the tab: it sits directly beneath flow rows that legitimately annualise, and doubling a book balance produces a number twice its real size that looks like the correct operation. Confirm periodType from the measure and never annualise."
+    },
+    "trend-nnaov": {
+      "tab": "trend",
+      "measure": "NNAOV (certified)",
+      "grain": "Fiscal year × Business unit",
+      "periodType": "flow",
+      "goodDirection": "up",
+      "needs": ["series[5]", "yoy[5]", "cagr[5]", "runRate"],
+      "queryShape": "analyze_data(utterance: 'Net new annual order value for the Analytics business unit by fiscal year FY23 through FY26 and for FY27 H1, with year-over-year change and two-year CAGR', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Flow. Must resolve to the same certified measure as kpi-nnaov, applying one net-new-logo test consistently across five years of account history."
+    },
+    "trend-revenue": {
+      "tab": "trend",
+      "measure": "Revenue (certified)",
+      "grain": "Fiscal year × Business unit",
+      "periodType": "flow",
+      "goodDirection": "up",
+      "needs": ["series[5]", "yoy[5]", "runRate", "treatmentNote"],
+      "queryShape": "analyze_data(utterance: 'Recognized revenue for the Analytics business unit by fiscal year FY23 through FY26 and for FY27 H1, with year-over-year change', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
+      "verify": "Flow. Retrieve the documented FY27 accounting treatment change alongside the numbers — get_semantic_model_metric description or business preferences. Without it the decline reads as pure business performance."
+    },
+    "trend-rules": {
+      "tab": "trend",
+      "measure": null,
+      "source": "Properties of the semantic model, surfaced as content.",
+      "needs": ["rules"],
+      "queryShape": "get_semantic_model plus get_semantic_model_metric per measure, to read the comparability, polarity and threshold properties the model actually declares.",
+      "verify": "If the live model does not declare these properties, this portlet should say so rather than asserting rules that are only being applied by this app's rendering code."
+    }
+  },
+
+  "switchOverProcedure": [
+    "1. Run discovery. Resolve workspace, semantic model, and every metric apiName live. Fill nothing in from this file's placeholders or from data/board.json's illustrative semantic blocks.",
+    "2. For each measure, read its grain, periodType (stock or flow), polarity, and any documented treatment changes. These drive rendering decisions, not just labels.",
+    "3. Confirm the cross-tab measure identities hold: kpi-acv and trend-acv, kpi-nnaov and trend-nnaov, kpi-attrition and trend-attrition, hc-ae and trend-ae-capacity. The knowledge-graph overlay draws edges from these; if the identity does not hold live, the edge is a false claim and must not be drawn.",
+    "4. Add a live tier to the fetch chain in src/main.js ahead of data/board.json, keeping board.json and the embedded fallback beneath it. Set meta.dataMode accordingly so the UI stops labelling itself a mock snapshot.",
+    "5. Keep the directMode blocks authored. They are an argument about what the semantic layer provides, not a report on live data, and they do not become discoverable just because the numbers above them do.",
+    "6. Re-run scripts/sync-fallback.mjs so the embedded copy still matches whatever board.json holds."
+  ],
+
+  "notImplemented": [
+    "No code in src/ reads this file.",
+    "No live fetch tier exists in src/main.js — the chain is data/board.json then the embedded fallback in src/fallback.js.",
+    "No MCP tool has been called to produce any value in data/board.json.",
+    "No Demo/Real data-source toggle exists; the app has one dataset."
+  ]
+}
