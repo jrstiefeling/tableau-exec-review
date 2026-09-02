@@ -13,7 +13,7 @@
     "period": "Q2 FY27",
     "org": "Analytics Business Unit",
     "tabs": ["exec", "trend"],
-    "portletCount": 17,
+    "portletCount": 18,
     "sdmDisplayName": "Analytics Revenue SDM",
     "sdmApiName": "<TBD: resolve via list_semantic_models / search_assets at runtime>",
     "workspaceId": "<TBD: resolve via list_workspaces at runtime>",
@@ -113,6 +113,23 @@
       "needs": ["value", "yoy"],
       "queryShape": "analyze_data(utterance: 'Quota-carrying account executive headcount for the Analytics business unit as of the end of Q2 FY27, with the same point last year', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>')",
       "verify": "Must be as-of-period-end, not as-of-today. An as-of-today join will restate closed quarters and the restatement will not be visible in the result."
+    },
+    "acv-account-fan": {
+      "tab": "exec",
+      "measure": "ACV (certified)",
+      "metricApiName": "<TBD: resolve via list_semantic_model_metrics>",
+      "accountDimensionApiName": "<TBD: resolve via list_semantic_model_dimensions>",
+      "accountHierarchyFieldApiName": "<TBD: resolve via list_semantic_model_dimensions — the conformed identity, not Org62 Account.Id>",
+      "productMotionDimensionApiName": "<TBD: resolve via list_semantic_model_dimensions>",
+      "grain": "Fiscal quarter × Account",
+      "rowGrain": "One row per account per quarter. The mock population is 278 accounts; a live pull should expect the same order of magnitude for one BU and one quarter, and should fail loudly rather than truncate if it exceeds the response cap.",
+      "periodType": "flow",
+      "goodDirection": "up",
+      "needs": ["accountId", "productMotion", "segment", "region", "priorQuarterAcv", "currentQuarterAcv"],
+      "queryShape": "Two aggregated pulls at the same grain, never one pull with a client-side prior-year derivation: query-datasource(datasourceLuid: '<TBD: published-datasource LUID>', fields: [{ fieldCaption: '<TBD: conformed account field caption>' }, { fieldCaption: '<TBD: product motion field caption>' }, { fieldCaption: '<TBD: ACV measure field caption>', function: 'SUM' }], filters: [{ field: { fieldCaption: '<TBD: close date field caption>' }, filterType: 'QUANTITATIVE_DATE', quantitativeFilterType: 'RANGE', minDate: '<TBD: Q2 FY27 start>', maxDate: '<TBD: Q2 FY27 end>' }]) — then the identical request with the Q2 FY26 date range. On the Tableau Next side the equivalent is analyze_data(utterance: 'Booked ACV by account for the Analytics business unit in Q2 FY27 and in Q2 FY26, at account grain, with product motion', target_entity_type: 'semantic_model', target_entity_id: '<TBD: SDM apiName>').",
+      "verify": "Four checks, and the portlet must render as unavailable if any of them fails rather than drawing an unreconciled fan. (1) Roll-up: SUM of the per-account current column must equal the certified quarter total returned for kpi-acv, and the per-motion subtotals must equal the mix-acv segments. A per-account detail set that does not close on the certified total is a second competing number, not extra detail. (2) Conformed identity: the account key must be the governed hierarchy identity, not a raw Org62 Account id, or a subsidiary re-parented mid-year appears as one full non-renewal beside one phantom expansion. (3) Point-in-time: the prior-year pull must be an as-of-Q2-FY26 read, not current account state filtered to last year's dates. (4) One formula: both pulls must resolve the same certified ACV measure — if the prior year is sourced from a different Amount column the fan's shape changes, not just its total.",
+      "reconcile": "The mock portlet states its arithmetic in metrics.reconciliation and its population rule in metrics.generator. A live implementation should re-run those same checks against live results and surface the residual, rather than trusting that the detail agrees with the aggregates because both came from the same place.",
+      "newLogoHandling": "Accounts with no prior-year ACV cannot be given an indexed movement and must not be assigned one. Return them, sum them, confirm the sum equals the certified NNAOV figure for the quarter, and render them as an inflow stub outside the indexed axis."
     },
     "going-well": {
       "tab": "exec",
