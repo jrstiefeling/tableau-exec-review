@@ -578,50 +578,30 @@
   font-style: italic;
 }
 
-/* ---------------------------------- gauge --------------------------------- */
+/* ------------------------------- attainment ------------------------------- */
 
-.gauge {
+/* Four cards, one shared scale. The track lives in a fixed-width grid column
+   and the axis strip is a second row of that same column, so `plan` sits
+   under the tick without anything being measured, and the four tracks are
+   identical widths because the four cards are equal grid columns carrying
+   identical column templates. That is the whole basis of the shared-pixel
+   geometry the form depends on: x(100) is the same offset on every card, so
+   the four plan ticks read as one continuous vertical line down the band. */
+
+.attain {
   flex: 1;
   min-height: 0;
   display: flex;
-  align-items: center;
-  gap: clamp(8px, 1vw, 16px);
-}
-
-.gauge-ring {
-  flex: none;
-  width: clamp(68px, 6.6vw, 100px);
-}
-
-.gauge-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.gauge-centre-value {
-  font-family: var(--font-body);
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.gauge-centre-label {
-  font-family: var(--font-body);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.gauge-readout {
-  flex: 1;
-  min-width: 0;
-  display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: center;
+  gap: clamp(5px, 0.7vh, 10px);
 }
 
-.gauge-value {
+.attain-hero {
+  min-width: 0;
+}
+
+.attain-value {
   font-family: var(--font-display);
   font-size: clamp(25px, 2.7vw, 40px);
   font-weight: 600;
@@ -630,16 +610,100 @@
   font-variant-numeric: tabular-nums;
 }
 
-.gauge-value[data-contested="true"] {
+/* Direct mode scrambles between candidate figures, which are prose rather
+   than numerals and will not fit at hero size. */
+.attain-value[data-contested="true"] {
   font-size: clamp(15px, 1.5vw, 21px);
   letter-spacing: -0.01em;
+  line-height: 1.15;
 }
 
-.gauge-deltas {
-  display: flex;
+.attain-row {
+  display: grid;
+  grid-template-columns: minmax(0, clamp(120px, 15vw, 240px)) minmax(0, max-content);
+  grid-template-rows: auto auto;
   align-items: center;
-  gap: 9px;
-  flex-wrap: wrap;
+  column-gap: clamp(6px, 0.7vw, 11px);
+}
+
+.attain-svg {
+  grid-column: 1;
+  grid-row: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.attain-pct {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-size: clamp(12px, 1.05vw, 15px);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--attain-tint, var(--ink));
+  font-variant-numeric: tabular-nums;
+  transition: color 0.5s var(--ease);
+}
+
+/* "no basis" is words where the others are a numeral, so it takes the
+   register of an absence rather than of a reading. */
+.attain-pct[data-void="true"] {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.attain-axis {
+  grid-column: 1;
+  grid-row: 2;
+  position: relative;
+  height: 11px;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.attain-axis-zero,
+.attain-axis-plan {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.attain-axis-zero { left: var(--zero-x, 4%); }
+.attain-axis-plan { left: var(--plan-x, 88%); }
+
+/* The plan label is the one label that can collide with the card edge, so
+   past the tick it anchors to its right edge instead of its centre. */
+.attain-axis-plan {
+  transform: translateX(-50%);
+}
+
+.attain-yoy {
+  display: grid;
+  grid-template-columns: minmax(0, clamp(64px, 7.4vw, 104px)) minmax(0, max-content);
+  align-items: center;
+  column-gap: clamp(5px, 0.6vw, 9px);
+}
+
+.attain-yoy-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.attain-yoy-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--delta-tint, var(--ink-soft));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: color 0.5s var(--ease);
 }
 
 .delta {
@@ -648,23 +712,6 @@
   color: var(--delta-tint, var(--ink-soft));
   font-variant-numeric: tabular-nums;
   transition: color 0.5s var(--ease);
-}
-
-.delta-plan {
-  position: relative;
-  padding-left: 11px;
-}
-
-.delta-plan::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--ink-dim);
-  transform: translateY(-50%);
 }
 
 .delta-bar {
@@ -704,7 +751,19 @@
   width: calc(var(--delta-width, 0%) / 2);
 }
 
-.gauge-caption,
+/* The caption is the one flexible row on an attainment card, so vertical
+   pressure at 768 tall lands on the element that can lose a line without
+   losing meaning rather than on the chart. */
+.attain-caption {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.attain-caption,
 .stat-caption,
 .trend-caption {
   margin: 0;

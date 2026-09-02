@@ -89,18 +89,55 @@ export function toneOf(value, goodDirection = "up", opts = {}) {
   return Math.abs(value) < softBand ? "warn" : "risk";
 }
 
+/* The attainment thresholds, in one place. planTone() rules on them and
+ * planBands() draws them, so a chart's band geometry and its colour cannot
+ * drift apart the first time somebody tunes one of the numbers. */
+const PLAN_THRESHOLDS = { up: { risk: 85, target: 100 }, down: { target: 100, warn: 110 } };
+
+/* The domain the attainment track is drawn on. 110 rather than 120: the four
+ * authored values are 15, 70, 79 and 104, so nothing sits above 110, and the
+ * ten points of headroom a 120 domain would spend on the one band only
+ * attrition uses cost real resolution at 1024 on the 15-vs-70-vs-79 read —
+ * which is the comparison the shared scale exists to serve. The cost is that
+ * down-polarity's risk band has zero width; polarity is carried by the
+ * good-direction arrows rather than by the bands, so that is affordable. */
+const DOMAIN_MAX = 110;
+
+export const PLAN_DOMAIN = [0, DOMAIN_MAX];
+
 /* Plan attainment carries its own polarity. For attrition, where the
  * certified measure declares lower-is-better, 104% of plan is over-plan
  * churn and reads as a miss — without anyone remembering to colour that
  * cell by hand. */
 export function planTone(plan, goodDirection = "up") {
   if (plan === null || plan === undefined) return "neutral";
+  const t = PLAN_THRESHOLDS;
   if (goodDirection === "down") {
-    if (plan <= 100) return "positive";
-    return plan <= 110 ? "warn" : "risk";
+    if (plan <= t.down.target) return "positive";
+    return plan <= t.down.warn ? "warn" : "risk";
   }
-  if (plan >= 100) return "positive";
-  return plan >= 85 ? "warn" : "risk";
+  if (plan >= t.up.target) return "positive";
+  return plan >= t.up.risk ? "warn" : "risk";
+}
+
+/* The three qualitative regions, mirrored by polarity. Same constants
+ * planTone() rules on. Zero-width regions are returned rather than dropped,
+ * so a caller can see that a band exists in the rule and has no room on this
+ * domain — every caller skips them when drawing. */
+export function planBands(goodDirection = "up") {
+  const t = PLAN_THRESHOLDS;
+  if (goodDirection === "down") {
+    return [
+      { from: 0, to: t.down.target, tone: "positive" },
+      { from: t.down.target, to: Math.min(t.down.warn, DOMAIN_MAX), tone: "warn" },
+      { from: Math.min(t.down.warn, DOMAIN_MAX), to: DOMAIN_MAX, tone: "risk" }
+    ];
+  }
+  return [
+    { from: 0, to: t.up.risk, tone: "risk" },
+    { from: t.up.risk, to: t.up.target, tone: "warn" },
+    { from: t.up.target, to: DOMAIN_MAX, tone: "positive" }
+  ];
 }
 
 export function toneColor(tone) {
