@@ -1,6 +1,6 @@
 # Analytics Business Review
 
-A two-tab executive dashboard that argues for the Tableau semantic layer by showing you what the same board looks like without one.
+A five-tab executive dashboard that argues for the Tableau semantic layer by showing you what the same board looks like without one.
 
 Every number on it is illustrative mock data. Nothing here queries Tableau, Org62, or any MCP endpoint.
 
@@ -35,11 +35,17 @@ gh api -X POST repos/OWNER/REPO/pages -f "source[branch]=main" -f "source[path]=
 
 ## What it is
 
-Two tabs, composed to fit one viewport each with nothing to scroll:
+Five tabs, composed to fit one viewport each with nothing to scroll:
 
-**Q2 Exec Summary** — four plan-attainment KPI gauges, the Embedded-vs-Agentic ACV mix against a common total, AE capacity, and the Going Well / H2 Focus narrative rails.
+**Q2 Exec Summary** — four plan-attainment bullet tracks on one shared 0-110% domain, the Embedded-vs-Agentic ACV mix as a two-period alluvial, AE capacity as a unit grid, the Going Well / H2 Focus narrative rails, and the 278-account movement fan.
 
-**Five Year Trend** — seven small-multiple trajectories from FY23 to FY27 H1, the six named drivers behind them, and a card stating the rules every panel on the tab is drawn under.
+**Analytics Performance** — the product taxonomy at two levels, as a roll-up bar whose level-1 boundary sits exactly on a level-2 boundary, beside a growth spread and the rules the tab is drawn under.
+
+**Performance by Segment** — twenty-eight cells of product line against segment, each carrying a Y/Y bar on the shared growth scale, a stake dot area-scaled to the ACV behind it, and its own rate as a numeral. There is no All Segments column: that reading is the product tab in full, and the knowledge graph links them.
+
+**Q3 Outlook** — three measures against three lenses, with FinPlan attainment reusing the exec tab's bullet grammar and historical benchmarks as dumbbells, over the five largest committed deals.
+
+**Five Year Trend** — seven small-multiple trajectories from FY23 to FY27 H1, each with a Y/Y deviation strip under it, the six named drivers behind them, and a card stating the rules every panel on the tab is drawn under.
 
 Switching tabs rebuilds the board rather than revealing it. Each portlet gets its own start time and then runs its own build independently — axes sweep, lines stroke on, arcs fill, numerals roll — so the board assembles as a sequence of components arriving rather than one composition fading up. Coming back to a tab replays the whole choreography at roughly half duration, so it still reads as an entrance without making anyone sit through it twice.
 
@@ -66,7 +72,8 @@ What changes:
 - **NNAOV** stops being `$6M` and starts flickering between `$6.0M`, `$11.2M` and `$4.4M`, then settles on all three at once. Org62 offers a manually-maintained Type picklist, a `New_Logo__c` checkbox, and a first-close-date derivation, and they disagree. There is no arbiter.
 - **ACV** does the same across four competing Amount columns — a $22M spread on the headline.
 - **Attrition** collapses to `reconstruct`. Org62 holds current contract state, not the prior-period snapshot attrition is measured against.
-- **The mix bar** stops being a split at all. Without a governed SKU-to-motion taxonomy there is no Embedded / Agentic grouping — only an undifferentiated $82M. The insight is not wrong, it is absent.
+- **The mix alluvial** stops being a split at all. Without a governed SKU-to-motion taxonomy there is no Embedded / Agentic grouping — only two undifferentiated columns of different widths. The insight is not wrong, it is absent.
+- **Three of the four hero tracks lose their target.** A bullet graph without a denominator is not a shorter bar, it is no bar: the track goes dashed and empty and takes a ✕. PipeGen keeps its bar, because yellow means workable but ungoverned and flattening that into *gone* would erase the distinction. The good-direction arrows vanish from every card at once, which is the degradation stated in one stroke.
 - **Narrative tags sever.** Every Going Well and H2 Focus card loses the link to the measure that could check it.
 - **Colour drains** everywhere. Sentiment was a property of the certified measures; without them it has nowhere to come from.
 
@@ -78,7 +85,7 @@ Each portlet carries its own trust tier: **green** governed, **yellow** availabl
 
 A per-tile provenance panel can tell you that a number is governed. It cannot tell you that *this number and that other number are the same number*. That claim is what a semantic layer uniquely makes.
 
-With the graph on, portlets resolving to the same certified measure are linked. Where the counterpart lives on the other tab, the link becomes a jump badge — because the most persuasive edge on the board is Q2 ACV and the FY23–FY27 ACV row resolving to one definition, and that edge spans the two tabs. Portlets with no shared measure dim out.
+With the graph on, portlets resolving to the same certified measure are linked. Where the counterpart lives on another tab, the link becomes a jump badge. ACV now appears on four of the five tabs at four different grains — quarter, quarter x product, quarter x product x segment, and quarter x account — so the badges are the argument: the same certified measure, cut four ways, and the four cuts cannot disagree. Portlets with no shared measure dim out.
 
 Turn the Knowledge Layer off with the graph still on and it fragments. The measure edges are exactly what disappears; what survives is the plumbing, portlets that happen to read the same upstream table. The broken measure links render as stubs reaching toward each other and stopping, with a ✕ in the gap.
 
@@ -103,19 +110,21 @@ Roughly five minutes.
 1. **Open on the Exec Summary.** Let it build. "Every tile here is a certified measure, and every one of them knows what it means."
 2. **Point at Attrition.** 104% of plan renders as a miss and −12% Y/Y renders as good news. "Nobody coloured that cell. The measure declares lower-is-better and everything downstream inherits it."
 3. **Click the trust dot on NNAOV.** Walk the flip: definition, grain, lineage, row-level scope. "This is the back of the tile, not a governance page somebody has to go find."
-4. **Press <kbd>2</kbd> for the Five Year Trend.** Let the seven panels build. Hover a driver — the metrics it claims light up. "Six causes, and each one knows which measures it explains."
-5. **Compare ACV and AOV at FY27 H1.** The stock-versus-flow tell above. This is the moment worth slowing down for.
-6. **Press <kbd>G</kbd>, then <kbd>1</kbd>.** The jump badges appear. "Q2 ACV and the five-year ACV row are the same certified measure. That's why these two tabs cannot disagree."
-7. **Press <kbd>K</kbd>.** Let the board rebuild in the drained palette. Sit in it. "Nothing broke. It still renders. It just stopped telling you anything you could defend in this room."
-8. **Press <kbd>G</kbd> again while degraded.** The graph fragments. "And these two tiles no longer have any reason to agree."
-9. **Press <kbd>K</kbd> to come back.**
+4. **Press <kbd>3</kbd> for Performance by Segment.** Twenty-eight cells, one growth scale. "Tableau Next is up 1060% in PubSec and down at the bottom of the tab in dollars. Both facts are in one cell, because length is the rate and area is the stake."
+5. **Press <kbd>5</kbd> for the Five Year Trend.** Let the seven panels build. Hover a driver — the metrics it claims light up. "Six causes, and each one knows which measures it explains."
+6. **Compare ACV and AOV at FY27 H1.** The stock-versus-flow tell above. This is the moment worth slowing down for.
+7. **Press <kbd>G</kbd>, then <kbd>1</kbd>.** The jump badges appear. "The same certified ACV is on four of these five tabs at four grains. That's why they cannot disagree."
+8. **Press <kbd>K</kbd>.** Let the board rebuild in the drained palette. Sit in it. "Nothing broke. It still renders. It just stopped telling you anything you could defend in this room."
+9. **Press <kbd>G</kbd> again while degraded.** The graph fragments. "And these two tiles no longer have any reason to agree."
+10. **Press <kbd>K</kbd> to come back.**
 
 ## Keyboard
 
 | Key | Action |
 | --- | --- |
-| <kbd>1</kbd> <kbd>2</kbd> | Jump to a tab |
+| <kbd>1</kbd> … <kbd>5</kbd> | Jump to a tab |
 | <kbd>←</kbd> <kbd>→</kbd> | Previous / next tab |
+| <kbd>Home</kbd> <kbd>End</kbd> | First / last tab, from inside the tablist |
 | <kbd>G</kbd> | Knowledge graph overlay |
 | <kbd>K</kbd> | Knowledge Layer on / off |
 | <kbd>Enter</kbd> | Expand the focused portlet |
@@ -132,7 +141,7 @@ Each portlet authors its governed content once, plus a `directMode` block descri
 ```jsonc
 {
   "id": "kpi-acv",
-  "kind": "gauge",                 // selects the renderer from src/charts/
+  "kind": "attainment",            // selects the renderer from src/charts/
   "metrics": { "display": "$82M", "yoy": -28, "plan": 70,
                "goodDirection": "up" },
   "semantic": { "measure": "ACV (certified)", "grain": "...",
@@ -169,12 +178,14 @@ src/
   semantic.js      direct-mode merge, trust tiers, measure graph model
   inspector.js     expand-and-flip, with a ghost holding the grid place
   graph.js         knowledge-graph overlay
-  anim.js          strokeDraw, countUp, scramble, growFrom, sweepArc
-  palette.js       mode-aware colours, sentiment and polarity rules
+  anim.js          strokeDraw, dashDraw, countUp, scramble, growFrom, veil
+  palette.js       mode-aware colours, sentiment, polarity, plan bands
   svg.js           SVG construction, scales, path builders
   tooltip.js       one shared tooltip
-  charts/          gauge, mixBar, statTile, cardRail, trendPanel,
-                   driverRail, rulesCard
+  charts/          attainment, mixBar, statTile, cardRail, trendPanel,
+                   driverRail, rulesCard, movementFan, growthMatrix,
+                   growthSpread, metricMatrix, dealRail
+                   growth.js — the shared symlog scale, not a renderer
   fallback.js      GENERATED — do not edit
 styles/
   base.css         tokens, both theme states, page chrome
@@ -184,7 +195,7 @@ scripts/
   sync-fallback.mjs
 ```
 
-Every chart takes the same shape — `mount(host, ctx)` returning `{ build(signal) }` — which is what lets the choreographer drive seventeen different charts without knowing anything about any of them, and lets a tab switch cancel a build mid-animation without writing into detached DOM.
+Every chart takes the same shape — `mount(host, ctx)` returning `{ build(signal), prime, settle }` — which is what lets the choreographer drive twenty-nine portlets across twelve chart forms without knowing anything about any of them, and lets a tab switch cancel a build mid-animation without writing into detached DOM. `prime` and `settle` are the veil contract: a chart hides everything it will reveal before stage one, and `settle` restores any mark whose beat never ran, so a conditional mark cannot be left invisible and an unveiled one cannot flash.
 
 ## Not in scope
 

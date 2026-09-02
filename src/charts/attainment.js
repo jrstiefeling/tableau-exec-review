@@ -36,7 +36,10 @@ const CY = 19;
 const BAR_H = 12;
 const CAP_H = 24;
 const BAND_H = 16;
-const RULE_STEP = 7;
+/* The risk region spans 0-85% of plan, which is 77% of the track, so the
+ * hatching has to be open enough not to read as a solid fill at 1024 while
+ * still being unmistakably a texture rather than a tint. */
+const RULE_STEP = 9;
 
 const YW = 96;
 const YH = 24;
@@ -48,7 +51,15 @@ const DOMAIN_MAX = PLAN_DOMAIN[1];
 /* A rail with an arrowhead, pointing whichever way the measure says is good.
  * One primitive, used at both reference marks on the card, so the grammar is
  * "every reference mark declares its good direction" — a rule the reader can
- * learn once from one card. */
+ * learn once from one card.
+ *
+ * `len` is the same on both polarities on purpose, and it has to be short
+ * enough to fit the up-polarity side. On a 0-110 domain the plan tick sits at
+ * 88% of the track, so there are about 25 units of room to its right and 176
+ * to its left; an arrow sized for the left would run outside the viewBox on
+ * three of the four cards and simply not draw. Equal length also keeps the
+ * mark categorical — the reader compares two directions, and unequal lengths
+ * would invite a magnitude reading that means nothing. */
 export function goodArrow(originX, y, dir, len, head, halfH, stroke) {
   const g = group({ class: "attain-arrow", "data-dir": dir > 0 ? "up" : "down" });
   const tipX = originX + dir * len;
@@ -392,16 +403,19 @@ export function mount(host, ctx) {
 
   // Guarded to a minimum length: strokeDraw calls getTotalLength() and falls
   // through on 0, which for a butt-capped line renders nothing at all.
+  /* Not created rather than created transparent: settle() writes
+   * style.opacity = "1" on every node it restores, which would override an
+   * opacity attribute and put a bar back on a card that has no denominator
+   * for one. A mark that must never appear must never exist. */
   const barEnd = Math.max(TRACK.x + 1.5, x(Math.min(planPct, 100)));
-  const bar = svgEl("path", {
+  const bar = barIsVoid ? null : svgEl("path", {
     d: `M ${TRACK.x} ${CY} H ${barEnd}`,
     stroke: planTint,
     "stroke-width": BAR_H,
     "stroke-linecap": "butt",
-    class: "attain-bar",
-    opacity: barIsVoid ? 0 : 1
+    class: "attain-bar"
   });
-  marks.appendChild(bar);
+  if (bar) marks.appendChild(bar);
 
   let gapTrace = null;
   let overrun = null;
@@ -469,7 +483,10 @@ export function mount(host, ctx) {
    * meant to be noticed. */
   let planArrow = null;
   if (!isDirect) {
-    planArrow = goodArrow(x(100), 39, dir, 30, 6, 3, p.ink);
+    // 18 units: the tick is at 184.4 of a 210 viewBox, so this is the longest
+    // arrow that fits on the up side without being clipped, and the down side
+    // takes the same length.
+    planArrow = goodArrow(x(100), 39, dir, 18, 5.5, 3, p.ink);
     marks.appendChild(planArrow);
   }
 
@@ -494,9 +511,11 @@ export function mount(host, ctx) {
   // readable column down the hero band and reinforce the shared alignment.
   const pctEl = document.createElement("span");
   pctEl.className = "attain-pct";
-  pctEl.textContent = barIsVoid
-    ? (metrics.planDisplay || "no basis")
-    : `${Math.round(planPct)}%`;
+  // Short, and in the register of an absence. Whatever the direct-mode block
+  // authored for `planDisplay` — "plan basis undefined", "no point-in-time
+  // contract book" — is a sentence, and the face has room for two words; the
+  // sentence itself is the Plan basis row of the expand table.
+  pctEl.textContent = barIsVoid ? "no basis" : `${Math.round(planPct)}%`;
   if (barIsVoid) pctEl.dataset.void = "true";
   row.appendChild(pctEl);
 
@@ -612,6 +631,9 @@ export function mount(host, ctx) {
 
     add(metrics.unit || "value", metrics.display || "—");
     add("Attainment", barIsVoid ? "no plan basis" : `${planPct.toFixed(1)}% of plan`);
+    // The caption is the card's flexible row and is dropped below 860px tall,
+    // so the table is where it has to remain reachable.
+    if (metrics.caption) add("Reading", metrics.caption);
     add("Plan basis", metrics.planDisplay || "—");
     add("Y/Y", metrics.yoyDisplay || "—");
     add(
@@ -678,7 +700,7 @@ export function mount(host, ctx) {
     fadeIn(axisPlanEl, { delay: 60, duration: 300, y: 0, signal });
 
     await wait(90, signal);
-    if (!barIsVoid) strokeDraw(bar, { duration: 720, signal });
+    if (bar) strokeDraw(bar, { duration: 720, signal });
 
     // The bar is arriving at the tick as its reach-to-plan mark fires. On
     // attrition it visibly crosses and steps up; that is the moment worth

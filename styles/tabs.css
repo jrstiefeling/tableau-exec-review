@@ -157,9 +157,14 @@
    nothing. The band collapsed to 0px, the portlet inside it kept its own
    content height, and the difference overflowed the panel. Every band on
    every tab now names its row. */
+/* The weights are the four bands' content heights, not four equal shares. The
+   hero band has to fit a numeral, a track, an axis strip and a Y/Y stub; the
+   mix band has to fit an alluvial, a legend and a paragraph, and is the row
+   that runs out of room first. The two lower bands are a list and a shape,
+   and both survive being shorter. */
 .panel[data-tab="exec"] .panel-bands {
   grid-template-rows:
-    minmax(0, 0.82fr) minmax(0, 0.82fr) minmax(0, 1.08fr) minmax(0, 0.94fr);
+    minmax(0, 0.94fr) minmax(0, 1.2fr) minmax(0, 0.95fr) minmax(0, 0.92fr);
 }
 
 .band[data-layout="hero"] {
@@ -215,7 +220,7 @@
 /* -------------------------- outlook tab grid (4) -------------------------- */
 
 .panel[data-tab="q3-outlook"] .panel-bands {
-  grid-template-rows: minmax(0, 0.62fr) minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 0.86fr) minmax(0, 1.34fr) minmax(0, 0.96fr);
 }
 
 .band[data-layout="outlook-head"] {
@@ -368,17 +373,26 @@
      paragraph survives being clipped. */
   .panel[data-tab="exec"] .panel-bands {
     grid-template-rows:
-      minmax(0, 0.72fr) minmax(0, 0.94fr) minmax(0, 1.12fr) minmax(0, 0.84fr);
+      minmax(0, 0.92fr) minmax(0, 1.26fr) minmax(0, 0.9fr) minmax(0, 0.88fr);
   }
 
   .mix {
     gap: 4px;
   }
 
-  /* The outlook head is three stat tiles carrying one figure each, so it is
-     the cheapest row on that tab to compress. */
+  /* The caption's own short-viewport rule lives in portlets.css beside the
+     rule it overrides — portlets.css loads after this file, so a `display`
+     declaration here would lose the cascade at equal specificity. */
+  .attain {
+    gap: clamp(4px, 0.6vh, 8px);
+  }
+
+  .attain-value {
+    font-size: clamp(23px, 2.4vw, 34px);
+  }
+
   .panel[data-tab="q3-outlook"] .panel-bands {
-    grid-template-rows: minmax(0, 0.5fr) minmax(0, 1.55fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 0.82fr) minmax(0, 1.38fr) minmax(0, 0.96fr);
   }
 }
 

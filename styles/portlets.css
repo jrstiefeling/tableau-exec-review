@@ -588,58 +588,93 @@
    geometry the form depends on: x(100) is the same offset on every card, so
    the four plan ticks read as one continuous vertical line down the band. */
 
+/* Two columns rather than a stack. These cards are wide and short — about
+   420x122 at 1920 — so four stacked rows do not fit and the numeral ends up
+   competing with the chart for the same vertical inch. The reading is
+   left-to-right instead: the figure and its year-on-year movement, then the
+   attainment track that says whether the figure is a problem.
+
+   The track column is a clamp and the numeral column is the `1fr`, never the
+   other way round. If the numeral sized the grid, $6M and $789M would produce
+   two different track widths and the four plan ticks would stop lining up —
+   which is the one property the whole form rests on. */
+/* Both columns are proportional, and that is what preserves the alignment.
+   The four cards are equal grid columns of the hero band, so `1fr` and
+   `1.35fr` resolve to the same two widths on all four — the track lands at
+   the same offset and the four plan ticks read as one continuous vertical
+   line. A fixed track column would have done the same, but only until the
+   numeral column got too narrow for $789M; proportional columns keep both
+   properties at every breakpoint instead of trading one for the other. */
 .attain {
   flex: 1;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(5px, 0.7vh, 10px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  grid-template-rows: auto auto minmax(0, auto);
+  align-content: center;
+  column-gap: clamp(7px, 0.9vw, 16px);
+  row-gap: clamp(3px, 0.5vh, 7px);
 }
 
 .attain-hero {
+  grid-area: 1 / 1;
   min-width: 0;
+  align-self: end;
 }
 
+/* 1.14 rather than 1: at these sizes the font's own content box is taller
+   than one em, so `line-height: 1` reports a box the glyphs do not fit in and
+   every ancestor inherits the discrepancy as overflow. */
 .attain-value {
   font-family: var(--font-display);
-  font-size: clamp(25px, 2.7vw, 40px);
+  font-size: clamp(24px, 2.5vw, 37px);
   font-weight: 600;
   letter-spacing: -0.025em;
-  line-height: 1;
+  line-height: 1.14;
   font-variant-numeric: tabular-nums;
 }
 
-/* Direct mode scrambles between candidate figures, which are prose rather
-   than numerals and will not fit at hero size. */
+/* Direct mode has no single figure to show, so the hero becomes a list of
+   candidates — "$6.0 / $11.2 / $4.4M". That is three numerals where there was
+   one and it needs two lines rather than one, so it drops to a size where two
+   lines cost about what the governed numeral's one line did, and is clamped so
+   a fourth candidate could never push the caption off the card. */
 .attain-value[data-contested="true"] {
-  font-size: clamp(15px, 1.5vw, 21px);
-  letter-spacing: -0.01em;
-  line-height: 1.15;
+  font-size: clamp(13px, 1.35vw, 19px);
+  letter-spacing: -0.005em;
+  line-height: 1.22;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
+/* The percentage sits above the track rather than in a gutter beside it. A
+   gutter would have to be a fixed width — "15%", "104%" and "no basis" are
+   three different lengths and a `max-content` column would move the track —
+   and a fixed gutter takes a third of the track's width at 1024, which is
+   exactly where the track can least afford it. */
 .attain-row {
+  grid-area: 1 / 2 / span 2 / span 1;
+  align-self: center;
   display: grid;
-  grid-template-columns: minmax(0, clamp(120px, 15vw, 240px)) minmax(0, max-content);
-  grid-template-rows: auto auto;
-  align-items: center;
-  column-gap: clamp(6px, 0.7vw, 11px);
+  grid-template-rows: auto auto auto;
+  row-gap: 1px;
 }
 
 .attain-svg {
-  grid-column: 1;
-  grid-row: 1;
+  grid-row: 2;
   display: block;
   width: 100%;
   height: auto;
 }
 
 .attain-pct {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  font-size: clamp(12px, 1.05vw, 15px);
+  grid-row: 1;
+  justify-self: end;
+  font-size: clamp(11.5px, 1vw, 14px);
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.25;
   color: var(--attain-tint, var(--ink));
   font-variant-numeric: tabular-nums;
   transition: color 0.5s var(--ease);
@@ -651,13 +686,13 @@
   font-size: 9.5px;
   font-weight: 600;
   letter-spacing: 0.02em;
+  line-height: 1.2;
   text-transform: uppercase;
   color: var(--ink-dim);
 }
 
 .attain-axis {
-  grid-column: 1;
-  grid-row: 2;
+  grid-row: 3;
   position: relative;
   height: 11px;
   font-size: 8.5px;
@@ -678,15 +713,22 @@
 .attain-axis-zero { left: var(--zero-x, 4%); }
 .attain-axis-plan { left: var(--plan-x, 88%); }
 
-/* The plan label is the one label that can collide with the card edge, so
-   past the tick it anchors to its right edge instead of its centre. */
-.attain-axis-plan {
-  transform: translateX(-50%);
+/* Geometry survives a tight breakpoint; labels do not. The zero label is the
+   first to go, because the left end of a bullet track is zero by convention
+   and because at this width it lands a few pixels from the Y/Y readout in the
+   next column and the two read as one string. `plan` is the label that is
+   actually carrying a reference and it stays. */
+@media (max-width: 1200px) {
+  .attain-axis-zero {
+    display: none;
+  }
 }
 
 .attain-yoy {
+  grid-area: 2 / 1;
+  align-self: start;
   display: grid;
-  grid-template-columns: minmax(0, clamp(64px, 7.4vw, 104px)) minmax(0, max-content);
+  grid-template-columns: minmax(0, clamp(58px, 6.2vw, 96px)) minmax(0, max-content);
   align-items: center;
   column-gap: clamp(5px, 0.6vw, 9px);
 }
@@ -755,7 +797,7 @@
    pressure at 768 tall lands on the element that can lose a line without
    losing meaning rather than on the chart. */
 .attain-caption {
-  flex: 0 1 auto;
+  grid-area: 3 / 1 / span 1 / span 2;
   min-height: 0;
   overflow: hidden;
   display: -webkit-box;
@@ -772,6 +814,33 @@
   color: var(--ink-dim);
 }
 
+/* Below this height the attainment caption is what gives. The numeral, the
+   track and the Y/Y stub are the card; the sentence is a gloss on them and it
+   is also a row of the expand table, so nothing becomes unreachable. Anything
+   else giving way here would mean crushing a chart. Placed after the rule it
+   overrides rather than in tabs.css, which loads first and would lose the
+   cascade at equal specificity. */
+@media (max-height: 860px) {
+  .attain-caption {
+    display: none;
+  }
+}
+
+/* A stat tile's caption is a sentence under a very large numeral, and the
+   numeral is what sizes the tile. Clamped so a two-line caption cannot become
+   three at a narrow column width and push the whole tile past its band —
+   which is what it was doing on the three outlook header tiles. */
+.stat-caption {
+  /* `none`, not a shrinkable basis: the clamp already caps it at two lines,
+     and letting flex shrink it as well means it collapses to a 1px sliver
+     instead of the tile admitting it has run out of room. */
+  flex: none;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 /* ---------------------------------- stat ---------------------------------- */
 
 .stat {
@@ -786,12 +855,15 @@
   gap: clamp(4px, 0.7vh, 7px);
 }
 
+/* 1.14, not 1 — see .attain-value. At 44px the font's content box is about
+   6px taller than one em, and a `line-height: 1` box reports that as overflow
+   all the way up to the portlet body. */
 .stat-value {
   font-family: var(--font-display);
   font-size: clamp(28px, 3vw, 44px);
   font-weight: 600;
   letter-spacing: -0.025em;
-  line-height: 1;
+  line-height: 1.14;
   font-variant-numeric: tabular-nums;
 }
 
