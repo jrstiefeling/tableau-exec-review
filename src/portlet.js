@@ -208,7 +208,6 @@ export class Portlet {
   renderProvenance(tier, isDirect) {
     const s = this.spec.semantic || {};
     const dm = this.spec.directMode;
-    const meta = tierMeta(tier);
     const back = this.back;
     back.innerHTML = "";
 
@@ -270,7 +269,7 @@ export class Portlet {
       back.appendChild(note);
     }
 
-    if (dm) back.appendChild(this.buildBreakdown(dm, meta, tier));
+    if (dm) back.appendChild(this.buildBreakdown(dm, tier));
   }
 
   /* The lineage chain: raw sources on the left, the certified measure on the
@@ -330,16 +329,25 @@ export class Portlet {
     }
   }
 
-  buildBreakdown(dm, meta, tier) {
+  /* This card is always the counterfactual, whichever mode you are reading it
+   * in — so it is tinted and badged with the tier the metric would fall to
+   * without the semantic layer, not the tier it currently enjoys. Tinting it
+   * green while it explains what breaks would have the colour arguing against
+   * the words. */
+  buildBreakdown(dm, tier) {
+    const degradedTier = dm.tier || tier;
+    const degradedMeta = tierMeta(degradedTier);
+
     const card = document.createElement("section");
     card.className = "prov-breakdown";
-    card.dataset.tier = tier;
+    card.dataset.tier = degradedTier;
+    card.style.setProperty("--tier-color", degradedMeta.color);
 
     const head = document.createElement("div");
     head.className = "pb-head";
     const badge = document.createElement("span");
     badge.className = "pb-badge";
-    badge.textContent = meta.short;
+    badge.textContent = degradedMeta.short;
     const heading = document.createElement("p");
     heading.className = "pb-heading";
     heading.textContent = "Without the Knowledge Layer";

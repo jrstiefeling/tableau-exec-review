@@ -8,36 +8,37 @@
  * drained palette arrives through the same path as the normal one. */
 
 const TRUSTED = {
-  ink: "#EEF2FB",
-  inkSoft: "#9AA6C2",
-  inkDim: "#6B7796",
-  grid: "rgba(255, 255, 255, 0.07)",
-  axis: "rgba(255, 255, 255, 0.20)",
-  track: "rgba(255, 255, 255, 0.09)",
-  ghost: "rgba(255, 255, 255, 0.26)",
-  surface: "#101527",
-  positive: "#2DD4A7",
-  warn: "#F0B429",
-  risk: "#FF6B5A",
-  neutral: "#7E8AA8"
+  ink: "#17181C",
+  inkSoft: "#565A63",
+  inkDim: "#696D78",
+  grid: "rgba(23, 24, 28, 0.07)",
+  axis: "rgba(23, 24, 28, 0.22)",
+  track: "rgba(23, 24, 28, 0.09)",
+  ghost: "rgba(23, 24, 28, 0.26)",
+  surface: "#FFFFFF",
+  positive: "#12806A",
+  warn: "#92640A",
+  risk: "#C0483C",
+  neutral: "#78808E"
 };
 
 /* Direct-only mode drains rather than inverts. Losing colour is the point:
  * a board with no semantic layer still renders, it just stops telling you
- * which way is good. */
+ * which way is good. On paper that reads as newsprint — everything still
+ * legible, nothing still meaningful. */
 const DRAINED = {
-  ink: "#C8CDD8",
-  inkSoft: "#848C9C",
-  inkDim: "#646B7A",
-  grid: "rgba(255, 255, 255, 0.05)",
-  axis: "rgba(255, 255, 255, 0.14)",
-  track: "rgba(255, 255, 255, 0.06)",
-  ghost: "rgba(255, 255, 255, 0.16)",
-  surface: "#1A1D24",
-  positive: "#8A9299",
-  warn: "#9A8F76",
-  risk: "#A8776E",
-  neutral: "#6E747E"
+  ink: "#4A4D55",
+  inkSoft: "#7B7F88",
+  inkDim: "#A0A4AC",
+  grid: "rgba(23, 24, 28, 0.05)",
+  axis: "rgba(23, 24, 28, 0.15)",
+  track: "rgba(23, 24, 28, 0.07)",
+  ghost: "rgba(23, 24, 28, 0.17)",
+  surface: "#F9F9F7",
+  positive: "#8B8F89",
+  warn: "#9A917C",
+  risk: "#A3837C",
+  neutral: "#9A9EA6"
 };
 
 /* Trust tiers, shared with the sibling app's vocabulary:
@@ -49,10 +50,10 @@ const DRAINED = {
  * just ungoverned", and marking it the same as "gone" would flatten the
  * distinction the whole tier system exists to draw. */
 export const TIERS = {
-  green: { color: "#2DD4A7", label: "Governed", short: "Governed", x: false },
-  yellow: { color: "#E5AC4D", label: "Ungoverned but available", short: "Ungoverned", x: false },
-  red: { color: "#FF7A5C", label: "Unavailable or contested", short: "Contested", x: true },
-  grey: { color: "#B7C0D1", label: "Requires manual reconstruction", short: "Reconstruct", x: true }
+  green: { color: "#12806A", label: "Governed", short: "Governed", x: false },
+  yellow: { color: "#92640A", label: "Ungoverned but available", short: "Ungoverned", x: false },
+  red: { color: "#C0483C", label: "Unavailable or contested", short: "Contested", x: true },
+  grey: { color: "#8D93A1", label: "Requires manual reconstruction", short: "Reconstruct", x: true }
 };
 
 export function isDirect() {

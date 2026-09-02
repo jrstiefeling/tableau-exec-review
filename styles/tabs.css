@@ -26,9 +26,9 @@
   width: var(--indicator-w, 0);
   transform: translateX(var(--indicator-x, 0));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 46%, transparent);
-  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 20%, transparent);
+  background: color-mix(in srgb, var(--accent) 11%, var(--surface-solid));
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  box-shadow: var(--shadow-card);
   transition: transform 0.44s var(--ease), width 0.44s var(--ease),
     background-color 0.5s var(--ease), border-color 0.5s var(--ease);
   pointer-events: none;

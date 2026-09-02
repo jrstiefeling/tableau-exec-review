@@ -26,7 +26,7 @@ export const FALLBACK_BOARD = {
       "label": "Q2 Exec Summary",
       "kicker": "Quarter to date",
       "headline": "Q2 FY27 lands short of plan on every growth measure",
-      "accent": "#38BDF8",
+      "accent": "#1C6E8C",
       "bands": [
         {
           "id": "hero",
@@ -37,7 +37,7 @@ export const FALLBACK_BOARD = {
               "kind": "gauge",
               "label": "NNAOV",
               "sublabel": "Net new annual order value",
-              "accent": "#FF6B5A",
+              "accent": "#C0483C",
               "metrics": {
                 "value": 6,
                 "display": "$6M",
@@ -93,7 +93,7 @@ export const FALLBACK_BOARD = {
               "kind": "gauge",
               "label": "ACV",
               "sublabel": "Annual contract value booked",
-              "accent": "#38BDF8",
+              "accent": "#1C6E8C",
               "metrics": {
                 "value": 82,
                 "display": "$82M",
@@ -149,7 +149,7 @@ export const FALLBACK_BOARD = {
               "kind": "gauge",
               "label": "Attrition",
               "sublabel": "Churned annual contract value",
-              "accent": "#F0B429",
+              "accent": "#92640A",
               "metrics": {
                 "value": 75,
                 "display": "$75M",
@@ -204,7 +204,7 @@ export const FALLBACK_BOARD = {
               "kind": "gauge",
               "label": "Pipegen",
               "sublabel": "Pipeline generated in period",
-              "accent": "#A78BFA",
+              "accent": "#6B4FBF",
               "metrics": {
                 "value": 789,
                 "display": "$789M",
@@ -263,7 +263,7 @@ export const FALLBACK_BOARD = {
               "kind": "mixBar",
               "label": "ACV by product motion",
               "sublabel": "Embedded is growing into a shrinking base",
-              "accent": "#2DD4A7",
+              "accent": "#12806A",
               "metrics": {
                 "total": 82,
                 "totalDisplay": "$82M",
@@ -278,7 +278,7 @@ export const FALLBACK_BOARD = {
                     "yoy": 54,
                     "yoyDisplay": "+54% Y/Y",
                     "goodDirection": "up",
-                    "color": "#2DD4A7"
+                    "color": "#12806A"
                   },
                   {
                     "id": "agentic",
@@ -289,7 +289,7 @@ export const FALLBACK_BOARD = {
                     "yoy": -41,
                     "yoyDisplay": "-41% Y/Y",
                     "goodDirection": "up",
-                    "color": "#38BDF8"
+                    "color": "#2F5FA8"
                   }
                 ],
                 "insight": "Embedded is now <strong>29% of Q2 ACV</strong>, up from 14% a year ago — but it is taking share of a base that shrank 28%. The mix is rotating faster than the total is falling.",
@@ -333,7 +333,7 @@ export const FALLBACK_BOARD = {
               "kind": "statTile",
               "label": "Account Executive HC",
               "sublabel": "Selling capacity",
-              "accent": "#7DD3FC",
+              "accent": "#4E93AE",
               "metrics": {
                 "value": 745,
                 "display": "745",
@@ -388,7 +388,7 @@ export const FALLBACK_BOARD = {
               "kind": "cardRail",
               "label": "Going Well",
               "sublabel": "Q2 FY27",
-              "accent": "#2DD4A7",
+              "accent": "#12806A",
               "metrics": {
                 "tone": "positive",
                 "cards": [
@@ -471,7 +471,7 @@ export const FALLBACK_BOARD = {
               "kind": "cardRail",
               "label": "H2 Focus",
               "sublabel": "FY27",
-              "accent": "#38BDF8",
+              "accent": "#1C6E8C",
               "metrics": {
                 "tone": "forward",
                 "cards": [
@@ -550,7 +550,7 @@ export const FALLBACK_BOARD = {
       "label": "Five Year Trend",
       "kicker": "FY23 → FY27 H1",
       "headline": "A five-year erosion with six named drivers",
-      "accent": "#60A5FA",
+      "accent": "#2F5FA8",
       "periods": [
         "FY23",
         "FY24",
@@ -570,7 +570,7 @@ export const FALLBACK_BOARD = {
               "kind": "driverRail",
               "label": "What is driving it",
               "sublabel": "Hover a driver to light the metrics it explains",
-              "accent": "#60A5FA",
+              "accent": "#2F5FA8",
               "metrics": {
                 "drivers": [
                   {
@@ -664,7 +664,7 @@ export const FALLBACK_BOARD = {
               "kind": "trendPanel",
               "label": "AE Capacity",
               "sublabel": "Quota-carrying heads",
-              "accent": "#7DD3FC",
+              "accent": "#4E93AE",
               "metrics": {
                 "unit": "#",
                 "periodType": "stock",
@@ -731,7 +731,7 @@ export const FALLBACK_BOARD = {
               "kind": "trendPanel",
               "label": "AE Productivity",
               "sublabel": "ACV per quota-carrying AE",
-              "accent": "#A78BFA",
+              "accent": "#6B4FBF",
               "metrics": {
                 "unit": "$K",
                 "periodType": "flow",
@@ -805,7 +805,7 @@ export const FALLBACK_BOARD = {
               "kind": "trendPanel",
               "label": "ACV",
               "sublabel": "Annual contract value booked",
-              "accent": "#38BDF8",
+              "accent": "#1C6E8C",
               "metrics": {
                 "unit": "$M",
                 "periodType": "flow",
@@ -881,7 +881,7 @@ export const FALLBACK_BOARD = {
               "kind": "trendPanel",
               "label": "Attrition",
               "sublabel": "Churned annual contract value",
-              "accent": "#F0B429",
+              "accent": "#92640A",
               "metrics": {
                 "unit": "$M",
                 "periodType": "flow",
@@ -955,7 +955,7 @@ export const FALLBACK_BOARD = {
               "kind": "trendPanel",
               "label": "AOV",
               "sublabel": "Annual order value book",
-              "accent": "#2DD4A7",
+              "accent": "#12806A",
               "metrics": {
                 "unit": "$M",
                 "periodType": "stock",
@@ -1028,7 +1028,7 @@ export const FALLBACK_BOARD = {
               "kind": "trendPanel",
               "label": "NNAOV",
               "sublabel": "Net new annual order value",
-              "accent": "#FF6B5A",
+              "accent": "#C0483C",
               "metrics": {
                 "unit": "$M",
                 "periodType": "flow",
@@ -1104,7 +1104,7 @@ export const FALLBACK_BOARD = {
               "kind": "rulesCard",
               "label": "How this tab reads",
               "sublabel": "Rules applied to every panel",
-              "accent": "#8FA3C8",
+              "accent": "#63708C",
               "metrics": {
                 "rules": [
                   {
@@ -1158,7 +1158,7 @@ export const FALLBACK_BOARD = {
               "kind": "trendPanel",
               "label": "Revenue",
               "sublabel": "Recognized revenue",
-              "accent": "#60A5FA",
+              "accent": "#2F5FA8",
               "metrics": {
                 "unit": "$M",
                 "periodType": "flow",

@@ -48,7 +48,7 @@
   border-radius: var(--radius);
   background: var(--surface-raised);
   backdrop-filter: blur(14px);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
   backface-visibility: hidden;
   transition: var(--theme-transition);
@@ -170,7 +170,7 @@
   height: 7px;
   border-radius: 50%;
   background: var(--tier-color, var(--tier-green));
-  box-shadow: 0 0 10px color-mix(in srgb, var(--tier-color, var(--tier-green)) 60%, transparent);
+  box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--tier-color, var(--tier-green)) 16%, transparent);
 }
 
 .portlet[data-tier="green"] { --tier-color: var(--tier-green); }
@@ -192,7 +192,7 @@
   place-items: center;
   border-radius: 50%;
   background: var(--tier-color);
-  color: #101018;
+  color: var(--on-tier);
   font-size: 7.5px;
   font-weight: 800;
   line-height: 1;
@@ -218,7 +218,7 @@
 
 .portlet.is-inspected .portlet-face {
   padding: clamp(18px, 2vw, 30px);
-  box-shadow: 0 40px 110px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-pop);
   border-color: color-mix(in srgb, var(--accent) 34%, var(--line-strong));
   overflow-y: auto;
 }
@@ -271,8 +271,7 @@
 
 .portlet.is-highlit .portlet-front {
   border-color: color-mix(in srgb, var(--accent) 70%, transparent);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32), 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent),
-    0 0 34px color-mix(in srgb, var(--accent) 24%, transparent);
+  box-shadow: var(--shadow-lift), 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
 @keyframes portletPulse {
@@ -317,7 +316,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-card);
 }
 
 .graph-jump-arrow {
@@ -518,7 +517,7 @@
   padding: 2px 8px;
   border-radius: 999px;
   background: var(--tier-color);
-  color: #0d0f16;
+  color: var(--on-tier);
   font-size: 9.5px;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -788,10 +787,9 @@
   border-radius: 5px;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--seg-color) 92%, white 8%),
+    color-mix(in srgb, var(--seg-color) 88%, white 12%),
     var(--seg-color)
   );
-  box-shadow: 0 0 18px color-mix(in srgb, var(--seg-color) 26%, transparent);
   transition: background 0.5s var(--ease);
 }
 
