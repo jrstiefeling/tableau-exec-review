@@ -1,0 +1,102 @@
+/* ===========================================================================
+   Brand typography — self-hosted Salesforce faces.
+
+   Loaded AFTER base.css so the :root block at the bottom of this file can
+   re-point --font-display / --font-body at equal specificity. base.css is not
+   touched.
+
+   Two families ship here, and only two:
+
+   - Avant Garde For Salesforce Demi — the display face. Geometric, wide, and
+     built on near-perfect circles, so it carries the headline and the big
+     numerals with real presence. Its apertures are tight and its x-height is
+     small relative to its caps (555/740 upem), which is exactly why it is
+     kept off body copy.
+   - Salesforce Sans — the text face. Humanist, open, and drawn for UI, which
+     is what this board needs at 10.5–13px for axis ticks, eyebrows, chip
+     labels and the status bar.
+
+   The ITC Avant Garde Gothic Std Demi supplied in the third archive is NOT
+   used. It arrived inside a folder named
+   "ONLY-for-Keynote-and-other-Specific-use-cases", ships desktop OTF only,
+   and its OS/2 fsType is 4 (Preview & Print) — embedding is not granted. The
+   Avant Garde For Salesforce W05 web cut used below is the product-licensed
+   equivalent and reports fsType 0 (installable/embeddable).
+
+   Both families have lining figures that are already equal-width by default
+   (every digit advances 560/1000 upem), so the tabular-nums this board
+   already asks for in portlets.css and tabs.css is honoured natively rather
+   than emulated.
+   ========================================================================= */
+
+/* ------------------------------- display --------------------------------- */
+
+/* One real weight exists (Demi, usWeightClass 600). The declared range spans
+   the whole axis so that any weight this board asks for resolves to the real
+   Demi outline instead of a browser-synthesised fake bold. */
+@font-face {
+  font-family: "Avant Garde For Salesforce";
+  src: url("../fonts/AvantGardeForSalesforceW05-Dm.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --------------------------------- text ---------------------------------- */
+
+/* Salesforce Sans has no 500 and no 800. The ranges below map every weight
+   the board asks for onto a real file: 400 -> Regular, 500 -> Semibold,
+   600 -> Semibold, 700 -> Bold, 800 -> Bold. Nothing is synthesised. */
+@font-face {
+  font-family: "Salesforce Sans";
+  src: url("../fonts/SalesforceSans-Regular.woff2") format("woff2");
+  font-weight: 100 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Salesforce Sans";
+  src: url("../fonts/SalesforceSans-Italic.woff2") format("woff2");
+  font-weight: 100 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Salesforce Sans";
+  src: url("../fonts/SalesforceSans-Semibold.woff2") format("woff2");
+  font-weight: 500 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Salesforce Sans";
+  src: url("../fonts/SalesforceSans-Bold.woff2") format("woff2");
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* -------------------------------- tokens --------------------------------- */
+
+/* Same specificity as the :root in base.css, later in the cascade, so these
+   win. The fallbacks are chosen to sit close to each face's proportions if a
+   file ever 404s: a geometric grotesque behind the display face, the platform
+   UI sans behind the text face. */
+:root {
+  --font-display: "Avant Garde For Salesforce", "Century Gothic", "Futura",
+    "Trebuchet MS", sans-serif;
+  --font-body: "Salesforce Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Helvetica Neue", sans-serif;
+}
+
+/* Digits are equal-width in both brand faces already; naming the features
+   here means the trend table and the matrices stay column-aligned even in the
+   fallback stack, where the platform face may default to proportional
+   figures. Inherits into SVG <text> for the chart axes too. */
+body {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}

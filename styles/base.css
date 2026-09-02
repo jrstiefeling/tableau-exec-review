@@ -52,8 +52,10 @@
   --shadow-lift: 0 14px 40px rgba(23, 24, 28, 0.13);
   --shadow-pop: 0 30px 84px rgba(23, 24, 28, 0.2);
 
-  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
-  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Both families are redeclared in fonts.css, which loads after this file
+     and carries the @font-face rules. These are the no-webfont fallbacks. */
+  --font-display: "Avant Garde For Salesforce", "Century Gothic", sans-serif;
+  --font-body: "Salesforce Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);

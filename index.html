@@ -4,13 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title id="doc-title">Analytics Business Review</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="./fonts/SalesforceSans-Regular.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="./fonts/AvantGardeForSalesforceW05-Dm.woff2"
+      crossorigin
     />
     <link rel="stylesheet" href="./styles/base.css" />
+    <!-- After base.css: its :root token block re-points --font-display and
+         --font-body at equal specificity, so no other stylesheet changes. -->
+    <link rel="stylesheet" href="./styles/fonts.css" />
     <link rel="stylesheet" href="./styles/tabs.css" />
     <link rel="stylesheet" href="./styles/portlets.css" />
   </head>
