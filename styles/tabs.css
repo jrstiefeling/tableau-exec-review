@@ -150,8 +150,16 @@
 
 /* ------------------------------ exec tab grid ----------------------------- */
 
+/* Four rows, all explicit. The account population arrived as a fourth band
+   and had no row of its own, so it landed in an implicit `auto` track — and
+   an auto track inside a grid whose other three rows are `fr` and whose
+   parent is a fixed-height flex item gets whatever is left, which was
+   nothing. The band collapsed to 0px, the portlet inside it kept its own
+   content height, and the difference overflowed the panel. Every band on
+   every tab now names its row. */
 .panel[data-tab="exec"] .panel-bands {
-  grid-template-rows: minmax(0, 0.9fr) minmax(0, 0.88fr) minmax(0, 1.22fr);
+  grid-template-rows:
+    minmax(0, 0.82fr) minmax(0, 0.82fr) minmax(0, 1.08fr) minmax(0, 0.94fr);
 }
 
 .band[data-layout="hero"] {
@@ -166,10 +174,69 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* One full-width portlet. Named rather than left to `grid-auto-columns` so
+   the band cannot silently gain a second column if a portlet is ever added
+   beside it. */
+.band[data-layout="distribution"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* -------------------------- product tab grid (2) -------------------------- */
+
+.panel[data-tab="analytics-performance"] .panel-bands {
+  grid-template-columns: minmax(0, 2.35fr) minmax(232px, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.band[data-layout="perf-main"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.band[data-layout="perf-side"] {
+  grid-template-rows: minmax(0, 1.05fr) minmax(0, 1fr);
+}
+
+/* -------------------------- segment tab grid (3) -------------------------- */
+
+.panel[data-tab="performance-by-segment"] .panel-bands {
+  grid-template-columns: minmax(0, 2.6fr) minmax(224px, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.band[data-layout="seg-main"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.band[data-layout="seg-side"] {
+  grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+
+/* -------------------------- outlook tab grid (4) -------------------------- */
+
+.panel[data-tab="q3-outlook"] .panel-bands {
+  grid-template-rows: minmax(0, 0.62fr) minmax(0, 1.5fr) minmax(0, 1fr);
+}
+
+.band[data-layout="outlook-head"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.band[data-layout="outlook-matrix"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.band[data-layout="outlook-deals"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
 /* ----------------------------- trend tab grid ----------------------------- */
 
 .panel[data-tab="trend"] .panel-bands {
   grid-template-columns: minmax(210px, 0.86fr) minmax(0, 3.5fr);
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .band[data-layout="drivers"] {
@@ -183,38 +250,83 @@
 
 /* ------------------------------- responsive ------------------------------- */
 
-/* The topbar runs brand, tabs, legend and two buttons on one row, which stops
-   fitting well before the layout does. The legend and the keyboard hint are
-   the two things a viewer can lose without losing anything they need, so they
-   go first and the tabs keep their full width. */
-@media (max-width: 1200px) {
-  .trust-legend,
+/* The topbar carries four things on one row — identity, navigation, the mode
+   state and the controls — and at five tabs navigation needs most of it. The
+   order things are given up in is the information architecture, so it is
+   stated in one place rather than discovered breakpoint by breakpoint:
+     1. the strapline (org and data mode — context, not content)
+     2. the keyboard hint in the status bar (the shortcuts still work)
+     3. the tab numerals (an affordance for a shortcut, not the label)
+     4. the knowledge-graph button's text (its glyph and its title remain)
+   The board's name, the five tab labels and the mode switch are never given
+   up, at any width. The name truncating reads as a bug, and the mode
+   indicator is the one piece of chrome this particular board cannot lose. */
+
+@media (max-width: 1440px) {
+  .topbar-eyebrow {
+    display: none;
+  }
+}
+
+@media (max-width: 1280px) {
   .statusbar-hint {
     display: none;
   }
 
-  /* Dropping the eyebrow and tightening the row buys back enough width for the
-     board's name to stay whole. A truncated title reads as a bug; a missing
-     strapline does not. */
-  .topbar-eyebrow {
-    display: none;
-  }
-
   .topbar {
-    gap: 14px;
+    gap: 15px;
   }
 
-  .ghost-btn,
   .pill-btn {
     padding: 8px 12px;
     font-size: 12px;
   }
 }
 
+/* The numeral is a hint that `3` switches to this tab, and the status bar
+   that says so has already gone by here. It is the cheapest 125px on the
+   row. */
 @media (max-width: 1180px) {
+  .tabnav-index {
+    display: none;
+  }
+
+  .tabnav-btn {
+    padding: 7px 13px;
+    gap: 0;
+  }
+
   .band[data-layout="panels"] {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* 1024 is the width that matters — a projector or a shared screen. The graph
+   button becomes its glyph, which it can afford to be: it is a toggle with a
+   keyboard shortcut and a title, not a label anyone reads twice. */
+@media (max-width: 1100px) {
+  .pill-btn-label {
+    display: none;
+  }
+
+  .pill-btn {
+    padding: 8px 10px;
+    gap: 0;
+  }
+
+  .tabnav-btn {
+    padding: 7px 11px;
+    font-size: 12.5px;
+  }
+
+  .mode-switch {
+    padding-left: 9px;
+    gap: 6px;
+  }
+
+  .mode-switch-btn {
+    padding: 5px 10px;
   }
 }
 
@@ -248,16 +360,25 @@
     font-size: clamp(16px, 1.7vw, 22px);
   }
 
-  /* The mix band carries a stacked bar, a legend and a paragraph of reading,
-     so it is the one that actually runs out of room first — it takes the
-     larger share, and the narrative band gives it up because its rails already
-     scroll and losing a row costs nothing. */
+  /* The mix band carries an alluvial, a legend and a paragraph of reading, so
+     it is the one that actually runs out of room first — it takes the larger
+     share. The narrative band gives it up because its rails already scroll
+     and losing a row costs nothing, and the account population gives some up
+     too: a fan is a shape, and a shape survives being shorter better than a
+     paragraph survives being clipped. */
   .panel[data-tab="exec"] .panel-bands {
-    grid-template-rows: minmax(0, 0.78fr) minmax(0, 0.98fr) minmax(0, 1.24fr);
+    grid-template-rows:
+      minmax(0, 0.72fr) minmax(0, 0.94fr) minmax(0, 1.12fr) minmax(0, 0.84fr);
   }
 
   .mix {
     gap: 4px;
+  }
+
+  /* The outlook head is three stat tiles carrying one figure each, so it is
+     the cheapest row on that tab to compress. */
+  .panel[data-tab="q3-outlook"] .panel-bands {
+    grid-template-rows: minmax(0, 0.5fr) minmax(0, 1.55fr) minmax(0, 1fr);
   }
 }
 
@@ -277,20 +398,16 @@
     justify-content: center;
   }
 
-  .trust-legend {
-    display: none;
-  }
-
   /* Two rows sized to their content, not to a share of a band that is itself
      only 200px tall — otherwise each KPI tile gets about 100px and clips. */
-  .band[data-layout="hero"] {
+  .band[data-layout="hero"],
+  .band[data-layout="outlook-head"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: none;
     grid-auto-rows: minmax(168px, auto);
   }
 
-  .panel[data-tab="exec"] .panel-bands,
-  .panel[data-tab="trend"] .panel-bands {
+  .panel .panel-bands {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
     /* Below this width nothing composes to one viewport honestly, so the
@@ -300,12 +417,20 @@
     padding-right: 4px;
   }
 
-  .band[data-layout="mix"],
-  .band[data-layout="narrative"],
-  .band[data-layout="panels"] {
+  .band {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
     grid-auto-rows: minmax(190px, auto);
+  }
+
+  /* The two matrices and the fan are wide by nature and are the portlets that
+     suffer most from a single narrow column, so they get the extra height
+     rather than the extra apology. */
+  .band[data-layout="seg-main"],
+  .band[data-layout="perf-main"],
+  .band[data-layout="outlook-matrix"],
+  .band[data-layout="distribution"] {
+    grid-auto-rows: minmax(260px, auto);
   }
 
   .statusbar-hint {

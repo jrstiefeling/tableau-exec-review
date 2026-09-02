@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title id="doc-title">Analytics Business Review</title>
+    <!-- Inline so there is no second request and no 404 in the console. Three
+         bars and a plan tick: the board's own encoding, at 16px. -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f5f4f0'/%3E%3Crect x='6' y='8' width='9' height='4' rx='1' fill='%23c0483c'/%3E%3Crect x='6' y='14' width='14' height='4' rx='1' fill='%2392640a'/%3E%3Crect x='6' y='20' width='19' height='4' rx='1' fill='%2312806a'/%3E%3Crect x='22' y='6' width='1.6' height='20' fill='%2317181c'/%3E%3C/svg%3E"
+    />
     <link
       rel="preload"
       as="font"
@@ -41,22 +47,42 @@
         </nav>
 
         <div class="topbar-actions">
-          <span class="trust-legend" id="trust-legend">
+          <!-- The state readout and the control that changes it are one
+               object. They used to be a badge reading "Governed · Tableau
+               semantic layer" beside a button reading "See it without the
+               Knowledge Layer" — 450px to carry one bit, and the badge was
+               the first thing dropped on a narrow viewport, which took the
+               mode indicator off a board whose whole subject is governance.
+               As a two-segment switch it is a quarter of the width and never
+               has to be hidden. -->
+          <span
+            class="mode-switch"
+            id="trust-legend"
+            data-mode="governed"
+            title="Governed — Tableau semantic layer"
+          >
+            <span class="mode-switch-state" id="trust-legend-text">Governed</span>
             <span class="trust-legend-dot" data-tier="green" aria-hidden="true"></span>
-            <span class="trust-legend-text" id="trust-legend-text">Governed · Tableau semantic layer</span>
+            <button
+              id="layer-toggle"
+              class="mode-switch-btn"
+              type="button"
+              aria-pressed="false"
+              title="Render the same board with no semantic layer (K)"
+            >
+              Direct
+            </button>
           </span>
           <button
             id="graph-toggle"
             class="pill-btn"
             type="button"
             aria-pressed="false"
+            aria-label="Knowledge graph"
             title="Show which portlets resolve to the same certified measure (G)"
           >
             <span class="pill-btn-glyph" aria-hidden="true"></span>
-            Knowledge graph
-          </button>
-          <button id="layer-toggle" class="ghost-btn" type="button" aria-pressed="false">
-            See it without the Knowledge Layer
+            <span class="pill-btn-label">Knowledge graph</span>
           </button>
         </div>
       </header>
@@ -78,7 +104,7 @@
         <span class="statusbar-sep" aria-hidden="true"></span>
         <span class="statusbar-item" id="status-scope">—</span>
         <span class="statusbar-spacer"></span>
-            <span class="statusbar-item statusbar-hint">1–2 or ← → to switch · G knowledge graph · K knowledge layer · Esc to close</span>
+        <span class="statusbar-item statusbar-hint">1–5 or ← → to switch · G knowledge graph · K knowledge layer · Esc to close</span>
       </footer>
     </div>
 

@@ -171,7 +171,13 @@ button {
   transition: var(--theme-transition);
 }
 
+/* Identity is the only flexible item on the row: the tab navigation and the
+   controls are both `flex: none` and both contain nowrap text, so if either
+   were allowed to shrink it would not get narrower — it would overflow and
+   paint under its neighbour. Pressure has to land on the one item that can
+   absorb it, and identity absorbs it by dropping the strapline. */
 .topbar-id {
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   gap: 11px;
@@ -229,20 +235,67 @@ body.direct-mode .topbar-mark {
   flex: none;
 }
 
-/* ------------------------------ trust legend ------------------------------ */
+/* ------------------------------- mode switch ------------------------------ */
 
-.trust-legend {
+/* One control carrying both the state and the change. The lit segment is the
+   mode the board is in, the dot is its trust tier, and the button is the
+   other mode — so what used to be a badge and a verbose button saying the
+   same thing twice is now a single object narrow enough that it never has to
+   be dropped at a tight width. On a board about governance, the mode
+   indicator is the last thing that should disappear. */
+
+.mode-switch {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border: 1px solid var(--line);
+  gap: 7px;
+  padding: 3px 4px 3px 11px;
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   background: var(--surface-raised);
   font-size: 11.5px;
-  color: var(--ink-soft);
   white-space: nowrap;
   transition: var(--theme-transition);
+}
+
+.mode-switch-state {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+/* The dot sits between the two segments, so it reads as belonging to the lit
+   one rather than as a bullet in front of a label. */
+.mode-switch-dot,
+.trust-legend-dot {
+  flex: none;
+}
+
+.mode-switch-btn {
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  color: var(--ink-dim);
+  font-size: 11.5px;
+  font-weight: 500;
+  transition: var(--theme-transition), background-color 0.3s var(--ease),
+    color 0.3s var(--ease);
+}
+
+.mode-switch-btn:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+/* In direct mode the switch is the one piece of chrome that has to stay
+   assertive — everything else on the board has drained, and this is what says
+   why. */
+.mode-switch[data-mode="direct"] {
+  border-color: color-mix(in srgb, var(--tier-red) 45%, var(--line-strong));
+}
+
+.mode-switch[data-mode="direct"] .mode-switch-state {
+  color: var(--tier-red);
 }
 
 .trust-legend-dot {
@@ -261,7 +314,6 @@ body.direct-mode .topbar-mark {
 
 /* --------------------------------- buttons -------------------------------- */
 
-.ghost-btn,
 .pill-btn {
   display: inline-flex;
   align-items: center;
@@ -277,7 +329,6 @@ body.direct-mode .topbar-mark {
   transition: var(--theme-transition), transform 0.2s var(--ease);
 }
 
-.ghost-btn:hover,
 .pill-btn:hover {
   color: var(--ink);
   border-color: color-mix(in srgb, var(--accent) 55%, var(--line-strong));
@@ -319,10 +370,6 @@ body.direct-mode .topbar-mark {
   right: -4px;
 }
 
-body.direct-mode .ghost-btn {
-  border-color: color-mix(in srgb, var(--tier-red) 45%, var(--line-strong));
-  color: var(--ink);
-}
 
 /* --------------------------------- notice --------------------------------- */
 

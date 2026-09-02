@@ -22,6 +22,7 @@ const dom = {
   tooltip: document.getElementById("tooltip"),
   layerToggle: document.getElementById("layer-toggle"),
   graphToggle: document.getElementById("graph-toggle"),
+  legend: document.getElementById("trust-legend"),
   legendDot: document.querySelector(".trust-legend-dot"),
   legendText: document.getElementById("trust-legend-text"),
   topbarName: document.getElementById("topbar-name"),
@@ -177,14 +178,21 @@ function boot({ board, fellBack }) {
     state.mode = next;
     const direct = next === MODES.DIRECT;
     document.body.classList.toggle("direct-mode", direct);
+    /* The switch reads as one object: the segment naming the current state is
+     * lit and carries the tier dot, and the button offers the other state.
+     * The full sentence each label used to carry moves to the title, where it
+     * is available without spending 450px of topbar on it every frame. */
     dom.layerToggle.setAttribute("aria-pressed", String(direct));
-    dom.layerToggle.textContent = direct
-      ? "Return to the governed view"
-      : "See it without the Knowledge Layer";
+    dom.layerToggle.textContent = direct ? "Governed" : "Direct";
+    dom.layerToggle.title = direct
+      ? "Return to the governed view — Tableau semantic layer (K)"
+      : "Render the same board with no semantic layer (K)";
     dom.legendDot.dataset.tier = direct ? "red" : "green";
-    dom.legendText.textContent = direct
-      ? "Direct read · no semantic layer"
-      : "Governed · Tableau semantic layer";
+    dom.legendText.textContent = direct ? "Direct read" : "Governed";
+    dom.legend.dataset.mode = direct ? "direct" : "governed";
+    dom.legend.title = direct
+      ? "Direct read — no semantic layer"
+      : "Governed — Tableau semantic layer";
 
     inspector.closeNow();
     // Rebuild from the effective data, then re-run the entrance — so the

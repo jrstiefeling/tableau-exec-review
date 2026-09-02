@@ -34,7 +34,7 @@ export const FALLBACK_BOARD = {
           "portlets": [
             {
               "id": "kpi-nnaov",
-              "kind": "gauge",
+              "kind": "attainment",
               "label": "NNAOV",
               "sublabel": "Net new annual order value",
               "accent": "#C0483C",
@@ -90,7 +90,7 @@ export const FALLBACK_BOARD = {
             },
             {
               "id": "kpi-acv",
-              "kind": "gauge",
+              "kind": "attainment",
               "label": "ACV",
               "sublabel": "Annual contract value booked",
               "accent": "#1C6E8C",
@@ -146,7 +146,7 @@ export const FALLBACK_BOARD = {
             },
             {
               "id": "kpi-attrition",
-              "kind": "gauge",
+              "kind": "attainment",
               "label": "Attrition",
               "sublabel": "Churned annual contract value",
               "accent": "#92640A",
@@ -201,7 +201,7 @@ export const FALLBACK_BOARD = {
             },
             {
               "id": "kpi-pipegen",
-              "kind": "gauge",
+              "kind": "attainment",
               "label": "Pipegen",
               "sublabel": "Pipeline generated in period",
               "accent": "#6B4FBF",
@@ -278,7 +278,9 @@ export const FALLBACK_BOARD = {
                     "yoy": 54,
                     "yoyDisplay": "+54% Y/Y",
                     "goodDirection": "up",
-                    "color": "#12806A"
+                    "color": "#12806A",
+                    "priorValue": 15.58,
+                    "priorDisplay": "$15.6M"
                   },
                   {
                     "id": "agentic",
@@ -289,11 +291,17 @@ export const FALLBACK_BOARD = {
                     "yoy": -41,
                     "yoyDisplay": "-41% Y/Y",
                     "goodDirection": "up",
-                    "color": "#2F5FA8"
+                    "color": "#2F5FA8",
+                    "priorValue": 98.31,
+                    "priorDisplay": "$98.3M"
                   }
                 ],
-                "insight": "Embedded is now <strong>29% of Q2 ACV</strong>, up from 14% a year ago — but it is taking share of a base that shrank 28%. The mix is rotating faster than the total is falling.",
-                "caption": "$82M total · Embedded share 29%"
+                "insight": "<strong>29% of Q2 ACV, up from 14%</strong> — Embedded's ribbon widens into the narrower column. It grew $15.6M to $24M while Agentic fell $98.3M to $58M.",
+                "caption": "FY26 Q2 $113.9M → FY27 Q2 $82M · column width is the total",
+                "priorTotal": 113.89,
+                "priorTotalDisplay": "$113.9M",
+                "priorPeriodLabel": "FY26 Q2",
+                "periodLabel": "FY27 Q2"
               },
               "semantic": {
                 "metricName": "ACV by Product Motion",
@@ -3261,7 +3269,1333 @@ export const FALLBACK_BOARD = {
             }
           ]
         }
-      ]
+      ],
+      "navLabel": "Exec"
+    },
+    {
+      "id": "analytics-performance",
+      "label": "Analytics Performance",
+      "kicker": "Q2 FY27 · All segments",
+      "headline": "A shrinking platform base and one line growing off almost nothing",
+      "accent": "#1C6E8C",
+      "bands": [
+        {
+          "id": "perf-main",
+          "layout": "perf-main",
+          "portlets": [
+            {
+              "id": "perf-hierarchy",
+              "kind": "growthMatrix",
+              "label": "ACV by product",
+              "sublabel": "Two-level product taxonomy, Q2 FY27",
+              "accent": "#1C6E8C",
+              "metrics": {
+                "unit": "$M",
+                "stakeMax": 83,
+                "goodDirection": "up",
+                "segments": [
+                  {
+                    "id": "all",
+                    "label": "All Segments",
+                    "short": "All",
+                    "reference": true
+                  }
+                ],
+                "rollup": {
+                  "total": 83,
+                  "totalDisplay": "$83M",
+                  "note": "Three levels of one certified measure. Each level tiles the level above it, so the boundaries are the roll-up rather than a check on it.",
+                  "levels": [
+                    [
+                      "analytics-total"
+                    ],
+                    [
+                      "platform",
+                      "embedded"
+                    ],
+                    [
+                      "cloud",
+                      "server",
+                      "next",
+                      "crma"
+                    ]
+                  ]
+                },
+                "rows": [
+                  {
+                    "id": "analytics-total",
+                    "label": "Analytics Total",
+                    "level": 0,
+                    "parent": null,
+                    "value": 83,
+                    "display": "$83M",
+                    "yoy": -27,
+                    "yoyDisplay": "-27%",
+                    "goodDirection": "up",
+                    "color": "#1C6E8C"
+                  },
+                  {
+                    "id": "platform",
+                    "label": "Agentic Analytics Platform",
+                    "level": 1,
+                    "parent": "analytics-total",
+                    "value": 59,
+                    "display": "$59M",
+                    "yoy": -40,
+                    "yoyDisplay": "-40%",
+                    "goodDirection": "up",
+                    "color": "#2F5FA8"
+                  },
+                  {
+                    "id": "cloud",
+                    "label": "Tableau Cloud",
+                    "level": 2,
+                    "parent": "platform",
+                    "value": 38,
+                    "display": "$38M",
+                    "yoy": -41,
+                    "yoyDisplay": "-41%",
+                    "goodDirection": "up",
+                    "color": "#2F5FA8"
+                  },
+                  {
+                    "id": "server",
+                    "label": "Tableau Server",
+                    "level": 2,
+                    "parent": "platform",
+                    "value": 21,
+                    "display": "$21M",
+                    "yoy": -39,
+                    "yoyDisplay": "-39%",
+                    "goodDirection": "up",
+                    "color": "#6E8FC4"
+                  },
+                  {
+                    "id": "embedded",
+                    "label": "Embedded Agentic Analytics",
+                    "level": 1,
+                    "parent": "analytics-total",
+                    "value": 24,
+                    "display": "$24M",
+                    "yoy": 57,
+                    "yoyDisplay": "+57%",
+                    "goodDirection": "up",
+                    "color": "#12806A"
+                  },
+                  {
+                    "id": "next",
+                    "label": "Tableau Next",
+                    "level": 2,
+                    "parent": "embedded",
+                    "value": 13,
+                    "display": "$13M",
+                    "yoy": 414,
+                    "yoyDisplay": "+414%",
+                    "goodDirection": "up",
+                    "color": "#12806A"
+                  },
+                  {
+                    "id": "crma",
+                    "label": "CRMA",
+                    "level": 2,
+                    "parent": "embedded",
+                    "value": 11,
+                    "display": "$11M",
+                    "yoy": -15,
+                    "yoyDisplay": "-15%",
+                    "goodDirection": "up",
+                    "color": "#5EA394"
+                  }
+                ],
+                "axisNote": "Y/Y — linear inside ±10%, one decade per gridline beyond it",
+                "caption": "$83M across two motions and four product lines · exact figures on hover, or expand for the grid"
+              },
+              "semantic": {
+                "metricName": "Annual Contract Value by Product",
+                "definition": "Certified ACV split by the two-level product taxonomy that maps every SKU to exactly one product motion and every motion to exactly one product line, at fiscal-quarter grain.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "ACV (certified)",
+                "grain": "Fiscal quarter × Business unit × Product motion × Product line",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Org62 OpportunityLineItem",
+                  "Product SKU Taxonomy",
+                  "Product Hierarchy"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Product Performance",
+                "why": "The roll-up is the portlet. Cloud and Server tile the Platform bar and the two motions tile the total because all three levels are one certified measure read at three grains — not three queries that happen to agree. The partition closes by construction, which is why it can be drawn rather than checked."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "one undifferentiated $83M",
+                  "two levels that do not tile"
+                ],
+                "missing": "The two-level product taxonomy — Org62 stores a product code on OpportunityLineItem, not the SKU-to-motion mapping or the motion-to-line parentage the business reasons in",
+                "effect": "The partition cannot be drawn at all. Level 1 and level 2 are not wrong without the taxonomy, they are absent, and the tab collapses to the one figure the exec summary already carries",
+                "thesisTag": "T4",
+                "thesis": "Business vocabulary is an asset that has to live somewhere shared — otherwise every analysis rebuilds the same grouping by hand, slightly differently.",
+                "risk": "Plan H2 against a $24M Embedded line that no two queries reproduce the same way",
+                "trustCost": "A hierarchy that is rebuilt per deck is a hierarchy nobody can be held to",
+                "metrics": {
+                  "rollup": {
+                    "total": 83,
+                    "totalDisplay": "$83M",
+                    "note": "No product taxonomy — one undifferentiated total, and no levels to tile it.",
+                    "levels": [
+                      [
+                        "analytics-total"
+                      ]
+                    ]
+                  },
+                  "rows": [
+                    {
+                      "id": "analytics-total",
+                      "label": "Analytics Total",
+                      "level": 0,
+                      "parent": null,
+                      "value": 83,
+                      "display": "$83M",
+                      "yoy": -27,
+                      "yoyDisplay": "-27%",
+                      "goodDirection": "up",
+                      "color": "#C0483C"
+                    }
+                  ],
+                  "sockets": [
+                    "platform",
+                    "cloud",
+                    "server",
+                    "embedded",
+                    "next",
+                    "crma"
+                  ],
+                  "caption": "No product taxonomy — one undifferentiated $83M and six rows with nothing to draw"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "perf-side",
+          "layout": "perf-side",
+          "portlets": [
+            {
+              "id": "perf-divergence",
+              "kind": "growthSpread",
+              "label": "Within-motion spread",
+              "sublabel": "Slowest to fastest line in each motion",
+              "accent": "#12806A",
+              "metrics": {
+                "goodDirection": "up",
+                "rows": [
+                  {
+                    "id": "platform-spread",
+                    "label": "Agentic Analytics Platform",
+                    "parentYoy": -40,
+                    "parentYoyDisplay": "-40%",
+                    "low": -41,
+                    "lowDisplay": "-41%",
+                    "lowLabel": "Tableau Cloud",
+                    "high": -39,
+                    "highDisplay": "-39%",
+                    "highLabel": "Tableau Server",
+                    "spreadDisplay": "2 points apart"
+                  },
+                  {
+                    "id": "embedded-spread",
+                    "label": "Embedded Agentic Analytics",
+                    "parentYoy": 57,
+                    "parentYoyDisplay": "+57%",
+                    "low": -15,
+                    "lowDisplay": "-15%",
+                    "lowLabel": "CRMA",
+                    "high": 414,
+                    "highDisplay": "+414%",
+                    "highLabel": "Tableau Next",
+                    "spreadDisplay": "429 points apart"
+                  }
+                ],
+                "axisNote": "Same growth axis as the panel beside it",
+                "caption": "One motion moves together; the other does not"
+              },
+              "semantic": {
+                "metricName": "Within-Motion Growth Dispersion",
+                "definition": "The interval between the slowest and fastest certified Y/Y growth among the product lines inside one product motion, at fiscal-quarter grain.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "ACV (certified)",
+                "grain": "Fiscal quarter × Product motion",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Product SKU Taxonomy",
+                  "Product Hierarchy"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Product Performance",
+                "why": "Both ends of each interval are the same certified measure at the same grain, which is what makes the interval a comparison rather than two numbers set beside each other. A motion average would report the same two motions as broadly similar."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "four rates with nothing to group them"
+                ],
+                "missing": "The motion-to-line parentage — without it there is no inside-each-motion for a range to be taken within",
+                "effect": "Four product-line growth rates survive and the two intervals do not, so the fact that one motion moves together and the other splits has nowhere to be seen",
+                "thesisTag": "T4",
+                "thesis": "Business vocabulary is an asset that has to live somewhere shared — otherwise every analysis rebuilds the same grouping by hand, slightly differently.",
+                "risk": "Treat Embedded as one growing thing and fund both of its lines on the strength of one",
+                "trustCost": "A grouping that only exists in the deck cannot be reviewed against next quarter's deck",
+                "metrics": {
+                  "caption": "No motion parentage — no interval to take"
+                }
+              }
+            },
+            {
+              "id": "perf-rules",
+              "kind": "rulesCard",
+              "label": "How these tabs read",
+              "sublabel": "Rules applied to every mark on the product, segment and outlook tabs",
+              "accent": "#63708C",
+              "metrics": {
+                "rules": [
+                  {
+                    "title": "Roll-up is geometry",
+                    "body": "Cloud and Server tile the Platform bar exactly, and the two motions tile the total exactly. The level-1 boundary recurs one level down because all three levels are one certified measure at three grains, so the partition closes by construction rather than by being checked afterwards."
+                  },
+                  {
+                    "title": "Stake and rate are separate channels",
+                    "body": "Dollars are one length and growth is another on its own axis. They are never multiplied into an area, because a rate and a stake are not commensurable and an area combining them would invite a reader to add up quantities that do not add."
+                  },
+                  {
+                    "title": "One growth scale, stated",
+                    "body": "Growth is linear inside ±10% — the same neutral band the colour threshold uses — and logarithmic beyond it, with a gridline at every decade. The compression is drawn rather than assumed, and it is the same function on all three tabs, so a given rate is the same proportion of its axis wherever it appears."
+                  },
+                  {
+                    "title": "The stake is the dot",
+                    "body": "Every growth mark pivots on a dot whose area is the ACV behind it. So +414% on $13M reads as a long bar on a small dot and -40% on $59M as a short bar on a large one. Both are true, and neither is allowed to stand in for the other."
+                  }
+                ]
+              },
+              "semantic": {
+                "metricName": "Presentation Rules",
+                "definition": "The partition, channel, scaling and weighting rules the semantic layer applies to every product, segment and outlook mark on this board.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": null,
+                "grain": "Applies to all measures on the product, segment and outlook tabs",
+                "lineage": [
+                  "Semantic Model Definition"
+                ],
+                "rls": "Not scoped — rules apply to every viewer identically",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Product Performance",
+                "why": "These rules are properties of the measures rather than of the charts, so every chart, export and agent reading those measures inherits them. Nobody has to remember to apply them, and nobody can quietly not."
+              },
+              "directMode": {
+                "tier": "grey",
+                "candidates": [
+                  "rules live in each analyst's head"
+                ],
+                "missing": "Any place for a partition rule, a scale or a weighting to live except the head of whoever built the chart",
+                "effect": "Four rules that have to be remembered, re-explained and re-applied by every person and every agent that touches these numbers",
+                "thesisTag": "T3",
+                "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
+                "risk": "Two analysts draw the same hierarchy on two different scales and both defend it",
+                "trustCost": "Consistency becomes a matter of diligence rather than a property of the data"
+              }
+            }
+          ]
+        }
+      ],
+      "navLabel": "Product"
+    },
+    {
+      "id": "performance-by-segment",
+      "label": "Performance by Segment",
+      "kicker": "Q2 FY27 · Four segments",
+      "headline": "One segment growing, and Embedded growing in all four",
+      "accent": "#2F5FA8",
+      "bands": [
+        {
+          "id": "seg-main",
+          "layout": "seg-main",
+          "portlets": [
+            {
+              "id": "seg-matrix",
+              "kind": "growthMatrix",
+              "label": "ACV by product and segment",
+              "sublabel": "Seven product lines across four segments, Q2 FY27",
+              "accent": "#2F5FA8",
+              "metrics": {
+                "unit": "$M",
+                "stakeMax": 83,
+                "goodDirection": "up",
+                "segments": [
+                  {
+                    "id": "entr",
+                    "label": "Enterprise",
+                    "short": "ENTR"
+                  },
+                  {
+                    "id": "cmrcl",
+                    "label": "Commercial",
+                    "short": "CMRCL"
+                  },
+                  {
+                    "id": "smb",
+                    "label": "Small & Medium Business",
+                    "short": "SMB"
+                  },
+                  {
+                    "id": "pubsec",
+                    "label": "Public Sector",
+                    "short": "PubSec"
+                  }
+                ],
+                "rows": [
+                  {
+                    "id": "analytics-total",
+                    "label": "Analytics Total",
+                    "level": 0,
+                    "parent": null,
+                    "color": "#1C6E8C",
+                    "goodDirection": "up",
+                    "values": [
+                      39,
+                      18,
+                      12,
+                      15
+                    ],
+                    "display": [
+                      "$39M",
+                      "$18M",
+                      "$12M",
+                      "$15M"
+                    ],
+                    "yoy": [
+                      -35,
+                      -31,
+                      -23,
+                      14
+                    ],
+                    "yoyDisplay": [
+                      "-35%",
+                      "-31%",
+                      "-23%",
+                      "+14%"
+                    ]
+                  },
+                  {
+                    "id": "platform",
+                    "label": "Agentic Analytics Platform",
+                    "level": 1,
+                    "parent": "analytics-total",
+                    "color": "#2F5FA8",
+                    "goodDirection": "up",
+                    "values": [
+                      26,
+                      13,
+                      10,
+                      10
+                    ],
+                    "display": [
+                      "$26M",
+                      "$13M",
+                      "$10M",
+                      "$10M"
+                    ],
+                    "yoy": [
+                      -48,
+                      -41,
+                      -34,
+                      -12
+                    ],
+                    "yoyDisplay": [
+                      "-48%",
+                      "-41%",
+                      "-34%",
+                      "-12%"
+                    ]
+                  },
+                  {
+                    "id": "cloud",
+                    "label": "Tableau Cloud",
+                    "level": 2,
+                    "parent": "platform",
+                    "color": "#2F5FA8",
+                    "goodDirection": "up",
+                    "values": [
+                      16,
+                      10,
+                      8,
+                      4
+                    ],
+                    "display": [
+                      "$16M",
+                      "$10M",
+                      "$8M",
+                      "$4M"
+                    ],
+                    "yoy": [
+                      -48,
+                      -42,
+                      -30,
+                      -16
+                    ],
+                    "yoyDisplay": [
+                      "-48%",
+                      "-42%",
+                      "-30%",
+                      "-16%"
+                    ]
+                  },
+                  {
+                    "id": "server",
+                    "label": "Tableau Server",
+                    "level": 2,
+                    "parent": "platform",
+                    "color": "#6E8FC4",
+                    "goodDirection": "up",
+                    "values": [
+                      10,
+                      4,
+                      2,
+                      6
+                    ],
+                    "display": [
+                      "$10M",
+                      "$4M",
+                      "$2M",
+                      "$6M"
+                    ],
+                    "yoy": [
+                      -48,
+                      -38,
+                      -45,
+                      -8
+                    ],
+                    "yoyDisplay": [
+                      "-48%",
+                      "-38%",
+                      "-45%",
+                      "-8%"
+                    ]
+                  },
+                  {
+                    "id": "embedded",
+                    "label": "Embedded Agentic Analytics",
+                    "level": 1,
+                    "parent": "analytics-total",
+                    "color": "#12806A",
+                    "goodDirection": "up",
+                    "values": [
+                      13,
+                      4,
+                      2,
+                      5
+                    ],
+                    "display": [
+                      "$13M",
+                      "$4M",
+                      "$2M",
+                      "$5M"
+                    ],
+                    "yoy": [
+                      33,
+                      43,
+                      147,
+                      78
+                    ],
+                    "yoyDisplay": [
+                      "+33%",
+                      "+43%",
+                      "+147%",
+                      "+78%"
+                    ]
+                  },
+                  {
+                    "id": "next",
+                    "label": "Tableau Next",
+                    "level": 2,
+                    "parent": "embedded",
+                    "color": "#12806A",
+                    "goodDirection": "up",
+                    "values": [
+                      8,
+                      3,
+                      1,
+                      2
+                    ],
+                    "display": [
+                      "$8M",
+                      "$3M",
+                      "$1M",
+                      "$2M"
+                    ],
+                    "yoy": [
+                      402,
+                      236,
+                      727,
+                      1060
+                    ],
+                    "yoyDisplay": [
+                      "+402%",
+                      "+236%",
+                      "+727%",
+                      "+1060%"
+                    ]
+                  },
+                  {
+                    "id": "crma",
+                    "label": "CRMA",
+                    "level": 2,
+                    "parent": "embedded",
+                    "color": "#5EA394",
+                    "goodDirection": "up",
+                    "values": [
+                      5,
+                      2,
+                      1,
+                      3
+                    ],
+                    "display": [
+                      "$5M",
+                      "$2M",
+                      "$1M",
+                      "$3M"
+                    ],
+                    "yoy": [
+                      -37,
+                      -18,
+                      33,
+                      69
+                    ],
+                    "yoyDisplay": [
+                      "-37%",
+                      "-18%",
+                      "+33%",
+                      "+69%"
+                    ]
+                  }
+                ],
+                "axisNote": "Y/Y — linear inside ±10%, one decade per gridline beyond it",
+                "caption": "Bar length is Y/Y on a log scale past ±10%; dot area is the ACV behind it · the dollars are on hover, or expand for the full grid",
+                "rateLabels": "all",
+                "allSegmentsNote": "The All Segments reading of every row is the Analytics Performance tab, in full."
+              },
+              "semantic": {
+                "metricName": "Annual Contract Value by Product and Segment",
+                "definition": "Certified ACV at product-line grain crossed with the certified customer-segment dimension, where every account resolves to exactly one segment as of the period close.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "ACV (certified)",
+                "grain": "Fiscal quarter × Product line × Customer segment",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Org62 Account",
+                  "Product SKU Taxonomy",
+                  "Customer Segment Dimension",
+                  "Account Hierarchy Conformance"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch, and the segment dimension does not widen it",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Segment Performance",
+                "why": "Segment is a property of the account as of the period, not of the opportunity owner's territory. Because the segment dimension is certified and time-aware, a row read this quarter and the same row read next quarter are the same row — which is the only thing that makes a five-column comparison worth making."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "Account.Type",
+                  "a hand-maintained Segment__c",
+                  "the owner's territory role"
+                ],
+                "missing": "A certified customer-segment dimension with an as-of rule — Org62 offers Account.Type, a manually-maintained Segment__c and the opportunity owner's territory role, and accounts move between them mid-year with no statement of which reading the quarter was closed on",
+                "effect": "All thirty-five cells still render. They just stop being one breakout: each column is whichever segment source the query author reached for, and an account that moved up-market in April is counted in two different segments across two readings of the same quarter",
+                "thesisTag": "T1",
+                "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
+                "risk": "Move coverage into PubSec on a growth reading that is partly accounts being reclassified into it",
+                "trustCost": "A breakout whose bins move is a breakout that cannot be reviewed",
+                "metrics": {
+                  "axisNote": "Y/Y on a stated scale — with no stated segment to read it by",
+                  "caption": "Twenty-eight cells, three candidate segment sources, no arbiter"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "seg-side",
+          "layout": "seg-side",
+          "portlets": [
+            {
+              "id": "seg-spread",
+              "kind": "growthSpread",
+              "label": "Within-segment spread",
+              "sublabel": "Slowest to fastest product line in each segment",
+              "accent": "#6B4FBF",
+              "metrics": {
+                "goodDirection": "up",
+                "rows": [
+                  {
+                    "id": "all-spread",
+                    "label": "All Segments",
+                    "parentYoy": -27,
+                    "parentYoyDisplay": "-27%",
+                    "low": -41,
+                    "lowDisplay": "-41%",
+                    "lowLabel": "Tableau Cloud",
+                    "high": 414,
+                    "highDisplay": "+414%",
+                    "highLabel": "Tableau Next",
+                    "spreadDisplay": "455 points"
+                  },
+                  {
+                    "id": "entr-spread",
+                    "label": "ENTR",
+                    "parentYoy": -35,
+                    "parentYoyDisplay": "-35%",
+                    "low": -48,
+                    "lowDisplay": "-48%",
+                    "lowLabel": "Cloud & Server",
+                    "high": 402,
+                    "highDisplay": "+402%",
+                    "highLabel": "Tableau Next",
+                    "spreadDisplay": "450 points"
+                  },
+                  {
+                    "id": "cmrcl-spread",
+                    "label": "CMRCL",
+                    "parentYoy": -31,
+                    "parentYoyDisplay": "-31%",
+                    "low": -42,
+                    "lowDisplay": "-42%",
+                    "lowLabel": "Tableau Cloud",
+                    "high": 236,
+                    "highDisplay": "+236%",
+                    "highLabel": "Tableau Next",
+                    "spreadDisplay": "278 points"
+                  },
+                  {
+                    "id": "smb-spread",
+                    "label": "SMB",
+                    "parentYoy": -23,
+                    "parentYoyDisplay": "-23%",
+                    "low": -45,
+                    "lowDisplay": "-45%",
+                    "lowLabel": "Tableau Server",
+                    "high": 727,
+                    "highDisplay": "+727%",
+                    "highLabel": "Tableau Next",
+                    "spreadDisplay": "772 points"
+                  },
+                  {
+                    "id": "pubsec-spread",
+                    "label": "PubSec",
+                    "parentYoy": 14,
+                    "parentYoyDisplay": "+14%",
+                    "low": -16,
+                    "lowDisplay": "-16%",
+                    "lowLabel": "Tableau Cloud",
+                    "high": 1060,
+                    "highDisplay": "+1060%",
+                    "highLabel": "Tableau Next",
+                    "spreadDisplay": "1076 points"
+                  }
+                ],
+                "axisNote": "Same growth axis as the matrix beside it",
+                "caption": "Every segment holds a declining line and a growing one · the caret is the segment's own rate"
+              },
+              "semantic": {
+                "metricName": "Within-Segment Growth Dispersion",
+                "definition": "The interval between the slowest and fastest certified Y/Y growth among the product lines inside one customer segment, at fiscal-quarter grain.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "ACV (certified)",
+                "grain": "Fiscal quarter × Customer segment",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Org62 Account",
+                  "Product SKU Taxonomy",
+                  "Customer Segment Dimension"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Segment Performance",
+                "why": "Each interval is one certified measure read at two product lines inside one segment, so the width of the interval is a fact about the segment rather than an artifact of two different definitions being compared. A segment-level average would report every segment as broadly declining."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "seven rates per segment, three candidate segments"
+                ],
+                "missing": "The certified segment dimension the interval is taken within, and the product parentage that says which lines belong in the range",
+                "effect": "The intervals still draw and each one is taken over a different population, so a segment looks volatile or stable depending on which segment source the query author used",
+                "thesisTag": "T1",
+                "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
+                "risk": "Call one segment the volatile one when the volatility is in the segment assignment",
+                "trustCost": "A range over an unstable population measures the population, not the range",
+                "metrics": {
+                  "caption": "Five intervals, five different populations"
+                }
+              }
+            },
+            {
+              "id": "seg-rules",
+              "kind": "rulesCard",
+              "label": "How this matrix reads",
+              "sublabel": "Fifty-six figures, twenty-eight marks",
+              "accent": "#63708C",
+              "metrics": {
+                "rules": [
+                  {
+                    "title": "One measure, two grains",
+                    "body": "Every cell is the same certified ACV measure, read at product line crossed with customer segment. The columns are a dimension of one measure rather than five measures that resemble each other, which is what makes reading across a row a comparison."
+                  },
+                  {
+                    "title": "Hierarchy is a rail, not a stack",
+                    "body": "The rails in the label gutter state which product lines sit inside which motion. Containment is a structural fact about the taxonomy, so it is drawn structurally rather than inferred by adding cells up."
+                  },
+                  {
+                    "title": "The comparison is the mark",
+                    "body": "Every cell carries its own rate as a numeral, so a figure can be read off the screen mid-sentence. The dollars behind it stay on the dot, on the tooltip and in the expand table, because a second numeral per cell would fight the bar doing the comparison."
+                  },
+                  {
+                    "title": "The whole is one tab away",
+                    "body": "There is no All Segments column here. That reading is the product tab in full, at two levels of the taxonomy, and both tabs resolve to the same certified ACV measure — so the knowledge graph links them rather than this matrix restating them in a fifth column."
+                  }
+                ]
+              },
+              "semantic": {
+                "metricName": "Matrix Reading Rules",
+                "definition": "The grain, containment, disclosure and scaling rules applied to every cell of the segment matrix.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": null,
+                "grain": "Applies to every cell on this tab",
+                "lineage": [
+                  "Semantic Model Definition"
+                ],
+                "rls": "Not scoped — rules apply to every viewer identically",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Segment Performance",
+                "why": "A dense matrix is only readable if the reader can trust that every cell was made the same way. These rules are properties of the measure and its dimensions, so that trust is a property of the data rather than a promise made by the chart."
+              },
+              "directMode": {
+                "tier": "grey",
+                "candidates": [
+                  "twenty-eight cells, no stated grain"
+                ],
+                "missing": "Any statement of the grain each cell was read at, or of which taxonomy the rows belong to",
+                "effect": "A matrix that can still be read cell by cell and can no longer be read across, because nothing asserts that two cells in a row were made the same way",
+                "thesisTag": "T3",
+                "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
+                "risk": "Compare two cells that were built from two different definitions and call the difference a finding",
+                "trustCost": "Consistency becomes a matter of diligence rather than a property of the data"
+              }
+            }
+          ]
+        }
+      ],
+      "navLabel": "Segment"
+    },
+    {
+      "id": "q3-outlook",
+      "label": "Q3 Outlook",
+      "kicker": "Q3 FY27 outlook",
+      "headline": "Q3 tracks to $105M with attrition running 20% ahead of last year",
+      "accent": "#92640A",
+      "bands": [
+        {
+          "id": "outlook-head",
+          "layout": "outlook-head",
+          "portlets": [
+            {
+              "id": "outlook-acv",
+              "kind": "statTile",
+              "label": "ACV",
+              "sublabel": "Q3 outlook · annual contract value",
+              "accent": "#1C6E8C",
+              "metrics": {
+                "value": 105,
+                "display": "$105M",
+                "unit": "$M",
+                "yoy": -6,
+                "yoyDisplay": "-6% Y/Y",
+                "goodDirection": "up",
+                "caption": "87% of Product FinPlan"
+              },
+              "semantic": {
+                "metricName": "Annual Contract Value",
+                "definition": "Annualized contract value expected to close in the fiscal quarter: closed-won to date plus in-quarter pipeline weighted by the certified stage-probability model, normalized to a 12-month term.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "ACV (certified)",
+                "grain": "Fiscal quarter × Business unit",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Product SKU Taxonomy",
+                  "Stage Probability Model",
+                  "FinPlan FY27 Target"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Q3 Outlook",
+                "why": "This is the same certified ACV measure as the Q2 tile and the five-year row, with one addition the measure carries explicitly: a stated weighting for the part of the quarter that has not closed. Turn on the knowledge graph to see the three of them resolve to one definition."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "$105M",
+                  "$121M",
+                  "$94M"
+                ],
+                "missing": "A governed outlook basis — Org62 carries stage and a Probability field, but no statement of which weighting a quarter is being called on, on top of the four candidate Amount columns the closed portion already inherits",
+                "effect": "The figure moves with whoever set the weighting, and the Y/Y compares this quarter's assumption against last quarter's actual without saying so",
+                "thesisTag": "T3",
+                "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
+                "risk": "Call the quarter on a weighting nobody agreed to and grade it against an actual",
+                "trustCost": "A forecast with no stated basis is a number with an author",
+                "metrics": {
+                  "display": "$105 / $121 / $94M",
+                  "yoyDisplay": "-6% Y/Y (basis undeclared)",
+                  "caption": "Weighting undeclared — plan basis undefined"
+                }
+              }
+            },
+            {
+              "id": "outlook-attrition",
+              "kind": "statTile",
+              "label": "Attrition",
+              "sublabel": "Q3 outlook · churned annual contract value",
+              "accent": "#92640A",
+              "metrics": {
+                "value": 79.5,
+                "display": "$79.5M",
+                "unit": "$M",
+                "yoy": 20,
+                "yoyDisplay": "+20% Y/Y",
+                "goodDirection": "down",
+                "caption": "Rising year over year on a lower-is-better measure"
+              },
+              "semantic": {
+                "metricName": "Attrition ACV",
+                "definition": "ACV expected to be lost to non-renewal and downsell in the fiscal quarter, measured against the prior-period contract book. Lower is better; the certified measure carries that polarity.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "Attrition ACV (certified)",
+                "grain": "Fiscal quarter × Business unit",
+                "lineage": [
+                  "Org62 Contract",
+                  "Revenue Recognition Ledger",
+                  "Renewal Book Snapshot",
+                  "FinPlan FY27 Target"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Q3 Outlook",
+                "why": "Polarity is part of the certified definition, so +20% Y/Y renders as bad news without anyone remembering that rising churn is not growth. The same measure carries the Q2 tile and the five-year row.",
+                "polarityNote": "On the source slide the sign of this movement is coloured by the deck author. Here the direction of good comes from the measure, so a rise reads as a rise in something the business is trying to reduce."
+              },
+              "directMode": {
+                "tier": "grey",
+                "candidates": [
+                  "requires manual reconstruction"
+                ],
+                "missing": "A point-in-time renewal book for the quarter being forecast — Org62 holds current contract state, not the book Q3 attrition will be measured against",
+                "effect": "The quarter's churn exposure has to be rebuilt by hand from history objects, and the polarity is whatever the deck author decides to colour it",
+                "thesisTag": "T2",
+                "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
+                "risk": "Forecast against a renewal book that has quietly changed since the forecast was built",
+                "trustCost": "A trend nobody can reproduce is not a trend",
+                "metrics": {
+                  "display": "reconstruct",
+                  "yoyDisplay": "+20% Y/Y (unreproducible)",
+                  "caption": "No renewal-book snapshot to measure against"
+                }
+              }
+            },
+            {
+              "id": "outlook-nnaov",
+              "kind": "statTile",
+              "label": "NNAOV",
+              "sublabel": "Q3 outlook · net new annual order value",
+              "accent": "#C0483C",
+              "metrics": {
+                "value": 25.5,
+                "display": "$25.5M",
+                "unit": "$M",
+                "yoy": -41,
+                "yoyDisplay": "-41% Y/Y",
+                "goodDirection": "up",
+                "caption": "Steepest decline of the three outlook measures"
+              },
+              "semantic": {
+                "metricName": "Net New Annual Order Value",
+                "definition": "Order value expected to close in the fiscal quarter on net-new-logo accounts, excluding expansion and renewal, tested against account history at the certified first-purchase definition.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "NNAOV (certified)",
+                "grain": "Fiscal quarter × Business unit",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Org62 Account",
+                  "Stage Probability Model",
+                  "FinPlan FY27 Target"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Q3 Outlook",
+                "why": "The first-purchase test is harder forward than backward: an open opportunity has no close date to test against, so the measure carries an explicit rule for which account history a still-open deal is tested on. That rule is the measure."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "$25.5M",
+                  "$38.1M",
+                  "$17.4M"
+                ],
+                "missing": "A governed net-new-logo test that works on opportunities which have not closed yet — the first-purchase check needs an account history and a date to test it at, and an open deal supplies neither",
+                "effect": "Three defensible forward net-new figures with no arbiter, on the measure that already has the weakest attainment on the board",
+                "thesisTag": "T1",
+                "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
+                "risk": "Build the new-logo motion's Q3 exit plan on a baseline that could be off by more than twofold",
+                "trustCost": "A confident wrong number costs more trust than a flagged unknown",
+                "metrics": {
+                  "display": "$25.5 / $38.1 / $17.4M",
+                  "yoyDisplay": "-41% Y/Y (unverifiable)",
+                  "caption": "Three candidate forward definitions, no arbiter"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "outlook-grid",
+          "layout": "outlook-matrix",
+          "portlets": [
+            {
+              "id": "outlook-matrix",
+              "kind": "metricMatrix",
+              "label": "Q3 outlook by product",
+              "sublabel": "Three measures against plan, velocity and coverage",
+              "accent": "#92640A",
+              "metrics": {
+                "columns": [
+                  {
+                    "id": "acv",
+                    "label": "ACV",
+                    "goodDirection": "up"
+                  },
+                  {
+                    "id": "attrition",
+                    "label": "Attrition",
+                    "goodDirection": "down"
+                  },
+                  {
+                    "id": "nnaov",
+                    "label": "NNAOV",
+                    "goodDirection": "up"
+                  }
+                ],
+                "rows": [
+                  {
+                    "id": "analytics",
+                    "label": "Analytics",
+                    "sublabel": null,
+                    "level": 0,
+                    "parent": null,
+                    "color": "#1C6E8C",
+                    "cells": [
+                      {
+                        "id": "analytics-acv",
+                        "value": 105,
+                        "display": "$105M",
+                        "yoy": -6,
+                        "yoyDisplay": "-6% Y/Y",
+                        "plan": 87,
+                        "planDisplay": "87% of Product FinPlan",
+                        "planGoodDirection": "up",
+                        "altBasis": {
+                          "label": "OU Roll-up",
+                          "display": "$100M",
+                          "yoy": -10,
+                          "yoyDisplay": "-10% Y/Y"
+                        }
+                      },
+                      {
+                        "id": "analytics-attrition",
+                        "value": 79.5,
+                        "display": "$79.5M",
+                        "yoy": 20,
+                        "yoyDisplay": "+20% Y/Y",
+                        "altBasis": {
+                          "label": "*OU Roll-up",
+                          "display": "$88.9M",
+                          "yoy": 34,
+                          "yoyDisplay": "34% Y/Y"
+                        }
+                      },
+                      {
+                        "id": "analytics-nnaov",
+                        "value": 25.5,
+                        "display": "$25.5M",
+                        "yoy": -43,
+                        "yoyDisplay": "-43% Y/Y"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "platform",
+                    "label": "Agentic Analytics Platform",
+                    "sublabel": "Cloud + Server",
+                    "level": 1,
+                    "parent": "analytics",
+                    "color": "#2F5FA8",
+                    "cells": [
+                      {
+                        "id": "platform-acv",
+                        "value": 75.5,
+                        "display": "$75.5M",
+                        "yoy": -15,
+                        "yoyDisplay": "-15% Y/Y",
+                        "plan": 78,
+                        "planDisplay": "78% of Product FinPlan",
+                        "planGoodDirection": "up",
+                        "pairs": [
+                          {
+                            "id": "velocity",
+                            "label": "Velocity",
+                            "value": 15,
+                            "valueDisplay": "15%",
+                            "hist": 17,
+                            "histDisplay": "17% hist",
+                            "domainMax": 25,
+                            "unit": "%",
+                            "goodDirection": "up"
+                          },
+                          {
+                            "id": "coverage",
+                            "label": "Coverage",
+                            "value": 2.6,
+                            "valueDisplay": "2.6x",
+                            "hist": 2.7,
+                            "histDisplay": "2.7x hist",
+                            "domainMax": 4,
+                            "unit": "x",
+                            "goodDirection": "up"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "platform-attrition",
+                        "value": 73.5,
+                        "display": "$73.5M",
+                        "yoy": 26,
+                        "yoyDisplay": "+26% Y/Y"
+                      },
+                      {
+                        "id": "platform-nnaov",
+                        "value": 8.5,
+                        "display": "$8.5M",
+                        "yoy": -3,
+                        "yoyDisplay": "-3% Y/Y"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "embedded",
+                    "label": "Embedded Agentic Analytics",
+                    "sublabel": "Tableau Next + CRMA",
+                    "level": 1,
+                    "parent": "analytics",
+                    "color": "#12806A",
+                    "cells": [
+                      {
+                        "id": "embedded-acv",
+                        "value": 29.5,
+                        "display": "$29.5M",
+                        "yoy": 32,
+                        "yoyDisplay": "+32% Y/Y",
+                        "plan": 128,
+                        "planDisplay": "128% of Product FinPlan",
+                        "planGoodDirection": "up",
+                        "pairs": [
+                          {
+                            "id": "velocity",
+                            "label": "Velocity",
+                            "value": 16,
+                            "valueDisplay": "16%",
+                            "hist": 16,
+                            "histDisplay": "16% hist",
+                            "domainMax": 25,
+                            "unit": "%",
+                            "goodDirection": "up"
+                          },
+                          {
+                            "id": "coverage",
+                            "label": "Coverage",
+                            "value": 3.2,
+                            "valueDisplay": "3.2x",
+                            "hist": 2.8,
+                            "histDisplay": "2.8x hist",
+                            "domainMax": 4,
+                            "unit": "x",
+                            "goodDirection": "up"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "embedded-attrition",
+                        "value": 6,
+                        "display": "$6M",
+                        "yoy": -23,
+                        "yoyDisplay": "-23% Y/Y",
+                        "note": "No change w/w"
+                      },
+                      {
+                        "id": "embedded-nnaov",
+                        "value": 23.5,
+                        "display": "$23.5M",
+                        "yoy": 61,
+                        "yoyDisplay": "+61% Y/Y",
+                        "note": "No change w/w"
+                      }
+                    ]
+                  }
+                ],
+                "axisNote": "Y/Y — the same growth axis as the product and segment tabs",
+                "caption": "Attainment is measured against Product FinPlan; velocity and coverage are stated against their historical benchmark"
+              },
+              "semantic": {
+                "metricName": "Q3 Outlook by Product and Measure",
+                "definition": "Certified ACV, Attrition ACV and NNAOV for the in-flight fiscal quarter at product-motion grain, each stated against its Product FinPlan target and, where authored, its pipeline velocity and coverage on the governed prior-period benchmark.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": null,
+                "grain": "Fiscal quarter × Business unit × Product motion",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Org62 Contract",
+                  "Product SKU Taxonomy",
+                  "Stage Probability Model",
+                  "FinPlan FY27 Target"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Q3 Outlook",
+                "why": "This portlet draws three certified measures, so it claims none of them as its own — the three tiles above it each carry one measure and hold the links to the Q2 and five-year readings of the same definitions. A portlet claiming one measure while drawing three would be the board making exactly the loose claim it argues against. What the matrix adds is the plan basis: every attainment percentage names the FinPlan version it is graded on, and every historical benchmark is the same day of the prior quarter rather than the prior quarter's close."
+              },
+              "directMode": {
+                "tier": "red",
+                "candidates": [
+                  "87% of a plan version nobody named",
+                  "78% or 91% or 64%, by vintage"
+                ],
+                "missing": "FinPlan itself and the mapping into it — plan targets live in the planning system at OU and product-family grain, are re-versioned at every reforecast, and nothing in a CRM export states which version a quarter is graded against or how a product family maps onto the product taxonomy",
+                "effect": "Every attainment loses its denominator, so the plan tracks have no target and no bands. Velocity and Coverage lose their benchmarks too, because a historical figure here is a governed same-day-of-quarter comparison against the prior period, not the prior period's closing number",
+                "thesisTag": "T3",
+                "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
+                "risk": "Report 128% of plan against the original FinPlan and 96% against the current one in the same week",
+                "trustCost": "An attainment with no stated denominator is a ratio with an opinion in it",
+                "metrics": {
+                  "axisNote": "Y/Y on a stated scale — with no plan to read attainment against",
+                  "caption": "No plan basis and no benchmark date — the values render, the comparisons do not"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "outlook-rail",
+          "layout": "outlook-deals",
+          "portlets": [
+            {
+              "id": "outlook-deals",
+              "kind": "dealRail",
+              "label": "Q3 Top ACV Deals",
+              "sublabel": "Five largest open opportunities",
+              "accent": "#1C6E8C",
+              "metrics": {
+                "unit": "$M",
+                "scaleMax": 3.2,
+                "totalDisplay": "$12.5M across five deals",
+                "deals": [
+                  {
+                    "id": "bofa",
+                    "account": "Bank of America",
+                    "value": 3,
+                    "display": "$3M"
+                  },
+                  {
+                    "id": "aetna",
+                    "account": "Aetna",
+                    "value": 3,
+                    "display": "$3M"
+                  },
+                  {
+                    "id": "schwab",
+                    "account": "Charles Schwab",
+                    "value": 2.3,
+                    "display": "$2.3M"
+                  },
+                  {
+                    "id": "usbank",
+                    "account": "US Bank",
+                    "value": 2.1,
+                    "display": "$2.1M"
+                  },
+                  {
+                    "id": "usgov",
+                    "account": "US GOV",
+                    "value": 2.1,
+                    "display": "$2.1M"
+                  }
+                ],
+                "caption": "Ranked on one certified ACV definition"
+              },
+              "semantic": {
+                "metricName": "Top Open ACV Deals",
+                "definition": "The five largest open opportunities by certified ACV expected to close in the fiscal quarter, ranked on one amount definition and scoped to the viewer's branch.",
+                "sdm": "Analytics Revenue SDM",
+                "measure": "ACV (certified)",
+                "grain": "Fiscal quarter × Opportunity",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Org62 Account",
+                  "Product SKU Taxonomy"
+                ],
+                "rls": "Analytics BU hierarchy — viewer sees only their branch, and opportunity-grain rows are the most tightly scoped rows on the board",
+                "certifiedBy": "Analytics RevOps",
+                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "dashboard": "Analytics Q3 Outlook",
+                "why": "The ranking is the content, and a ranking is only stable if every row is measured with one formula. Two of these five are within $0.2M of each other, which is inside the spread between the candidate amount columns — so the order means something here only because the definition is settled."
+              },
+              "directMode": {
+                "tier": "yellow",
+                "candidates": [
+                  "five accounts, five amounts, no stated order"
+                ],
+                "missing": "One amount definition applied across the five — Amount, Tableau_Amount__c, Analytics_Amount__c and AmountConverted__c all coexist on Opportunity, and the gap between third and fifth place is smaller than the gap between those columns",
+                "effect": "The list survives and the order does not. Two of the five change places depending on which column the query author reached for, and nothing in the rail shows that the ranking is the fragile part",
+                "thesisTag": "T1",
+                "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
+                "risk": "Brief an exec on a top five that reorders between two people's versions of the same slide",
+                "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud",
+                "metrics": {
+                  "totalDisplay": "five deals, no stated order",
+                  "caption": "Ranked on an undefined amount column — the list survives, the order does not"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "navLabel": "Q3 Outlook"
     },
     {
       "id": "trend",
@@ -3827,11 +5161,13 @@ export const FALLBACK_BOARD = {
                 "rules": [
                   {
                     "title": "Flow vs stock",
-                    "body": "A flow accumulates across a period, so FY27 H1 is plotted detached and offered a run-rate ghost. A stock is a balance read at a point in time, so its H1 reading joins the line and is never annualised."
+                    "body": "A flow accumulates across a period, so FY27 H1 is plotted detached and offered a run-rate ghost. A stock is a balance read at a point in time, so its H1 reading joins the line and is never annualised.",
+                    "diagram": "flowStock"
                   },
                   {
                     "title": "Zero baseline",
-                    "body": "Every value axis starts at zero. A padded baseline makes each decline look steeper, and at this size nobody would notice it had been truncated."
+                    "body": "Every value axis starts at zero. A padded baseline makes each decline look steeper, and at this size nobody would notice it had been truncated.",
+                    "diagram": "zeroBaseline"
                   },
                   {
                     "title": "Polarity",
@@ -3941,7 +5277,8 @@ export const FALLBACK_BOARD = {
             }
           ]
         }
-      ]
+      ],
+      "navLabel": "Five Year"
     }
   ]
 };

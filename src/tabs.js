@@ -90,11 +90,18 @@ export class TabController {
       const index_ = document.createElement("span");
       index_.className = "tabnav-index";
       index_.textContent = String(index + 1);
+      /* The switch takes the short label and the accessible name takes the
+       * full one, so a screen reader hears "Performance by Segment" where the
+       * eye reads "Segment" and has the panel headline underneath it. */
       const label = document.createElement("span");
       label.className = "tabnav-label";
-      label.textContent = tab.label;
+      label.textContent = tab.navLabel || tab.label;
       button.appendChild(index_);
       button.appendChild(label);
+      if (tab.navLabel && tab.navLabel !== tab.label) {
+        button.setAttribute("aria-label", tab.label);
+        button.title = tab.label;
+      }
 
       button.addEventListener("click", () => this.navigate(tab.id));
       this.nav.appendChild(button);
@@ -318,15 +325,26 @@ export class TabController {
     this.indicator.style.setProperty("--indicator-w", `${button.offsetWidth}px`);
   }
 
+  /* Roving tabindex: exactly one tab is reachable by Tab, and the arrows move
+   * between them once focus is inside. Home and End matter more at five tabs
+   * than they did at two — four arrow presses to cross the board is the point
+   * at which a jump to either end stops being a nicety. */
   onNavKeydown(e) {
     const order = this.tabs.map((t) => t.id);
     const index = order.indexOf(this.activeId);
-    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-      e.preventDefault();
-      const next = order[(index + (e.key === "ArrowRight" ? 1 : -1) + order.length) % order.length];
-      this.navigate(next);
-      this.buttons.get(next).focus();
-    }
+    let next = null;
+
+    if (e.key === "ArrowRight") next = order[(index + 1) % order.length];
+    else if (e.key === "ArrowLeft") next = order[(index - 1 + order.length) % order.length];
+    else if (e.key === "Home") next = order[0];
+    else if (e.key === "End") next = order[order.length - 1];
+    if (next === null) return;
+
+    e.preventDefault();
+    this.navigate(next);
+    // Focus follows the roving tabindex activate() has just moved, so the
+    // arrow keys keep working from the tab they landed on.
+    this.buttons.get(next).focus();
   }
 
   step(delta) {
