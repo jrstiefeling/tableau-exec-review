@@ -307,3 +307,60 @@ Nothing else. No figure changes, no reconciliation UI, no new commentary.
   navigation across all five tabs; `prefers-reduced-motion` jumping to final
   state; click-to-expand detail.
 - `node scripts/sync-fallback.mjs` after every `board.json` edit.
+
+## 11. Where the build departed from this plan
+
+Written after the fact, because three of these only became visible once the
+measurements came back.
+
+**The Product tab turns ninety degrees.** §4 planned to widen the matrix into
+the space the rules card vacated and leave the spread in the side column. That
+moved the hole rather than closing it: the spread has two rows, and two rows in
+a 480px column is 150px of content and 280px of gap, which reads as a panel
+that has lost something. So the tab stacks instead — the matrix takes the full
+width (990px at 1024, up from 700, which is 40% more length on every bar and
+room for all seven axis ticks instead of five), and the spread becomes a short
+wide strip beneath it with its two intervals side by side at 360px each. The
+Segment tab keeps the side column, because five rows fill it.
+
+**The narrative tag chips lost their text.** §5 kept the named chip on each
+compact row. At 240px of rail a chip reading "ACV BY PRODUCT MOTION" left about
+70px for the title and printed "Reposi…", which trades the item for the name of
+a portlet two columns to the left. The chip is now a dot: same hover-to-light,
+same click-to-reveal, same `+N`, same severed rendering, with the measure's
+name on its accessible name and tooltip and spelled out in full on the expanded
+card.
+
+**The Q3 collision was two collisions and 43px.** §4 read it as the axis strip
+overrunning the footnote. It was the matrix grid needing 294px in 251 — and a
+CSS grid with no overflow valve draws past its own edge rather than clipping,
+so the axis printed on the footnote *and* the coverage line printed on the
+axis. The 43px came from the velocity/coverage pairs putting their dumbbell on
+the same line as its labels rather than below them (24px), the axis strip
+keeping only its origin label (12px), the marks coming off a 90px floor (6px),
+and the head tiles dropping the "Q3 outlook ·" prefix their subtitles all
+repeated (3px). No figure moved.
+
+**The portlet subtitle wraps rather than truncating.** §8 collapsed label and
+subtitle onto one line at 700px. On the narrow Five Year and Q3 cards the head
+is about 110px wide and one line was not available at any weight, so a straight
+truncation gave the drivers rail a subtitle reading "H". It now wraps to a
+second line when it does not fit on the first, which costs 13px on a narrow
+card and nothing on a wide one.
+
+### Cuts made that §9 did not anticipate
+
+6. **The ACV-by-motion caption and the legend's product composition**, below
+   700px tall. The caption restated two totals the chart labels under the
+   columns it draws them as; the composition ("TabNext & CRMA") is on the
+   columns' tooltips and spelled out on the Product tab. Between them they were
+   holding the row the insight needed to finish its sentence — which is where
+   the $15.6M and $98.3M movements are, and they appear nowhere else.
+7. **The ±100% and ±1000% labels on the Q3 axis strip**, below 860px tall. The
+   strip is as wide as the marks it names and they are capped at 78px there;
+   three labels want 94px and print as "−1000%0+1000%". The decades keep their
+   dashed gridlines in every cell and the note under the grid states the rule
+   in words. The origin label stays, because it is the one position neither
+   recovers.
+8. **The Five Year caption's third line**, below 700px tall. Two lines is the
+   floor: it can lose a restatement and cannot lose the sentence.
