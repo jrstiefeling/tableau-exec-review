@@ -9,6 +9,14 @@
  * growth.js is imported by three of these and is deliberately not registered:
  * it carries the shared symlog scale, not a renderer. */
 
+/* mixBar went with mix-acv, the exec tab's Embedded-against-Agentic alluvial,
+ * which acv-sources replaced with five motions over six quarters. It stayed
+ * imported and registered here after its last caller went, and its 311 lines
+ * of stylesheet stayed served: no board portlet has had kind "mixBar" since
+ * 7911102. The design docs that discuss it still say "Current:
+ * src/charts/mixBar.js" — they are a record of what was decided when it was
+ * current, and are left alone. */
+
 /* growthLanes replaced metricMatrix, which was deleted with it. The module had
  * exactly one caller — q3-outlook's hero — and the Segment tab's seg-matrix,
  * which older notes name as a second caller, renders through growthMatrix.
@@ -19,7 +27,6 @@
  * it. */
 
 import { mount as attainment } from "./attainment.js";
-import { mount as mixBar } from "./mixBar.js";
 import { mount as acvSources } from "./acvSources.js";
 import { mount as statTile } from "./statTile.js";
 import { mount as cardRail } from "./cardRail.js";
@@ -36,7 +43,6 @@ import { mount as dealRail } from "./dealRail.js";
 
 export const CHARTS = {
   attainment,
-  mixBar,
   acvSources,
   statTile,
   cardRail,

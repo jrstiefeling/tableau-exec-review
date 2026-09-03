@@ -37,11 +37,11 @@ gh api -X POST repos/OWNER/REPO/pages -f "source[branch]=main" -f "source[path]=
 
 Five tabs, composed to fit one viewport each with nothing to scroll:
 
-**Q2 Exec Summary** — four plan-attainment bullet tracks on one shared 0-110% domain, the Embedded-vs-Agentic ACV mix as a two-period alluvial, AE capacity as a unit grid, the Going Well / H2 Focus narrative rails, and the 278-account movement fan.
+**Q2 Exec Summary** — four plan-attainment bullet tracks on one shared 0-110% domain, where ACV comes from as five sales motions over six quarters, AE capacity as a unit grid, the Going Well / H2 Focus narrative rails, and the AE productivity movement fan over 649 paired AEs.
 
 **Analytics Performance** — the product taxonomy at two levels, as a roll-up bar whose level-1 boundary sits exactly on a level-2 boundary, beside a growth spread and the rules the tab is drawn under.
 
-**Performance by Segment** — twenty-eight cells of product line against segment, each carrying a Y/Y bar on the shared growth scale, a stake dot area-scaled to the ACV behind it, and its own rate as a numeral. There is no All Segments column: that reading is the product tab in full, and both tabs resolve to the same certified ACV measure, so a fifth column would restate rather than find.
+**Performance by Segment** — sixteen marks on one growth axis, four leaf product lines against four segments, each a Y/Y rate on a dot area-scaled to the ACV behind it. The three roll-up rows are their sums and are carried on the product tab rather than plotted here. There is no All Segments column: that reading is the product tab in full, and both tabs resolve to the same certified ACV measure, so a fifth column would restate rather than find.
 
 **Q3 Outlook** — three measures against three lenses, with FinPlan attainment reusing the exec tab's bullet grammar and historical benchmarks as dumbbells, over the five largest committed deals.
 
@@ -113,7 +113,7 @@ Roughly five minutes.
 6. **Look at how FY27 H1 is plotted on ACV.** Detached, behind a break, with a dashed run-rate ghost — and read the flow-versus-balance rule in the (i) beside it. The tell above. This is the moment worth slowing down for.
 7. **Open the (i) on that tab.** Read the additivity rule out loud. "Two of these four rules are the layer's and two are ours, and the card says which. That is the difference between governance and a house style."
 8. **Press <kbd>K</kbd>.** Let the board rebuild in the drained palette. Sit in it. "Nothing broke. It still renders. It just stopped telling you anything you could defend in this room."
-9. **Point at any narrative tag.** Every one is struck through. "Twenty-six claims, and not one of them has a number left to check it against."
+9. **Point at any narrative tag.** Every one is struck through. "Sixteen claims, and not one of them has a number left to check it against."
 10. **Press <kbd>K</kbd> to come back.**
 
 ## Keyboard
@@ -180,9 +180,10 @@ src/
   palette.js       mode-aware colours, sentiment, good-direction, plan bands
   svg.js           SVG construction, scales, path builders
   tooltip.js       one shared tooltip
-  charts/          attainment, mixBar, statTile, cardRail, trendPanel,
+  charts/          attainment, acvSources, statTile, cardRail, trendPanel,
                    driverRail, rulesCard, movementFan, growthMatrix,
-                   groupMovement, growthLanes, benchmarkAxis, dealRail
+                   segmentSlope, groupMovement, growthLanes, benchmarkAxis,
+                   dealRail
                    growth.js — the shared symlog scale, not a renderer
   fallback.js      GENERATED — do not edit
 styles/
