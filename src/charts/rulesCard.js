@@ -12,9 +12,10 @@
  *
  *   flowStock     — a flow accumulating across a period and offered a
  *                   run-rate ghost, beside a stock read at a point in time
- *                   and joined to the line. The reader currently has to hold
- *                   the sentence in their head, find the ACV panel, find the
- *                   AOV panel, and do the comparison across the grid. The
+ *                   and joined to the line. The rule names the two measures
+ *                   the layer itself distinguishes rather than two panels on
+ *                   this tab, so without the thumbnails the reader has to hold
+ *                   the sentence in their head and picture both shapes. The
  *                   thumbnails do it in place, and they are drawn in the trend
  *                   panels' own vocabulary — same break rule, same detached
  *                   ring-with-core, same dashed ghost — so each one is a

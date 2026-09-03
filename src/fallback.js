@@ -5169,7 +5169,7 @@ export const FALLBACK_BOARD = {
                 "rules": [
                   {
                     "title": "Flow vs stock",
-                    "body": "A flow accumulates across a period, so FY27 H1 is plotted detached and offered a run-rate ghost. A stock is a balance read at a point in time, so its H1 reading joins the line and is never annualised.",
+                    "body": "A flow accumulates across a period, so FY27 H1 is plotted detached and offered a run-rate ghost. A balance is read at a point in time, so its H1 reading joins the line and is never annualised. The layer draws that line by naming measures rather than by declaring a type: ACV carries a period-to-date flag because it accumulates, and Open Pipe is exempted from period-to-date treatment in writing — a balance the layer declares as one, not one this tab decided to treat as one.",
                     "diagram": "flowStock"
                   },
                   {
