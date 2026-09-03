@@ -4116,7 +4116,7 @@ export const FALLBACK_BOARD = {
               "id": "outlook-acv",
               "kind": "statTile",
               "label": "ACV",
-              "sublabel": "Q3 outlook · annual contract value",
+              "sublabel": "Annual contract value",
               "accent": "#1C6E8C",
               "metrics": {
                 "value": 105,
@@ -4168,7 +4168,7 @@ export const FALLBACK_BOARD = {
               "id": "outlook-attrition",
               "kind": "statTile",
               "label": "Attrition",
-              "sublabel": "Q3 outlook · churned annual contract value",
+              "sublabel": "Churned annual contract value",
               "accent": "#92640A",
               "metrics": {
                 "value": 79.5,
@@ -4219,7 +4219,7 @@ export const FALLBACK_BOARD = {
               "id": "outlook-nnaov",
               "kind": "statTile",
               "label": "NNAOV",
-              "sublabel": "Q3 outlook · net new annual order value",
+              "sublabel": "Net new annual order value",
               "accent": "#C0483C",
               "metrics": {
                 "value": 25.5,
@@ -4589,7 +4589,10 @@ export const FALLBACK_BOARD = {
           ]
         }
       ],
-      "navLabel": "Q3 Outlook"
+      "navLabel": "Q3 Outlook",
+      "notesRef": [
+        "perf-rules"
+      ]
     },
     {
       "id": "trend",
@@ -4918,7 +4921,8 @@ export const FALLBACK_BOARD = {
                 "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
                 "risk": "Read a decline that is partly a change in query authorship",
                 "trustCost": "Every downstream number that divides by ACV inherits the ambiguity"
-              }
+              },
+              "span": 2
             },
             {
               "id": "trend-attrition",
