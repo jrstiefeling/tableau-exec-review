@@ -165,12 +165,15 @@ export function mount(host, ctx) {
     const value = Number(reading.value);
     const hist = Number(reading.hist);
 
-    /* Severed rather than absent. `hist` is a governed measure — the same
-     * fiscal quarter averaged over the prior two years — and a direct read
-     * cannot say which window it was taken over, so the benchmark loses its
-     * position while keeping its ring. What goes is the comparison, not the
-     * reading. */
-    const severed = isDirect;
+    /* The benchmark keeps its position, and the position is wrong.
+     *
+     * `hist` is a governed measure — the same fiscal quarter averaged over the
+     * prior two fiscal years, and the documents are emphatic that this is "not
+     * last quarter, not just last year". A direct read has no such measure, so
+     * it reconstructs the nearest thing to hand, which is the prior quarter.
+     * The ring lands somewhere plausible and the comparison flips sign on two
+     * of three rows. Severing it would have been the kinder failure. */
+    const severed = false;
     const flat = !severed && value === hist;
     const better = good === "down" ? value < hist : value > hist;
     const tint = severed ? p.inkSoft : (flat ? p.inkSoft : toneColor(better ? "positive" : "risk"));

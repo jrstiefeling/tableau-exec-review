@@ -516,7 +516,7 @@ export function mount(host, ctx) {
     valueLine.className = "mmx-readvalue";
     const valueEl = document.createElement("span");
     valueEl.className = "mmx-readnum";
-    if (isDirect) valueEl.dataset.contested = "true";
+
     valueLine.appendChild(valueEl);
 
     const yoyChip = document.createElement("span");
@@ -587,7 +587,7 @@ export function mount(host, ctx) {
      * shared across them would assert something false. */
     const valueEl = document.createElement("div");
     valueEl.className = "mmx-value";
-    if (isDirect) valueEl.dataset.contested = "true";
+
     el.appendChild(valueEl);
 
     /* Rank 2 — Y/Y, as a stub on the shared growth axis and a tinted chip. */

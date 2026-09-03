@@ -89,13 +89,16 @@ export function mount(host, ctx) {
   const scale = gap ? gap.size : dealsTotal;
   const residual = gap ? gap.size - dealsTotal : 0;
 
-  /* Yellow is workable but ungoverned, and it is the tier that never earns an
-   * X. So nothing here goes missing: all five accounts and all five amounts
-   * survive, and what stops being defensible is the *ordering*, because the
-   * gap between third and fifth is smaller than the gap between the candidate
-   * amount columns. The rank chips come off and the bar tips go dashed — the
-   * list is intact and its sequence is no longer a claim. */
-  const rankIsVoid = isDirect;
+  /* The rank chips stay on. Nothing here goes missing and nothing here
+   * hesitates: all five accounts, all five amounts, numbered one to five in
+   * the order the query returned them. Two of the five are in the wrong place,
+   * because the gap between third and fifth is smaller than the gap between
+   * the four candidate amount columns — and a numbered list is exactly as
+   * confident when it is misordered as when it is not.
+   *
+   * The gap-to-plan the rail is laid along is a different matter and does go:
+   * it derives from an attainment with no denominator in raw source. */
+  const rankIsVoid = false;
   const tint = ctx.accent;
 
   const wrap = document.createElement("div");

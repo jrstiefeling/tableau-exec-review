@@ -514,26 +514,13 @@ export function mount(host, ctx) {
       const from = rowY(index);
       const to = rowY(children[children.length - 1].i);
 
-      if (degraded) {
-        // Severed: the spines reach the gutter midpoint and stop, with an X in
-        // the gap — the same vocabulary the provenance face uses for a broken
-        // lineage arrow, because what is missing is the same assertion.
-        const mid = (from + to) / 2;
-        const gap = RAIL.rowUnits * 0.4;
-        spines.push(spine(`M ${x} ${from} V ${Math.max(from, mid - gap / 2)}`));
-        spines.push(spine(`M ${x} ${Math.min(to, mid + gap / 2)} V ${to}`));
-
-        const glyph = document.createElement("span");
-        glyph.className = "growth-rail-break";
-        glyph.textContent = "✕";
-        glyph.setAttribute("aria-hidden", "true");
-        glyph.style.setProperty("--at-x", `${(x / RAIL.w) * 100}%`);
-        glyph.style.setProperty("--at-y", `${(mid / height) * 100}%`);
-        wrapEl.appendChild(glyph);
-        breaks.push(glyph);
-      } else {
-        spines.push(spine(`M ${x} ${from} V ${to}`));
-      }
+      /* The rail draws whole in both modes. A severed spine with an X in the
+       * gap said "this parentage is missing", which is the one thing a raw
+       * read never says: it infers a parentage, draws it continuous, and the
+       * roll-up closes. On this panel the inferred hierarchy closes at every
+       * level — see the `shownFrom` arithmetic — so an additivity check
+       * confirms a partition with a line in it the business does not use. */
+      spines.push(spine(`M ${x} ${from} V ${to}`));
 
       ticks.push(tick(x, from));
       children.forEach(({ i }) => ticks.push(tick(x, rowY(i))));
@@ -679,11 +666,10 @@ export function mount(host, ctx) {
         cy: ax.midY,
         r,
         fill: p.surface,
-        // Dashed without a certified ACV column: the stake is as contested as
-        // the rate, and drawing it solid would say otherwise.
+        // Solid in both modes. An inferred stake is drawn exactly as firmly as
+        // a certified one, because that is how it arrives.
         stroke: row.color || ctx.accent,
         "stroke-width": 1.6,
-        "stroke-dasharray": null,
         class: "growth-stake"
       });
       marks.appendChild(stake);

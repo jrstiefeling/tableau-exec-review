@@ -55,16 +55,11 @@ export function mount(host, ctx) {
 
   const valueEl = document.createElement("div");
   valueEl.className = "stat-value";
-  /* Same contract as the attainment hero: where direct mode has no single
-   * figure to show, the numeral becomes the candidate stack the sources
-   * actually offer — "$105 / $121 / $94M" — which is three numerals in the
-   * box that held one. On the outlook hero at 44px that took a second line
-   * and pushed the Y/Y row and the caption out through the card's bottom
-   * edge, so the stack takes the size two lines of it cost about what the
-   * governed numeral's one line did. */
-  if (isDirect && ((ctx.portlet && ctx.portlet.directMode) || {}).candidates?.length > 1) {
-    valueEl.dataset.contested = "true";
-  }
+  /* No candidate stack. A direct read does not offer three numbers and invite
+   * you to choose — it picks one and reports it, and the tile shows the one it
+   * picked at the size the governed numeral is set in. The candidates are still
+   * authored, and they live on the provenance face where they belong: they are
+   * an explanation of how the figure came to be wrong, not the figure. */
   wrap.appendChild(valueEl);
 
   const yoy = document.createElement("span");
@@ -113,12 +108,13 @@ export function mount(host, ctx) {
   const lostCells = [];
 
   if (hasGrid) {
-    /* Without a semantic layer the headcount join resolves as-of-today rather
-     * than as-of-period-end, so there is no prior-period count to subtract
-     * from — which means the grid can still show how many people there are
-     * and can no longer show how many were lost. It keeps the count and loses
-     * the change, which is exactly what the tier says is missing. */
-    const changeKnown = !isDirect;
+    /* The grid draws the same way in both modes. This tile is supplemented in
+     * both — there is no AE capacity measure in either model, so the figure
+     * comes from the weekly User Hierarchy extract either way — and it is one
+     * of the four portlets that deliberately does not move on the toggle.
+     * Those four are the control group: what changes is what the layer was
+     * protecting, and this was never in it. */
+    const changeKnown = true;
     const totalUnits = changeKnown ? Math.round(prior / PER_CELL) : Math.round(value / PER_CELL);
     const lostUnits = changeKnown
       ? Math.max(0, Math.min(totalUnits, Math.round(Math.abs(prior - value) / PER_CELL)))

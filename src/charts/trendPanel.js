@@ -335,6 +335,22 @@ export function mount(host, ctx) {
   }
 
   /* ---- points ---- */
+  /* Per-point provenance. A five-year series is not one source: the early
+   * years predate the models, so on ACV, Attrition and NNAOV the FY23-FY24
+   * points are supplemented from the source deck while FY25 onward are
+   * certified. That seam is a fact about the DATA, so it renders in BOTH modes
+   * and does not move when the toggle flips. What moves across the toggle is
+   * the value of the unhaloed points — which is the whole argument in one
+   * panel: the layer was holding the right-hand end of the line, and the
+   * left-hand end was always somebody's spreadsheet.
+   *
+   * A halo OUTSIDE the dot rather than a hollow centre, because hollow is
+   * already spoken for: a detached point is a real measurement on a different
+   * basis, and overloading the same affordance with "different source" would
+   * make two unrelated caveats indistinguishable. */
+  const provenance = metrics.pointProvenance || [];
+  const supplementedInk = tierMeta("yellow").color;
+  const halos = [];
   const dotCores = [];
   const dots = points.map((pt) => {
     const partial = pt.i >= partialFrom;
@@ -352,6 +368,19 @@ export function mount(host, ctx) {
       class: `trend-dot${partial ? " is-partial" : ""}`
     });
     padHit(dot, 14);
+    if (provenance[pt.i] === "supplemented") {
+      const halo = svgEl("circle", {
+        cx: pt.x,
+        cy: pt.y,
+        r: (detached ? 5.4 : 4.2) + 3.1,
+        fill: "none",
+        stroke: supplementedInk,
+        "stroke-width": 1.3,
+        class: "trend-dot-halo"
+      });
+      marks.appendChild(halo);
+      halos.push(halo);
+    }
     if (detached) {
       const core = svgEl("circle", { cx: pt.x, cy: pt.y, r: 1.8, fill: accent, class: "trend-dot-core" });
       marks.appendChild(core);
@@ -362,6 +391,9 @@ export function mount(host, ctx) {
     const cagr = (metrics.cagr || [])[pt.i];
     const bits = [`${periods[pt.i]}: ${(metrics.display || [])[pt.i] ?? pt.value}`];
     if (yoy) bits.push(`Y/Y ${yoy}`);
+    if (provenance[pt.i] === "supplemented") {
+      bits.push("Supplemented — this year is authored outside both models. A definition exists; nothing enforces it.");
+    }
     if (cagr) bits.push(`2-yr CAGR ${cagr}`);
     if (partial) {
       bits.push(
@@ -550,7 +582,7 @@ export function mount(host, ctx) {
   const curtain = veil([
     head, baseline, zeroTick, line, breakRule,
     ghostLink, ghost, ghostLabel,
-    dots, dotCores, labels, partialNote, caption,
+    dots, halos, dotCores, labels, partialNote, caption,
     devZero, devPartial, devGaps, devBars.map((b) => b.node)
   ]);
 
@@ -649,7 +681,7 @@ export function mount(host, ctx) {
 
     await wait(360, signal);
     if (breakRule) dashDraw(breakRule, { duration: 420, signal });
-    stagger([...dots.slice(joinedCount), ...dotCores], { step: 90, duration: 420, y: 0, scaleFrom: 0.2, signal });
+    stagger([...dots.slice(joinedCount), ...dotCores, ...halos], { step: 90, duration: 420, y: 0, scaleFrom: 0.2, signal });
     if (partialNote) fadeIn(partialNote, { delay: 180, duration: 400, y: 4, signal });
 
     /* The strip is its own beat, after the trajectory's marks and before the

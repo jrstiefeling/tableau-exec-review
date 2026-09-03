@@ -83,11 +83,11 @@ export function mount(host, ctx) {
   const periodLabel = metrics.periodLabel || "current";
   const priorPeriodLabel = metrics.priorPeriodLabel || "prior";
 
-  // Without a governed SKU-to-motion taxonomy there is no split to draw, so
-  // there is no boundary and there are no ribbons — only two undifferentiated
-  // columns. The total still visibly falls, which is the honest degradation:
-  // the mix-rotation insight disappears rather than degrading into a guess.
-  const splitAvailable = !(isDirect && tier === "red");
+  // The split always draws. Without a SKU-to-motion dimension a direct read
+  // does not decline to answer — it name-matches product codes and returns a
+  // split, and the ribbon it produces is the same shape as the governed one
+  // because the rotation is real. What is wrong is where the boundary sits.
+  const splitAvailable = true;
 
   const wrap = document.createElement("div");
   wrap.className = "mix";

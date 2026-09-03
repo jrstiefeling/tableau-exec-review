@@ -358,13 +358,19 @@ export function mount(host, ctx) {
   const dir = dirOf(good);
   const planPct = Number(metrics.plan) || 0;
 
-  // Red and grey tiers have no defensible plan basis, so there is no target to
-  // draw and therefore no attainment. The numeric `plan` field survives the
-  // direct-mode merge on all four cards, so this is driven by tier — exactly
-  // as the ring was — rather than by testing whether `plan` is present.
-  // Yellow keeps its bar: workable but ungoverned is the distinction the tier
-  // system exists to draw, and flattening it here would erase it.
-  const barIsVoid = isDirect && (tier === "red" || tier === "grey");
+  // The void is now a property of the DATA, not of the mode: a card has no
+  // attainment when its `plan` is null, and nothing else. Three of the four
+  // cards recompute their attainment against the same plan base the governed
+  // pair implies — the arithmetic is in each block's `shownFrom` — and draw a
+  // full track with full bands. Only pipegen goes void, because its targets
+  // live in a CTE inside the extract and a raw read cannot reach them.
+  //
+  // Which is what produces the sharpest beat on the board. Attrition's
+  // certified reading is over plan on churn and reads as the miss it is; its
+  // degraded reading, short a month of arrears actuals, lands at 69% of plan,
+  // and because lower is better the card washes GREEN. Nobody audits good
+  // news, and no strike or grey wash arrives to suggest they should.
+  const barIsVoid = metrics.plan === null || metrics.plan === undefined;
   const planTint = toneColor(planTone(planPct, good));
 
   const wrap = document.createElement("div");
@@ -398,7 +404,11 @@ export function mount(host, ctx) {
   hero.className = "attain-hero";
   const valueEl = document.createElement("div");
   valueEl.className = "attain-value";
-  if (isDirect) valueEl.dataset.contested = "true";
+  /* No candidate stack. The hero is one numeral in both modes, at the same
+   * size, in the same face — see the note in palette.js. The candidates the
+   * sources offer are authored and they live on the provenance face, which is
+   * where an explanation belongs; putting them on the front made the tile
+   * announce its own uncertainty, which is the one thing it cannot do. */
   hero.appendChild(valueEl);
   wrap.appendChild(hero);
 
@@ -511,16 +521,41 @@ export function mount(host, ctx) {
   let tick = null;
   let tickHit = null;
   if (!barIsVoid) {
-    // 2 units wide rather than 1.6: the tick is the reference the four cards
-    // are read against and it was the thinnest mark on a card the reviewer
-    // could not read at laptop size.
+    /* The tick is the plan, and the plan has a provenance of its own.
+     *
+     * §3.2 of docs/semantic-layer.md is narrow about this: target and
+     * attainment measures exist for Pipe Gen and Day-1 Open Pipe, by product
+     * and by source, and for nothing else. There is no ACV target, no
+     * attrition target, no NNAOV target, and §5.4 records that the "FinPlan"
+     * lineage node three portlets name does not exist at all. So on three of
+     * the four exec cards the bar is a certified measure being read against a
+     * number somebody typed into a spreadsheet.
+     *
+     * That is worth exactly one colour and no more. Demoting the whole card to
+     * amber would have been the easy call and it would have thrown away the
+     * true half of the tile: $74M is certified, and only the 63% is not.
+     * Colouring the tick instead says which half, and leaves the trust dot
+     * free to report the measure the card is actually named after.
+     *
+     * DASHED as well as amber, and the dash is the load-bearing half. The
+     * supplemented ink is #92640A and so is the palette's warn tone, which is
+     * the same value — so on Attrition, whose bar is warn-toned at 104% of
+     * plan, an amber tick against an amber bar said nothing at all. A break in
+     * the mark cannot collide with a sentiment tone on any card in any mode.
+     * It also gives supplemented one grammar across chart types: a broken line
+     * here, a halo on a point in trendPanel.js.
+     *
+     * 2 units wide rather than 1.6: the tick is the reference the four cards
+     * are read against and it was the thinnest mark on a card the reviewer
+     * could not read at laptop size. */
+    const planIsSupplemented = metrics.planProvenance === "supplemented";
     tick = svgEl("path", {
       d: `M ${x(100)} 5 V 41`,
-      stroke: p.ink,
+      stroke: planIsSupplemented ? tierMeta("yellow").color : p.ink,
       "stroke-width": 2,
-      class: "attain-tick"
+      class: `attain-tick${planIsSupplemented ? " is-supplemented" : ""}`
     });
-    if (barIsVoid) tick.setAttribute("stroke-dasharray", "3.5 3.5");
+    if (planIsSupplemented) tick.setAttribute("stroke-dasharray", "3 2.4");
     marks.appendChild(tick);
 
     // padHit() refuses a mark that already carries a real stroke, so the tick
@@ -536,9 +571,21 @@ export function mount(host, ctx) {
     marks.appendChild(tickHit);
     ctx.tip(
       tickHit,
+      /* This string used to end "(certified)" on all four cards and, when
+       * void, to describe FinPlan as a real planning system at OU and
+       * product-family grain. Both were overclaims of the kind §12 of
+       * docs/semantic-layer.md exists to catch: §3.2 grants target and
+       * attainment measures to Pipe Gen and Day-1 Open Pipe and to nothing
+       * else, and §5.4 records that FinPlan "does not exist" — the governed
+       * target vocabulary is PG_TARGETS, OP_TARGETS and PG_LANDING_QTR_TGT.
+       * One card's plan is certified. The other three are somebody's number. */
       barIsVoid
-        ? "No target reaches raw source. FinPlan lives in the planning system at OU and product-family grain and is re-versioned at every reforecast."
-        : `Plan target · 100% · ${good === "down" ? "lower is better" : "higher is better"} (certified)`
+        ? "No target survives the trip to raw source. The governed target vocabulary is PG_TARGETS, OP_TARGETS and PG_LANDING_QTR_TGT — none of them reachable by reading opportunity rows."
+        : `Plan target · 100% · ${good === "down" ? "lower is better" : "higher is better"} · ${
+          metrics.planProvenance === "supplemented"
+            ? "supplemented — no target measure exists for this metric in either model, so this number is authored outside the layer"
+            : "certified — Pipe Gen is one of the two metrics with a governed target"
+        }`
     );
   }
 

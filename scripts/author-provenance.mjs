@@ -7,12 +7,31 @@
  *
  *   provenance = the WEAKEST LOAD-BEARING input the portlet has.
  *
- * Load-bearing means the portlet's stated job needs it. A KPI card whose whole
- * purpose is "attained or missed against plan" needs the plan, so a plan that
- * exists in no model makes the card supplemented even though its hero measure
- * is certified. That is not a technicality — it is the most useful thing this
- * pass discovered about the board, and §5.4 line 343 says it plainly:
- * attainment exists ONLY for Pipe Gen and Day-1 Open Pipe.
+ * Load-bearing means the portlet's stated job needs it — with one refinement
+ * that the first pass of this script got wrong and that is worth stating,
+ * because it moved nine dots:
+ *
+ *   Where a SINGLE MARK carries the weakness and the panel still does its job
+ *   without that mark, the mark carries the weakness and the dot reports the
+ *   hero measure. Only where the weak input is the panel's FRAME does the dot
+ *   come down.
+ *
+ * The first pass demoted every exec KPI card to supplemented because §3.2
+ * grants target measures to Pipe Gen and Day-1 Open Pipe and to nothing else,
+ * so three of the four cards read a certified measure against a number
+ * somebody typed. True — but the consequence was a GOVERNED board that was
+ * eighteen-twentysevenths amber, which misrepresents the layer as badly in one
+ * direction as an all-green board would in the other. $74M really is
+ * ACV_clc. Only the 63% is not.
+ *
+ * So the plan tick on those cards renders in supplemented amber (see
+ * `planProvenance` in attainment.js) and the dot reports the measure the card
+ * is named after. The trend panels go the other way: their job IS the
+ * five-year shape, the shape needs all five points, and two of the five can
+ * only ever have come from a deck — so the dot comes down and the halos say
+ * which points. Structural cases (the motion hierarchy, the derived segment
+ * dimension, the gap axis under the deal rail) have no single mark to blame
+ * and the dot comes down too.
  *
  *   node scripts/author-provenance.mjs
  */
@@ -22,12 +41,17 @@ import { readFileSync, writeFileSync } from "node:fs";
 /* id: [provenance, directTier, detectability, groundedIn] */
 const CALLS = {
   /* ---------------------------------- exec ---------------------------------- */
-  // Hero measure certified (NNAOV_Commit_clc, ACV_clc, Attrition_clc — §5.4)
-  // but the plan is not: "There is no ACV, NNAOV or Attrition plan-attainment
-  // measure and no 'FinPlan' object anywhere in either model" (§5.4).
-  "kpi-nnaov":      ["supplemented", "red",    "silent",    "NNAOV_Commit_clc certified; plan basis in no model (§5.4)"],
-  "kpi-acv":        ["supplemented", "red",    "silent",    "ACV_clc certified; plan basis in no model (§5.4)"],
-  "kpi-attrition":  ["supplemented", "red",    "silent",    "Attrition_clc certified; plan basis in no model (§5.4)"],
+  // §5.2 maps these to real measures: ACV_clc and Attrition_clc. The plan each
+  // is read against is NOT governed (§3.2), but that is one mark on the card
+  // and the amber plan tick carries it, so the dot reports the measure.
+  "kpi-acv":        ["certified",    "red",    "silent",    "ACV_clc (§5.2); plan tick amber, no ACV target (§3.2)"],
+  "kpi-attrition":  ["certified",    "red",    "silent",    "Attrition_clc (§5.2); plan tick amber, no target (§3.2)"],
+  // NNAOV is the exception, and not because of its plan. §10.4: "NNAOV exists
+  // only as a commit. NNAOV_Commit_clc is a forecast, not a booking. The board
+  // presents $6M as a booked quarter result … exactly the class of error the
+  // board exists to argue against." The HERO figure is misdescribed, so no
+  // per-mark fix reaches it and the dot comes down.
+  "kpi-nnaov":      ["supplemented", "red",    "silent",    "NNAOV_Commit_clc is a commit rendered as a booking (§10.4)"],
   // The one card whose plan IS governed: "Attainment exists only for Pipe Gen
   // and Day-1 Open Pipe, by product and by source (§3.2)". Fully certified.
   "kpi-pipegen":    ["certified",    "red",    "catchable", "Pipe_Gen_clc + pipegen attainment both certified (§3.2, §5.4)"],
@@ -63,7 +87,9 @@ const CALLS = {
   "seg-rules":      ["narrative",    "grey",   "none",      "presentation rules, no figure (§5.4)"],
 
   /* ------------------------------- q3-outlook ------------------------------- */
-  "outlook-matrix": ["supplemented", "red",    "silent",    "ACV/Attrition/NNAOV certified; no FinPlan object (§5.4)"],
+  // The plan landscape merged into this matrix is a whole COLUMN, not one
+  // mark, and the column is the half of the panel the tab is named for.
+  "outlook-matrix": ["supplemented", "red",    "silent",    "ACV/Attrition certified; merged plan column has no target (§3.2)"],
   // Coverage_clc + Historical_Coverage_clc and Velocity_clc/Specialist_V_clc +
   // Historical_Velocity_clc are all ✅ in §5.4. The benchmark window is
   // governed too: "'Historical' = average of the same fiscal quarter across the

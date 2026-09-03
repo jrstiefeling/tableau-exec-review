@@ -48,7 +48,8 @@ export const FALLBACK_BOARD = {
                 "planDisplay": "15% of plan",
                 "goodDirection": "up",
                 "planGoodDirection": "up",
-                "caption": "Weakest attainment on the board"
+                "caption": "Weakest attainment on the board",
+                "planProvenance": "supplemented"
               },
               "semantic": {
                 "metricName": "NNAOV Commit",
@@ -71,7 +72,7 @@ export const FALLBACK_BOARD = {
                 "provenance": "supplemented",
                 "tier": "red",
                 "detectability": "silent",
-                "groundedIn": "NNAOV_Commit_clc certified; plan basis in no model (§5.4)",
+                "groundedIn": "NNAOV_Commit_clc is a commit rendered as a booking (§10.4)",
                 "candidates": [
                   "$6.0M",
                   "$11.2M",
@@ -84,11 +85,20 @@ export const FALLBACK_BOARD = {
                 "risk": "Present a headline decline that is off by up to 87% and call it settled",
                 "trustCost": "A confident wrong number costs more trust than a flagged unknown",
                 "metrics": {
-                  "display": "$6.0 / $11.2 / $4.4M",
-                  "planDisplay": "plan basis undefined",
-                  "yoyDisplay": "-75% Y/Y (unverifiable)",
-                  "caption": "Three candidate definitions, no arbiter"
-                }
+                  "value": 11.2,
+                  "display": "$11M",
+                  "yoy": -53,
+                  "yoyDisplay": "-53% Y/Y",
+                  "plan": 28,
+                  "planDisplay": "28% of plan",
+                  "caption": "The most permissive of three new-logo tests"
+                },
+                "hazard": "field-ambiguity",
+                "shownFrom": "Three new-logo tests coexist on the raw object and nothing rules between them — a hand-maintained Type picklist, a New_Logo__c checkbox, and a first-close-date derivation. The direct read takes the most permissive: $6M × 1.867 = $11M. Plan recomputes against the same plan base: 28% rather than 15%. Y/Y against the same prior quarter ($24M): -53% rather than -75%.",
+                "wouldYouNotice": "No. It is still the worst attainment on the board and still a steep decline, so every check anyone applies to it passes. It is simply 87% less bad than the truth, which on the one measure the business is trying to turn around is the difference between \"act now\" and \"watch it\".",
+                "certifiedDelta": "+$5M · 87%",
+                "layerProvides": "A governed commit measure with a declared grain, so the net-new figure resolves to one definition rather than three.",
+                "layerDoesNotProvide": "The layer holds this only as a commit, not as a booked actual, and there is no target measure for it — the governed plan track is supplemented as well."
               }
             },
             {
@@ -107,7 +117,8 @@ export const FALLBACK_BOARD = {
                 "planDisplay": "70% of plan",
                 "goodDirection": "up",
                 "planGoodDirection": "up",
-                "caption": "Splits $24M Embedded / $58M Agentic"
+                "caption": "Splits $24M Embedded / $58M Agentic",
+                "planProvenance": "supplemented"
               },
               "semantic": {
                 "metricName": "Annual Contract Value",
@@ -127,10 +138,10 @@ export const FALLBACK_BOARD = {
                 "why": "The same ACV_clc the Five Year Trend tab resolves against, which is why the two tabs reconcile rather than merely agree. The row grain is the thing to know: one row per metric per opportunity per user, so a $500K deal is counted again for every leader above its owner and the tile reads 3x to 10x high without the dedup filter. 70% of plan is the part with no source — attainment exists here only for pipegen and Day-1 open pipe."
               },
               "directMode": {
-                "provenance": "supplemented",
+                "provenance": "certified",
                 "tier": "red",
                 "detectability": "silent",
-                "groundedIn": "ACV_clc certified; plan basis in no model (§5.4)",
+                "groundedIn": "ACV_clc (§5.2); plan tick amber, no ACV target (§3.2)",
                 "candidates": [
                   "$82M",
                   "$96M",
@@ -143,11 +154,20 @@ export const FALLBACK_BOARD = {
                 "risk": "Two teams present two different ACV numbers for the same quarter in the same week",
                 "trustCost": "Every downstream number that divides by ACV inherits the ambiguity",
                 "metrics": {
-                  "display": "$82 / $96 / $74M",
-                  "planDisplay": "plan basis undefined",
-                  "yoyDisplay": "-28% Y/Y (unverifiable)",
-                  "caption": "Four candidate Amount columns, no defined winner"
-                }
+                  "value": 74,
+                  "display": "$74M",
+                  "yoy": -35,
+                  "yoyDisplay": "-35% Y/Y",
+                  "plan": 63,
+                  "planDisplay": "63% of plan",
+                  "caption": "One of four amount columns, and nothing ruling between them"
+                },
+                "hazard": "field-ambiguity",
+                "shownFrom": "Four amount columns coexist on the raw opportunity — Amount, Tableau_Amount__c, Analytics_Amount__c, AmountConverted__c — and nothing in the schema rules between them. The direct read picks one and lands light: $82M × 0.902 = $74M. Y/Y recomputes against the same prior quarter ($114M): -35% rather than -28%. Plan recomputes against the same plan base implied by the governed pair: 63% rather than 70%.",
+                "wouldYouNotice": "No. A ten per cent miss on a measure already 28% down reads as the same bad quarter, and 63% of plan is exactly as believable as 70%. Small enough to survive scrutiny, large enough to change the decision. The tile beside it reads this same measure 1.085× HIGH, and in governed mode both read $82M — the cross-tab identity is a thing the layer holds, not a coincidence.",
+                "certifiedDelta": "-$8M · -10%",
+                "layerProvides": "One certified ACV measure, one date anchor, and a mandatory deduplication filter — the definition lives in the layer rather than in the question.",
+                "layerDoesNotProvide": "No ACV target or attainment measure exists in either model; attainment exists only for Pipe Gen and Day-1 Open Pipe. The governed plan track is supplemented too."
               }
             },
             {
@@ -166,7 +186,8 @@ export const FALLBACK_BOARD = {
                 "planDisplay": "104% of plan",
                 "goodDirection": "down",
                 "planGoodDirection": "down",
-                "caption": "Falling year over year, still over plan"
+                "caption": "Falling year over year, still over plan",
+                "planProvenance": "supplemented"
               },
               "semantic": {
                 "metricName": "Attrition ACV",
@@ -187,10 +208,10 @@ export const FALLBACK_BOARD = {
                 "polarityNote": "The source slide colours this by hand, cell by cell. The board states the direction once instead — which is the honest version of the claim, because the layer publishes an additivity classification and period-to-date flags and nothing at all about which way is good."
               },
               "directMode": {
-                "provenance": "supplemented",
+                "provenance": "certified",
                 "tier": "red",
                 "detectability": "silent",
-                "groundedIn": "Attrition_clc certified; plan basis in no model (§5.4)",
+                "groundedIn": "Attrition_clc (§5.2); plan tick amber, no target (§3.2)",
                 "candidates": [
                   "requires manual reconstruction"
                 ],
@@ -201,11 +222,20 @@ export const FALLBACK_BOARD = {
                 "risk": "Rebuild the number differently each quarter and read a trend that is really a methodology change",
                 "trustCost": "A trend line nobody can reproduce is not a trend line",
                 "metrics": {
-                  "display": "reconstruct",
-                  "planDisplay": "no prior-period baseline",
-                  "yoyDisplay": "-12% Y/Y (unreproducible)",
-                  "caption": "No point-in-time contract book to measure against"
-                }
+                  "value": 50,
+                  "display": "$50M",
+                  "yoy": -41,
+                  "yoyDisplay": "-41% Y/Y",
+                  "plan": 69,
+                  "planDisplay": "69% of plan",
+                  "caption": "Best churn quarter in three years, on two thirds of one"
+                },
+                "hazard": "point-in-time",
+                "shownFrom": "Attrition actuals land monthly and one month in arrears, with the in-flight month covered by a separate unofficial measure. A direct read finds two of the quarter's three months and reports the quarter as complete: $75M × 2/3 = $50M. Against the same plan base that is 69% rather than 104%; against the same prior year ($85M), -41% rather than -12%. The one-month lag is documented; the flat monthly distribution inside the quarter is a modelled input.",
+                "wouldYouNotice": "No, and worse — you would not want to. Lower is better on this measure, so 69% of plan puts the card in the positive band and it washes GREEN. The governed card is over plan on churn and reads as the miss it is. The degraded card reports the best churn quarter in three years, in the same green as a win. Nobody audits good news.",
+                "certifiedDelta": "-$25M · reads 35 points better than it is, and on the good side of plan rather than the bad",
+                "layerProvides": "A named measure for landed actuals and a separate named measure for the in-flight month, so a query can distinguish a complete period from a partial one.",
+                "layerDoesNotProvide": "The layer names the two measures; it does not stop a query summing them, nor presenting a partial quarter as a whole one. It does not declare polarity either — that lower is better here is a property of the board, not of the model."
               }
             },
             {
@@ -224,7 +254,8 @@ export const FALLBACK_BOARD = {
                 "planDisplay": "79% of plan",
                 "goodDirection": "up",
                 "planGoodDirection": "up",
-                "caption": "Closest to plan of the four"
+                "caption": "Closest to plan of the four",
+                "planProvenance": "certified"
               },
               "semantic": {
                 "metricName": "Pipeline Generation",
@@ -259,9 +290,18 @@ export const FALLBACK_BOARD = {
                 "risk": "Report pipeline coverage that is inflated by re-entries and plan against it",
                 "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud",
                 "metrics": {
-                  "planDisplay": "79% of plan (rule undeclared)",
-                  "caption": "Stage re-entry rule left to the query author"
-                }
+                  "value": 2367,
+                  "display": "$2,367M",
+                  "plan": null,
+                  "planDisplay": "No target in source",
+                  "caption": "Rate holds at -8%; level is 3× the hierarchy"
+                },
+                "hazard": "fan-out",
+                "shownFrom": "The row grain is one row per metric per opportunity per user in the reporting hierarchy, and the Forecasting model documents a 3×–10× overcount for a query with no deduplication filter. At the low end: $789M × 3 = $2,367M. The Y/Y is UNCHANGED at -8%, because a multiplier applied to both years cancels in the rate. The plan track goes void: pipegen targets live in a CTE inside the extract, not in the raw source, so there is no denominator to recompute against.",
+                "wouldYouNotice": "Yes, on the level — $2,367M is out of range for this business unit and a magnitude check finds it. No, on the rate. The figure that survives is the growth rate, and the figure that fails is the one nobody re-derives. This is the clearest of the four catchable tiles, and its job is to show that catchability is the exception: it is catchable because the error is 200%, not because the board is watching.",
+                "certifiedDelta": "×3 · the depth of the hierarchy",
+                "layerProvides": "A mandatory deduplication filter, and the only two governed target measures on this board — pipegen attainment and Day-1 open pipe, by product and by source.",
+                "layerDoesNotProvide": null
               }
             }
           ]
@@ -347,9 +387,37 @@ export const FALLBACK_BOARD = {
                 "risk": "Miss that Embedded nearly doubled its share while the base fell",
                 "trustCost": "The insight is not wrong, it is absent — the most expensive failure mode",
                 "metrics": {
-                  "insight": "Without a governed SKU-to-motion taxonomy there is no Embedded / Agentic split to report — only an undifferentiated $82M.",
-                  "caption": "No product-motion grouping available"
-                }
+                  "total": 89,
+                  "totalDisplay": "$89M",
+                  "priorTotal": 123.6,
+                  "priorTotalDisplay": "$123.6M",
+                  "segments": {
+                    "0": {
+                      "value": 28,
+                      "display": "$28M",
+                      "yoy": 66,
+                      "yoyDisplay": "+66% Y/Y",
+                      "priorValue": 16.9,
+                      "priorDisplay": "$16.9M"
+                    },
+                    "1": {
+                      "value": 61,
+                      "display": "$61M",
+                      "yoy": -43,
+                      "yoyDisplay": "-43% Y/Y",
+                      "priorValue": 106.7,
+                      "priorDisplay": "$106.7M"
+                    }
+                  },
+                  "insight": "<strong>31% of Q2 ACV, up from 14%</strong> — Embedded's ribbon widens into the narrower column. It grew $16.9M to $28M while Agentic fell $106.7M to $61M.",
+                  "caption": "$123.6M → $89M · retaining a line the business excludes"
+                },
+                "hazard": "exclusion-convention",
+                "shownFrom": "Two conventions the layer applies whether or not you ask are absent. First, APM_L120 = 'Other' is excluded by default when the level-1 breakout is visible; retained, it inflates every figure by 8.5% — $82M × 1.085 = $89.0M. Second, there is no SKU-to-motion dimension in raw product codes, so the split is recovered by name-matching, which moves $2M of Agentic codes into Embedded. Embedded: $24M × 1.085 + $2M = $28.0M. Agentic: $58M × 1.085 − $2M = $61.0M. They still sum to $89.0M, so the one check anyone runs passes. Share reads 31% rather than 29%.",
+                "wouldYouNotice": "No, and this is the tile the whole design rests on. The ribbon, the column widths, the direction of the story and the shape of the mark are identical to the governed version. Only the numbers moved, and they moved in the flattering direction: Embedded's share of the book reads two points better and the total reads seven million dollars bigger.",
+                "certifiedDelta": "+$7.0M total · +2pt share",
+                "layerProvides": "One certified ACV measure, and the APM product hierarchy with its default 'Other' exclusion held as a business preference in the model rather than in each author's query.",
+                "layerDoesNotProvide": "No product-motion dimension exists. The Embedded-versus-Agentic grouping is not governed in either model — the closest governed grouping is APM_L120 family and APM_L218 sub-product, and Tableau Next and Tableau Server are both L2 values, so even the governed grouping needs OR-matching across two levels."
               }
             },
             {
@@ -401,10 +469,15 @@ export const FALLBACK_BOARD = {
                 "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
                 "risk": "Compare this quarter's capacity against a prior quarter that has quietly changed since it closed",
                 "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud",
-                "metrics": {
-                  "priorDisplay": "no prior-year count to subtract from",
-                  "caption": "As-of-today only — prior quarters restate"
-                }
+                "metrics": {},
+                "hazard": "none",
+                "shownFrom": null,
+                "supplementedFrom": "The User Hierarchy table, refreshed weekly, reconciled by hand against the FinPlan breakout.",
+                "supplementCost": "No additivity guarantee, so a sum across two branches of the hierarchy may double-count a shared AE. No enforced as-of rule, so the count restates when a territory changes. No lineage, so nothing connects the figure to the quarter it was taken in.",
+                "wouldYouNotice": "Nothing to notice. The figure is the same in both modes. This panel does not move when the toggle flips, because it never went through the layer and there is no guarantee to withdraw. Four panels on this board behave this way, and they are the control group: what moved is what the layer was protecting.",
+                "certifiedDelta": "unchanged",
+                "layerProvides": null,
+                "layerDoesNotProvide": null
               }
             }
           ]
@@ -3287,11 +3360,17 @@ export const FALLBACK_BOARD = {
                 "risk": "Grade the H2 retention motion on a population whose baseline moved after the quarter closed, and target the wrong accounts because the biggest apparent contractions are re-parenting artifacts",
                 "trustCost": "Detail that does not roll up to the certified total is worse than no detail — it is a second, more granular-looking number to argue with",
                 "metrics": {
-                  "headline": "no reconciled population",
-                  "headlineNote": "Rows exist; the roll-up guarantee does not",
-                  "insight": "Without a conformed account identity and a point-in-time prior-year book there is no population to fan. An export can still produce a row per account, but the rows do not sum to the certified $82M and the movement on each line is partly an artifact of when the hierarchy was last edited.",
-                  "caption": "Per-account detail available, roll-up to the certified total not"
-                }
+                  "totalDisplay": "$89M",
+                  "priorTotalDisplay": "$123.57M",
+                  "insight": "Accounts whose baseline was re-parented after the quarter closed land at the extremes rather than near the flat line, so the base looks more polarised than it is: more full expansions, more full non-renewals, and a shape that still reads as a concentration story.",
+                  "caption": "Renewable accounts keyed on name · re-parented baselines land at the extremes"
+                },
+                "hazard": "conformed-identity",
+                "shownFrom": "Raw carries an account name, not the consolidated combo key the layer resolves to — the Forecasting model has no Account ID at all, only a name, and the other model has the ID. So a re-parented subsidiary arrives as two keys: one full non-renewal beside one phantom expansion. Modelled by moving accounts within 28 index points of the flat line out to the extremes, which is where a split baseline lands. The expanded and contracted counts and the headline share are then re-derived from the lines as drawn, so the caption cannot disagree with the picture. The roll-up carries the same 8.5% 'Other' inflation as the tile above it: $89.0M against $124M.",
+                "wouldYouNotice": "No. The fan still draws, the density curve keeps the same shape, and the concentration story reads BETTER than the truth — more expanders, a shallower middle. Nothing in a picture of shape reveals a population that has been redistributed, because the shape is what the picture is about and the shape is fine.",
+                "certifiedDelta": "same population, redistributed · the expanded share reads high",
+                "layerProvides": "A consolidated account key — Global_Combo_Name6 — and a prior-year read through the relative-year dimension rather than through a separate snapshot, so both sides of the comparison are the same population.",
+                "layerDoesNotProvide": "Nothing here overclaims: the caveat in the availability table is a query-construction rule — pick one model, and ask for the full result set rather than a top-N — not a missing definition."
               }
             }
           ]
@@ -3471,40 +3550,50 @@ export const FALLBACK_BOARD = {
                 "risk": "Plan H2 against a $24M Embedded line that no two queries reproduce the same way",
                 "trustCost": "A hierarchy that is rebuilt per deck is a hierarchy nobody can be held to",
                 "metrics": {
+                  "stakeMax": 90,
                   "rollup": {
-                    "total": 83,
-                    "totalDisplay": "$83M",
-                    "note": "No product taxonomy — one undifferentiated total, and no levels to tile it.",
-                    "levels": [
-                      [
-                        "analytics-total"
-                      ]
-                    ]
+                    "total": 90,
+                    "totalDisplay": "$90M",
+                    "note": "Three levels of one measure, and a fourth line the business does not recognise. The partition still closes — that is the problem."
                   },
-                  "rows": [
-                    {
-                      "id": "analytics-total",
-                      "label": "Analytics Total",
-                      "level": 0,
-                      "parent": null,
-                      "value": 83,
-                      "display": "$83M",
-                      "yoy": -27,
-                      "yoyDisplay": "-27%",
-                      "goodDirection": "up",
-                      "color": "#C0483C"
+                  "rows": {
+                    "0": {
+                      "value": 90,
+                      "display": "$90M"
+                    },
+                    "1": {
+                      "value": 64,
+                      "display": "$64M"
+                    },
+                    "2": {
+                      "value": 41,
+                      "display": "$41M"
+                    },
+                    "3": {
+                      "value": 23,
+                      "display": "$23M"
+                    },
+                    "4": {
+                      "value": 26,
+                      "display": "$26M"
+                    },
+                    "5": {
+                      "value": 14,
+                      "display": "$14M"
+                    },
+                    "6": {
+                      "value": 12,
+                      "display": "$12M"
                     }
-                  ],
-                  "sockets": [
-                    "platform",
-                    "cloud",
-                    "server",
-                    "embedded",
-                    "next",
-                    "crma"
-                  ],
-                  "caption": "No product taxonomy — one undifferentiated $83M and six rows with nothing to draw"
-                }
+                  },
+                  "caption": "The roll-up closes, and one of its lines should not exist"
+                },
+                "hazard": "exclusion-convention",
+                "shownFrom": "The layer excludes APM_L120 = 'Other' by default whenever the level-1 breakout is visible. Retained, every level inflates 8.5%: $83M × 1.085 = $90M at the top, and each child scales with it. Every level still sums exactly to the level above, so an additivity check passes. The Y/Y figures do not move, because both sides of each rate carry the same inflation and it cancels.",
+                "wouldYouNotice": "No, because the check you would run is the one that passes. The roll-up closes by construction whether or not 'Other' belongs in the partition, so additivity confirms a hierarchy with an extra $7M in it. Every growth rate on the panel is correct, which is the most convincing part of the lie.",
+                "certifiedDelta": "+$7M at every level · rates unchanged",
+                "layerProvides": "A published additivity classification — the measure catalogue is physically organised into additive and do-not-sum sections — and the 'Other' exclusion as a business preference held in the model.",
+                "layerDoesNotProvide": "The motion hierarchy itself. There is no product-motion dimension in either model; the three levels here are the deck's grouping, not the layer's."
               }
             }
           ]
@@ -3652,8 +3741,61 @@ export const FALLBACK_BOARD = {
                 "risk": "Treat Embedded as one growing thing and fund both of its lines on the strength of one",
                 "trustCost": "A grouping that only exists in the deck cannot be reviewed against next quarter's deck",
                 "metrics": {
-                  "caption": "No motion parentage — no decomposition to take"
-                }
+                  "rows": {
+                    "0": {
+                      "parts": {
+                        "0": {
+                          "value": 40.3,
+                          "valueDisplay": "$40M",
+                          "delta": -28,
+                          "deltaDisplay": "−$28.0M",
+                          "priorValue": 68.3,
+                          "priorDisplay": "$68.3M"
+                        },
+                        "1": {
+                          "value": 22.3,
+                          "valueDisplay": "$22M",
+                          "delta": -14.2,
+                          "deltaDisplay": "−$14.2M",
+                          "priorValue": 36.5,
+                          "priorDisplay": "$36.5M"
+                        }
+                      },
+                      "lossWing": 42.2,
+                      "gainWing": 0
+                    },
+                    "1": {
+                      "parts": {
+                        "0": {
+                          "value": 13.8,
+                          "valueDisplay": "$14M",
+                          "delta": 11.1,
+                          "deltaDisplay": "+$11.1M",
+                          "priorValue": 2.7,
+                          "priorDisplay": "$2.7M"
+                        },
+                        "1": {
+                          "value": 11.7,
+                          "valueDisplay": "$12M",
+                          "delta": -2.1,
+                          "deltaDisplay": "−$2.1M",
+                          "priorValue": 13.8,
+                          "priorDisplay": "$13.8M"
+                        }
+                      },
+                      "lossWing": 2.1,
+                      "gainWing": 11.1
+                    }
+                  },
+                  "detailNote": "Prior period derived from the authored current-quarter dollars and Y/Y. Each net is the net of the lines shown, not a motion total. Every figure is shown to $0.1M and each net is rounded from the exact sum, so two rounded lines need not add to their rounded net by more than $0.1M. Every net here misses by considerably more than that, because the lines and the net came from different amount columns.",
+                  "caption": "Every wing overshoots its own net by 6%. The decomposition does not close."
+                },
+                "hazard": "decomposition-closure",
+                "shownFrom": "The group total and the line breakdown are two queries against four coexisting amount columns, and nothing in raw schema forces them onto the same one. The line-level read runs 6% high — half the up-to-12% per-deal divergence, because a product line aggregates many deals and it partly averages out — while each net is the governed group aggregate and does not move. So every wing overshoots its own net by 6%: Agentic Analytics Platform draws to −$42.2M against a printed net of −$39.8M, a $2.4M gap. The motion parentage is name-matched from product codes, there being no SKU-to-motion dimension in either model, so the two motions are the deck's grouping rather than the layer's.",
+                "wouldYouNotice": "Yes, and this is the one panel that gives itself away without anybody knowing the right answer. The panel states its own tolerance: figures are shown to $0.1M, so two rounded lines need not add to their rounded net by more than that. $2.4M is 24× the tolerance. Add the lines and they do not make the net — and because the gap is a fixed 6%, it is invisible on the largest group and glaring on the smallest: 6% of Agentic Analytics Platform, but the same proportion of a much smaller number on Embedded Agentic Analytics, which is where the growth story lives.",
+                "certifiedDelta": "lines +6% · nets unchanged · every decomposition fails to close",
+                "layerProvides": "A published additivity classification. The catalogue is physically organised into additive and do-not-sum sections, and this measure is in the additive one — which is what licenses a decomposition to be taken at all.",
+                "layerDoesNotProvide": "The grouping the decomposition is taken within. That is the deck's, not the layer's."
               }
             },
             {
@@ -4032,9 +4174,199 @@ export const FALLBACK_BOARD = {
                 "risk": "Move coverage into PubSec on a growth reading that is partly accounts being reclassified into it",
                 "trustCost": "A breakout whose bins move is a breakout that cannot be reviewed",
                 "metrics": {
-                  "axisNote": "Y/Y on a stated scale — with no stated segment to read it by",
-                  "caption": "Twenty-eight cells, three candidate segment sources, no arbiter"
-                }
+                  "rows": {
+                    "0": {
+                      "values": [
+                        41,
+                        18,
+                        12,
+                        13
+                      ],
+                      "display": [
+                        "$41M",
+                        "$18M",
+                        "$12M",
+                        "$13M"
+                      ],
+                      "yoy": [
+                        -32,
+                        -31,
+                        -23,
+                        -1
+                      ],
+                      "yoyDisplay": [
+                        "-32%",
+                        "-31%",
+                        "-23%",
+                        "-1%"
+                      ]
+                    },
+                    "1": {
+                      "values": [
+                        27.3,
+                        13,
+                        10,
+                        8.7
+                      ],
+                      "display": [
+                        "$27M",
+                        "$13M",
+                        "$10M",
+                        "$9M"
+                      ],
+                      "yoy": [
+                        -45,
+                        -41,
+                        -34,
+                        -23
+                      ],
+                      "yoyDisplay": [
+                        "-45%",
+                        "-41%",
+                        "-34%",
+                        "-23%"
+                      ]
+                    },
+                    "2": {
+                      "values": [
+                        16.5,
+                        10,
+                        8,
+                        3.5
+                      ],
+                      "display": [
+                        "$17M",
+                        "$10M",
+                        "$8M",
+                        "$4M"
+                      ],
+                      "yoy": [
+                        -46,
+                        -42,
+                        -30,
+                        -26
+                      ],
+                      "yoyDisplay": [
+                        "-46%",
+                        "-42%",
+                        "-30%",
+                        "-26%"
+                      ]
+                    },
+                    "3": {
+                      "values": [
+                        10.8,
+                        4,
+                        2,
+                        5.2
+                      ],
+                      "display": [
+                        "$11M",
+                        "$4M",
+                        "$2M",
+                        "$5M"
+                      ],
+                      "yoy": [
+                        -44,
+                        -38,
+                        -45,
+                        -20
+                      ],
+                      "yoyDisplay": [
+                        "-44%",
+                        "-38%",
+                        "-45%",
+                        "-20%"
+                      ]
+                    },
+                    "4": {
+                      "values": [
+                        13.7,
+                        4,
+                        2,
+                        4.3
+                      ],
+                      "display": [
+                        "$14M",
+                        "$4M",
+                        "$2M",
+                        "$4M"
+                      ],
+                      "yoy": [
+                        40,
+                        43,
+                        147,
+                        53
+                      ],
+                      "yoyDisplay": [
+                        "+40%",
+                        "+43%",
+                        "+147%",
+                        "+53%"
+                      ]
+                    },
+                    "5": {
+                      "values": [
+                        8.3,
+                        3,
+                        1,
+                        1.7
+                      ],
+                      "display": [
+                        "$8M",
+                        "$3M",
+                        "$1M",
+                        "$2M"
+                      ],
+                      "yoy": [
+                        421,
+                        236,
+                        727,
+                        886
+                      ],
+                      "yoyDisplay": [
+                        "+421%",
+                        "+236%",
+                        "+727%",
+                        "+886%"
+                      ]
+                    },
+                    "6": {
+                      "values": [
+                        5.4,
+                        2,
+                        1,
+                        2.6
+                      ],
+                      "display": [
+                        "$5M",
+                        "$2M",
+                        "$1M",
+                        "$3M"
+                      ],
+                      "yoy": [
+                        -32,
+                        -18,
+                        33,
+                        46
+                      ],
+                      "yoyDisplay": [
+                        "-32%",
+                        "-18%",
+                        "+33%",
+                        "+46%"
+                      ]
+                    }
+                  },
+                  "axisNote": "Y/Y on a stated scale, over four columns assembled from three sources",
+                  "caption": "Every total is unchanged. $2M moved between two columns."
+                },
+                "hazard": "definition-drift",
+                "shownFrom": "Public Sector is not a segment; it is an Operating Unit, and the fourth column is a coalesce the model owner describes as a rule to apply rather than a field to select. Without it, a PubSec account that also carries an Enterprise segment value lands in Enterprise. Modelled at 13% of each row's PubSec dollars: at the top level $2M moves, so PubSec reads $13M rather than $15M and Enterprise $41M rather than $39M. Y/Y recomputes against the same priors: PubSec -1% rather than +14%, Enterprise -32% rather than -35%. Every row total is unchanged, because the dollars moved sideways.",
+                "wouldYouNotice": "No, twice over. Every row total is identical, so the one check anyone runs passes. And the effect is to take the only growing column on the board to -1%, which reads as bad news rather than as an error. Bad news gets believed.",
+                "certifiedDelta": "$2M between two columns · every total unchanged",
+                "layerProvides": "Segment10 as a governed dimension, resolved as of the period close.",
+                "layerDoesNotProvide": "The four-way split itself. PubSec is an Operating Unit, and the derived dimension that coalesces it with Segment10 is the model owner's own expression for a definition that does not exist in the model yet."
               }
             }
           ]
@@ -4359,8 +4691,169 @@ export const FALLBACK_BOARD = {
                 "risk": "Fund a recovery in the segment that only recovered because accounts were reclassified into it",
                 "trustCost": "A decomposition over an unstable population decomposes the population",
                 "metrics": {
-                  "caption": "Four decompositions, four different populations"
-                }
+                  "rows": {
+                    "0": {
+                      "parts": {
+                        "0": {
+                          "value": 17,
+                          "valueDisplay": "$17M",
+                          "delta": -15.7,
+                          "deltaDisplay": "−$15.7M",
+                          "priorValue": 32.7,
+                          "priorDisplay": "$32.7M"
+                        },
+                        "1": {
+                          "value": 10.6,
+                          "valueDisplay": "$11M",
+                          "delta": -9.8,
+                          "deltaDisplay": "−$9.8M",
+                          "priorValue": 20.4,
+                          "priorDisplay": "$20.4M"
+                        },
+                        "2": {
+                          "value": 8.5,
+                          "valueDisplay": "$9M",
+                          "delta": 6.8,
+                          "deltaDisplay": "+$6.8M",
+                          "priorValue": 1.7,
+                          "priorDisplay": "$1.7M"
+                        },
+                        "3": {
+                          "value": 5.3,
+                          "valueDisplay": "$5M",
+                          "delta": -3.1,
+                          "deltaDisplay": "−$3.1M",
+                          "priorValue": 8.4,
+                          "priorDisplay": "$8.4M"
+                        }
+                      },
+                      "lossWing": 28.6,
+                      "gainWing": 6.8
+                    },
+                    "1": {
+                      "parts": {
+                        "0": {
+                          "value": 10.6,
+                          "valueDisplay": "$11M",
+                          "delta": -7.7,
+                          "deltaDisplay": "−$7.7M",
+                          "priorValue": 18.3,
+                          "priorDisplay": "$18.3M"
+                        },
+                        "1": {
+                          "value": 4.2,
+                          "valueDisplay": "$4M",
+                          "delta": -2.6,
+                          "deltaDisplay": "−$2.6M",
+                          "priorValue": 6.8,
+                          "priorDisplay": "$6.8M"
+                        },
+                        "2": {
+                          "value": 3.2,
+                          "valueDisplay": "$3M",
+                          "delta": 2.2,
+                          "deltaDisplay": "+$2.2M",
+                          "priorValue": 1,
+                          "priorDisplay": "$1.0M"
+                        },
+                        "3": {
+                          "value": 2.1,
+                          "valueDisplay": "$2M",
+                          "delta": -0.5,
+                          "deltaDisplay": "−$0.5M",
+                          "priorValue": 2.6,
+                          "priorDisplay": "$2.6M"
+                        }
+                      },
+                      "lossWing": 10.7,
+                      "gainWing": 2.2
+                    },
+                    "2": {
+                      "parts": {
+                        "0": {
+                          "value": 8.5,
+                          "valueDisplay": "$9M",
+                          "delta": -3.6,
+                          "deltaDisplay": "−$3.6M",
+                          "priorValue": 12.1,
+                          "priorDisplay": "$12.1M"
+                        },
+                        "1": {
+                          "value": 2.1,
+                          "valueDisplay": "$2M",
+                          "delta": -1.7,
+                          "deltaDisplay": "−$1.7M",
+                          "priorValue": 3.8,
+                          "priorDisplay": "$3.8M"
+                        },
+                        "2": {
+                          "value": 1.1,
+                          "valueDisplay": "$1M",
+                          "delta": 0.9,
+                          "deltaDisplay": "+$0.9M",
+                          "priorValue": 0.2,
+                          "priorDisplay": "$0.2M"
+                        },
+                        "3": {
+                          "value": 1.1,
+                          "valueDisplay": "$1M",
+                          "delta": 0.3,
+                          "deltaDisplay": "+$0.3M",
+                          "priorValue": 0.8,
+                          "priorDisplay": "$0.8M"
+                        }
+                      },
+                      "lossWing": 5.4,
+                      "gainWing": 1.2
+                    },
+                    "3": {
+                      "parts": {
+                        "0": {
+                          "value": 4.2,
+                          "valueDisplay": "$4M",
+                          "delta": -0.8,
+                          "deltaDisplay": "−$0.8M",
+                          "priorValue": 5,
+                          "priorDisplay": "$5.0M"
+                        },
+                        "1": {
+                          "value": 6.4,
+                          "valueDisplay": "$6M",
+                          "delta": -0.6,
+                          "deltaDisplay": "−$0.6M",
+                          "priorValue": 7,
+                          "priorDisplay": "$7.0M"
+                        },
+                        "2": {
+                          "value": 2.1,
+                          "valueDisplay": "$2M",
+                          "delta": 1.9,
+                          "deltaDisplay": "+$1.9M",
+                          "priorValue": 0.2,
+                          "priorDisplay": "$0.2M"
+                        },
+                        "3": {
+                          "value": 3.2,
+                          "valueDisplay": "$3M",
+                          "delta": 1.3,
+                          "deltaDisplay": "+$1.3M",
+                          "priorValue": 1.9,
+                          "priorDisplay": "$1.9M"
+                        }
+                      },
+                      "lossWing": 1.4,
+                      "gainWing": 3.2
+                    }
+                  },
+                  "detailNote": "Prior period derived from the authored current-quarter dollars and Y/Y. Each net is the net of the four lines shown, not a segment total. Every figure is shown to $0.1M and each net is rounded from the exact sum, so two rounded lines need not add to their rounded net by more than $0.1M. Every net here misses by considerably more than that, because the lines and the net came from different amount columns.",
+                  "caption": "Every wing overshoots its own net by 6%. The decomposition does not close."
+                },
+                "hazard": "decomposition-closure",
+                "shownFrom": "The group total and the line breakdown are two queries against four coexisting amount columns, and nothing in raw schema forces them onto the same one. The line-level read runs 6% high — half the up-to-12% per-deal divergence, because a product line aggregates many deals and it partly averages out — while each net is the governed group aggregate and does not move. So every wing overshoots its own net by 6%: Enterprise draws to −$21.8M against a printed net of −$20.5M, a $1.2M gap. The four segments are a coalesce the model owner describes as a rule to apply rather than a field to select, so each decomposition is taken over a population nothing versions.",
+                "wouldYouNotice": "Yes, and this is the one panel that gives itself away without anybody knowing the right answer. The panel states its own tolerance: figures are shown to $0.1M, so two rounded lines need not add to their rounded net by more than that. $1.2M is 12× the tolerance. Add the lines and they do not make the net — and because the gap is a fixed 6%, it is invisible on the largest group and glaring on the smallest: 6% of Enterprise, but the same proportion of a much smaller number on Public Sector, which is where the growth story lives.",
+                "certifiedDelta": "lines +6% · nets unchanged · every decomposition fails to close",
+                "layerProvides": "A published additivity classification. The catalogue is physically organised into additive and do-not-sum sections, and this measure is in the additive one — which is what licenses a decomposition to be taken at all.",
+                "layerDoesNotProvide": "The grouping the decomposition is taken within. That is the deck's, not the layer's."
               }
             },
             {
@@ -4645,7 +5138,7 @@ export const FALLBACK_BOARD = {
                 "provenance": "supplemented",
                 "tier": "red",
                 "detectability": "silent",
-                "groundedIn": "ACV/Attrition/NNAOV certified; no FinPlan object (§5.4)",
+                "groundedIn": "ACV/Attrition certified; merged plan column has no target (§3.2)",
                 "candidates": [
                   "87% of a plan version nobody named",
                   "78% or 91% or 64%, by vintage"
@@ -4657,9 +5150,91 @@ export const FALLBACK_BOARD = {
                 "risk": "Report 128% of plan against the original FinPlan and 96% against the current one in the same week",
                 "trustCost": "An attainment with no stated denominator is a ratio with an opinion in it",
                 "metrics": {
+                  "rows": {
+                    "0": {
+                      "cells": {
+                        "0": {
+                          "value": 94.7,
+                          "display": "$95M",
+                          "yoy": -15,
+                          "yoyDisplay": "-15% Y/Y",
+                          "plan": null,
+                          "planDisplay": "no plan basis",
+                          "altBasis": null
+                        },
+                        "1": {
+                          "value": 53,
+                          "display": "$53.0M",
+                          "yoy": -20,
+                          "yoyDisplay": "-20% Y/Y",
+                          "altBasis": null
+                        },
+                        "2": {
+                          "value": 47.6,
+                          "display": "$47.6M",
+                          "yoy": 6,
+                          "yoyDisplay": "6% Y/Y"
+                        }
+                      }
+                    },
+                    "1": {
+                      "cells": {
+                        "0": {
+                          "value": 68.1,
+                          "display": "$68.1M",
+                          "yoy": -23,
+                          "yoyDisplay": "-23% Y/Y",
+                          "plan": null,
+                          "planDisplay": "no plan basis"
+                        },
+                        "1": {
+                          "value": 49,
+                          "display": "$49.0M",
+                          "yoy": -16,
+                          "yoyDisplay": "-16% Y/Y"
+                        },
+                        "2": {
+                          "value": 15.9,
+                          "display": "$15.9M",
+                          "yoy": 81,
+                          "yoyDisplay": "81% Y/Y"
+                        }
+                      }
+                    },
+                    "2": {
+                      "cells": {
+                        "0": {
+                          "value": 26.6,
+                          "display": "$26.6M",
+                          "yoy": 19,
+                          "yoyDisplay": "+19% Y/Y",
+                          "plan": null,
+                          "planDisplay": "no plan basis"
+                        },
+                        "1": {
+                          "value": 4,
+                          "display": "$4M",
+                          "yoy": -49,
+                          "yoyDisplay": "-49% Y/Y"
+                        },
+                        "2": {
+                          "value": 43.9,
+                          "display": "$43.9M",
+                          "yoy": 201,
+                          "yoyDisplay": "+201% Y/Y"
+                        }
+                      }
+                    }
+                  },
                   "axisNote": "Y/Y on a stated scale — with no plan to read attainment against",
-                  "caption": "No plan basis: with no denominator the plan bar and its tick drop rather than render against a candidate spread, because that would be three different gaps"
-                }
+                  "caption": "Every cell agrees with the exec tab. Both are wrong by the same multiplier."
+                },
+                "hazard": "mixed",
+                "shownFrom": "Each column inherits the hazard of its own measure, at the same multipliers the exec cards use: ACV × 0.902 for the four coexisting amount columns, attrition × 2/3 for the month of arrears, NNAOV × 1.867 for the most permissive new-logo test. Analytics ACV reads $94.7M rather than $105M. The plan channel drops entirely rather than rendering against a candidate: FinPlan lives in the planning system at OU and product-family grain, is re-versioned at every reforecast, and reaches neither model — the only governed targets are pipegen and Day-1 open pipe. The alternative-basis figures go with it, there being nothing left to arbitrate between.",
+                "wouldYouNotice": "No, and the way you would fail to notice is instructive: this tab now AGREES with the exec tab, cell for cell, because both applied the same wrong multiplier to the same measure. Two surfaces reconciling is the check most people run, and it passes. What it demonstrates is that consistency is not correctness — the layer is what makes cross-tab agreement mean something.",
+                "certifiedDelta": "every cell moved · every plan track gone · the two tabs still agree",
+                "layerProvides": "Three certified measures with declared grains and date anchors, and the additivity classification that lets the three rows tile each other.",
+                "layerDoesNotProvide": "Any plan basis for these three measures, and no FinPlan object of any kind. Attainment exists only for pipegen and Day-1 open pipe."
               }
             }
           ]
@@ -4831,8 +5406,47 @@ export const FALLBACK_BOARD = {
                 "risk": "Call coverage sufficient against a benchmark taken over a window nobody agreed to",
                 "trustCost": "A comparison with no stated window is a number beside another number",
                 "metrics": {
-                  "caption": "The readings survive; the benchmark does not, so neither does the comparison."
-                }
+                  "rows": {
+                    "0": {
+                      "readings": {}
+                    },
+                    "1": {
+                      "readings": {
+                        "velocity": {
+                          "hist": 14,
+                          "histDisplay": "14% prior qtr",
+                          "deltaDisplay": "+1% vs prior qtr"
+                        },
+                        "coverage": {
+                          "hist": 2.3,
+                          "histDisplay": "2.3× prior qtr",
+                          "deltaDisplay": "+0.3× vs prior qtr"
+                        }
+                      }
+                    },
+                    "2": {
+                      "readings": {
+                        "velocity": {
+                          "hist": 14,
+                          "histDisplay": "14% prior qtr",
+                          "deltaDisplay": "+2% vs prior qtr"
+                        },
+                        "coverage": {
+                          "hist": 2.4,
+                          "histDisplay": "2.4× prior qtr",
+                          "deltaDisplay": "+0.8× vs prior qtr"
+                        }
+                      }
+                    }
+                  },
+                  "caption": "Hollow marks the prior quarter — no measure says which window a benchmark is over."
+                },
+                "hazard": "unstated-window",
+                "shownFrom": "The readings do not move: coverage is open pipe over commit and velocity is a pace, and a multiplier applied to the raw amounts cancels in a ratio, exactly as it does in pipegen's Y/Y. What moves is the benchmark. The governed Historical_* measures are the average of the same fiscal quarter across the prior two fiscal years, and the documents are emphatic that this is \"not last quarter, not just last year\". A direct read has no such measure and reconstructs the nearest thing to hand, the immediately prior quarter, modelled as a 15% seasonal step: platform coverage's benchmark reads 2.3× rather than 2.7×. The mark keeps its ring and the ring moves.",
+                "wouldYouNotice": "No, and the consequence is a sign flip on the only question the panel is asked. Platform coverage against the governed benchmark is −4% — flat, sufficient-but-not-improving. Against a prior-quarter benchmark it reads clearly above, so a pipeline that is merely holding station reads as one that is building. Both numbers are 2.6 against something beginning with 2.",
+                "certifiedDelta": "readings unchanged · every benchmark moved · two of three comparisons flip sign",
+                "layerProvides": "Coverage_clc and Historical_Coverage_clc, Specialist_V_clc and Historical_Velocity_clc — the reading and its comparison as a matched pair, with the window declared as part of the measure rather than chosen per query.",
+                "layerDoesNotProvide": "Nothing withheld here. This is the most fully governed portlet on the board, which is why it is the clearest demonstration: what raw source loses is not the number but the thing the number is compared against."
               }
             },
             {
@@ -4928,9 +5542,47 @@ export const FALLBACK_BOARD = {
                 "risk": "Brief an exec on a top five that reorders between two people's versions of the same slide",
                 "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud",
                 "metrics": {
-                  "totalDisplay": "five deals, no stated order",
-                  "caption": "Ranked on an undefined amount column, laid against no derivable gap — the composition survives, the target does not"
-                }
+                  "deals": [
+                    {
+                      "id": "bofa",
+                      "account": "Bank of America",
+                      "value": 3,
+                      "display": "$3M"
+                    },
+                    {
+                      "id": "aetna",
+                      "account": "Aetna",
+                      "value": 3,
+                      "display": "$3M"
+                    },
+                    {
+                      "id": "usbank",
+                      "account": "US Bank",
+                      "value": 2.4,
+                      "display": "$2.4M"
+                    },
+                    {
+                      "id": "schwab",
+                      "account": "Charles Schwab",
+                      "value": 2.3,
+                      "display": "$2.3M"
+                    },
+                    {
+                      "id": "usgov",
+                      "account": "US GOV",
+                      "value": 1.9,
+                      "display": "$1.9M"
+                    }
+                  ],
+                  "totalDisplay": "$12.6M across five deals",
+                  "caption": "Ranked on whichever amount column the query reached for"
+                },
+                "hazard": "field-ambiguity",
+                "shownFrom": "The four candidate amount columns differ per deal rather than uniformly, because they diverge on product mix and currency — so the error does not cancel the way a single multiplier would. Modelled at up to 12% per deal: US Bank $2.1M → $2.4M and US GOV $2.1M → $1.9M, which lifts US Bank above Charles Schwab. Third and fifth place swap. The total moves $12.5M → $12.6M, inside any plausibility check. The gap they were laid along goes too, being derived from an attainment with no denominator, so the rail falls back to the authored total as its scale.",
+                "wouldYouNotice": "No. The total is within one per cent, all five accounts are present, and the rail gives no indication that the ordering is the fragile part. An executive briefed on this top five is briefed on a different top five from the one the certified measure produces, and the two briefings are indistinguishable.",
+                "certifiedDelta": "+$0.1M total · two of five reorder",
+                "layerProvides": "One certified ACV measure applied across all five, and a stated ranking rule — order by the metric, nulls last, limited in the utterance.",
+                "layerDoesNotProvide": "The gap the rail is laid along. It derives from the plan attainment, and no plan basis for ACV exists in either model."
               }
             }
           ]
@@ -5103,7 +5755,14 @@ export const FALLBACK_BOARD = {
                 "headline": "745",
                 "headlineNote": "FY27 H1 — a point-in-time count",
                 "caption": "Down 356 heads since FY23",
-                "footnote": "AMER PACE AE count represents 69% of total Apps team, proportional to the FinPlan breakout."
+                "footnote": "AMER PACE AE count represents 69% of total Apps team, proportional to the FinPlan breakout.",
+                "pointProvenance": [
+                  "supplemented",
+                  "supplemented",
+                  "supplemented",
+                  "supplemented",
+                  "supplemented"
+                ]
               },
               "semantic": {
                 "metricName": "AE Capacity",
@@ -5133,7 +5792,24 @@ export const FALLBACK_BOARD = {
                 "thesisTag": "T2",
                 "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
                 "risk": "Read a five-year capacity trend that changes every time it is run",
-                "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud"
+                "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud",
+                "hazard": "none",
+                "shownFrom": null,
+                "metrics": {
+                  "pointProvenance": [
+                    "supplemented",
+                    "supplemented",
+                    "supplemented",
+                    "supplemented",
+                    "supplemented"
+                  ]
+                },
+                "supplementedFrom": "The same weekly User Hierarchy extract as the exec tile, held as a five-year series in a maintained sheet.",
+                "supplementCost": "No enforced date anchor across the five points, so a year that was counted as-of a different week is not comparable with the others, and nothing says which weeks they were.",
+                "wouldYouNotice": "Nothing to notice. All five points are the same in both modes. This panel does not move when the toggle flips, because it never went through the layer and there is no guarantee to withdraw. Four panels on this board behave this way, and they are the control group: what moved is what the layer was protecting.",
+                "certifiedDelta": "unchanged",
+                "layerProvides": null,
+                "layerDoesNotProvide": null
               }
             },
             {
@@ -5172,7 +5848,14 @@ export const FALLBACK_BOARD = {
                 "goodDirection": "up",
                 "headline": "$549 K",
                 "headlineNote": "FY26 — last full year",
-                "caption": "H1 annualizes to $400 K, below every full year shown"
+                "caption": "H1 annualizes to $400 K, below every full year shown",
+                "pointProvenance": [
+                  "supplemented",
+                  "supplemented",
+                  "supplemented",
+                  "supplemented",
+                  "supplemented"
+                ]
               },
               "semantic": {
                 "metricName": "AE Productivity",
@@ -5210,7 +5893,47 @@ export const FALLBACK_BOARD = {
                 "thesisTag": "T1",
                 "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
                 "risk": "Set quota capacity models on a productivity figure with a 48% spread",
-                "trustCost": "Derived measures inherit and multiply every upstream ambiguity"
+                "trustCost": "Derived measures inherit and multiply every upstream ambiguity",
+                "hazard": "grain",
+                "shownFrom": "The numerator inherits the ACV field ambiguity on the three years the layer covers: $599 K → $540 K, $549 K → $495 K, $200 K → $180 K, and the H1 run-rate follows. FY23 and FY24 do not move, their numerator having been supplemented already. The denominator does not move in either mode — there is no governed headcount to withdraw.",
+                "wouldYouNotice": "No. Every point still declines, the H1 run-rate is still below every full year shown, and the caption still reads true. A ratio hides an error in its numerator better than the numerator does, because the reader is checking a trend and the trend is intact.",
+                "certifiedDelta": "three of five points moved · every conclusion unchanged",
+                "layerProvides": "The numerator, as a certified measure, for three of the five years.",
+                "layerDoesNotProvide": "The denominator, and therefore the measure. No AE capacity or productivity measure exists in either model — the model owner names productivity specifically. Both are supplemented from the User Hierarchy table.",
+                "metrics": {
+                  "series": [
+                    566,
+                    638,
+                    540.3,
+                    495.2,
+                    180.4
+                  ],
+                  "display": [
+                    "$566 K",
+                    "$638 K",
+                    "$540 K",
+                    "$495 K",
+                    "$180 K"
+                  ],
+                  "yoy": [
+                    "-3%",
+                    "13%",
+                    "-15%",
+                    "-8%",
+                    "-6%"
+                  ],
+                  "pointProvenance": [
+                    "supplemented",
+                    "supplemented",
+                    "inferred",
+                    "inferred",
+                    "inferred"
+                  ],
+                  "headline": "$495 K",
+                  "runRate": 361,
+                  "runRateDisplay": "$361 K",
+                  "caption": "An inferred numerator over a denominator no layer has"
+                }
               }
             },
             {
@@ -5255,7 +5978,14 @@ export const FALLBACK_BOARD = {
                 "goodDirection": "up",
                 "headline": "$496 M",
                 "headlineNote": "FY26 — last full year",
-                "caption": "Decline steepening: -3% to -10% across four years"
+                "caption": "Decline steepening: -3% to -10% across four years",
+                "pointProvenance": [
+                  "supplemented",
+                  "supplemented",
+                  "certified",
+                  "certified",
+                  "certified"
+                ]
               },
               "semantic": {
                 "metricName": "Annual Contract Value",
@@ -5289,7 +6019,47 @@ export const FALLBACK_BOARD = {
                 "thesisTag": "T1",
                 "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
                 "risk": "Read a decline that is partly a change in query authorship",
-                "trustCost": "Every downstream number that divides by ACV inherits the ambiguity"
+                "trustCost": "Every downstream number that divides by ACV inherits the ambiguity",
+                "hazard": "field-ambiguity",
+                "shownFrom": "The layer holds three years of ACV and no more, confirmed by the model owner, so FY23 and FY24 are supplemented in BOTH modes and do not move. The three certified years inherit the four-column ambiguity at × 0.902: $551 M → $497 M, $496 M → $447 M, $150 M → $135 M. FY26's Y/Y is unchanged at -10%, because both of its points moved together. FY25's goes from -9% to -18%, because it compares an inferred point against a supplemented one. Mixing the two tiers puts the entire error on the boundary year.",
+                "wouldYouNotice": "No. On a series already declining, one steeper year reads as the story rather than as an artefact — and it is the year the eye goes to, because it is where the decline appears to accelerate. The acceleration is the seam between two sourcing tiers, and it is the only place on the whole board where you can see mixed sourcing doing damage.",
+                "certifiedDelta": "three of five points moved · the error concentrates on the boundary year",
+                "layerProvides": "One certified ACV measure that resolves identically here and on the exec tab, and a governed relative-year dimension for the three years it holds.",
+                "layerDoesNotProvide": "Two of these five years. Only three exist — an absolute date filter for FY23 or FY24 returns no rows — so the first two points are supplemented in governed mode too, and the panel says so in both.",
+                "metrics": {
+                  "series": [
+                    623,
+                    608,
+                    497,
+                    447.4,
+                    135.3
+                  ],
+                  "display": [
+                    "$623 M",
+                    "$608 M",
+                    "$497 M",
+                    "$447 M",
+                    "$135 M"
+                  ],
+                  "yoy": [
+                    "-3%",
+                    "-2%",
+                    "-18%",
+                    "-10%",
+                    "-23%"
+                  ],
+                  "pointProvenance": [
+                    "supplemented",
+                    "supplemented",
+                    "inferred",
+                    "inferred",
+                    "inferred"
+                  ],
+                  "headline": "$447 M",
+                  "runRate": 271,
+                  "runRateDisplay": "$271 M",
+                  "caption": "The error lands on the seam, where inferred years meet supplemented ones"
+                }
               },
               "span": 2
             },
@@ -5335,7 +6105,14 @@ export const FALLBACK_BOARD = {
                 "goodDirection": "down",
                 "headline": "$331 M",
                 "headlineNote": "FY26 — last full year",
-                "caption": "First improvement in five years: -8% Y/Y at H1"
+                "caption": "First improvement in five years: -8% Y/Y at H1",
+                "pointProvenance": [
+                  "supplemented",
+                  "supplemented",
+                  "certified",
+                  "certified",
+                  "certified"
+                ]
               },
               "semantic": {
                 "metricName": "Attrition ACV",
@@ -5367,7 +6144,46 @@ export const FALLBACK_BOARD = {
                 "thesisTag": "T2",
                 "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
                 "risk": "Celebrate a -8% improvement that is a methodology artifact",
-                "trustCost": "A trend line nobody can reproduce is not a trend line"
+                "trustCost": "A trend line nobody can reproduce is not a trend line",
+                "hazard": "point-in-time",
+                "shownFrom": "Only the in-flight point carries the arrears hazard: actuals land a month behind, so a direct read of FY27 H1 finds five of six months and reports the half-year as complete. $139 M × 5/6 = $116 M. Its comparison is the prior H1, recovered from the authored pair at $151.1M — a closed half-year, so it does not inherit the arrears factor and the multiplier does not cancel: the rate goes from -8% to -23%. The four closed years do not move, because reconstructing them from history objects lands differently on every run, which is a variance rather than a bias. FY23 and FY24 are supplemented in both modes.",
+                "wouldYouNotice": "No. Four of five points are identical to the governed panel, so the series looks verified — and a series that mostly matches is more persuasive than one that matches entirely, because it looks as though it has been checked. The fifth point is the first improvement in five years, and it is the only one that moved.",
+                "certifiedDelta": "one of five points moved · -8% becomes -23%",
+                "layerProvides": "A named measure for landed actuals and a separate one for the in-flight month, so a query can tell a complete period from a partial one.",
+                "layerDoesNotProvide": "Two of these five years, and any bar on summing the two attrition measures together.",
+                "metrics": {
+                  "series": [
+                    200,
+                    262,
+                    320,
+                    331,
+                    115.8
+                  ],
+                  "display": [
+                    "$200 M",
+                    "$262 M",
+                    "$320 M",
+                    "$331 M",
+                    "$116 M"
+                  ],
+                  "yoy": [
+                    "4%",
+                    "31%",
+                    "22%",
+                    "3%",
+                    "-23%"
+                  ],
+                  "pointProvenance": [
+                    "supplemented",
+                    "supplemented",
+                    "inferred",
+                    "inferred",
+                    "inferred"
+                  ],
+                  "runRate": 232,
+                  "runRateDisplay": "$232 M",
+                  "caption": "One point moved, and it is the one the panel is about"
+                }
               }
             },
             {
@@ -5410,7 +6226,14 @@ export const FALLBACK_BOARD = {
                 "goodDirection": "up",
                 "headline": "$3594 M",
                 "headlineNote": "FY27 H1 — a balance, not a flow",
-                "caption": "Still growing, but growth halved every two years"
+                "caption": "Still growing, but growth halved every two years",
+                "pointProvenance": [
+                  "supplemented",
+                  "supplemented",
+                  "supplemented",
+                  "supplemented",
+                  "supplemented"
+                ]
               },
               "semantic": {
                 "metricName": "Annual Order Value",
@@ -5441,7 +6264,24 @@ export const FALLBACK_BOARD = {
                 "thesisTag": "T3",
                 "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
                 "risk": "Double a balance and report a book twice its real size",
-                "trustCost": "The error looks exactly like the correct operation on the row above"
+                "trustCost": "The error looks exactly like the correct operation on the row above",
+                "hazard": "none",
+                "shownFrom": null,
+                "metrics": {
+                  "pointProvenance": [
+                    "supplemented",
+                    "supplemented",
+                    "supplemented",
+                    "supplemented",
+                    "supplemented"
+                  ]
+                },
+                "supplementedFrom": "A Snowflake balance on the active order book, queried directly. AOV is not merely absent from the two models — it is excluded from both in writing, and the Forecasting model instructs the agent to say so if asked.",
+                "supplementCost": "No additivity classification, which matters more here than anywhere: this is a stock, not a flow, and nothing enforces that it is never summed across periods. No versioning of the definition, so what counts as an active order this quarter may differ next quarter.",
+                "wouldYouNotice": "Nothing to notice. All five points are the same in both modes, and legitimately so — a direct Snowflake read is a real way to get a real number onto a board. This panel does not move when the toggle flips, because it never went through the layer and there is no guarantee to withdraw. Four panels on this board behave this way, and they are the control group: what moved is what the layer was protecting.",
+                "certifiedDelta": "unchanged",
+                "layerProvides": null,
+                "layerDoesNotProvide": null
               }
             },
             {
@@ -5486,7 +6326,14 @@ export const FALLBACK_BOARD = {
                 "goodDirection": "up",
                 "headline": "$166 M",
                 "headlineNote": "FY26 — last full year",
-                "caption": "Down 97% from FY23 on an H1 run-rate basis"
+                "caption": "Down 97% from FY23 on an H1 run-rate basis",
+                "pointProvenance": [
+                  "supplemented",
+                  "supplemented",
+                  "certified",
+                  "certified",
+                  "certified"
+                ]
               },
               "semantic": {
                 "metricName": "NNAOV Commit",
@@ -5520,7 +6367,47 @@ export const FALLBACK_BOARD = {
                 "thesisTag": "T1",
                 "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
                 "risk": "Build the FY28 new-logo plan on a baseline that could be off by 2.5x",
-                "trustCost": "A confident wrong number costs more trust than a flagged unknown"
+                "trustCost": "A confident wrong number costs more trust than a flagged unknown",
+                "hazard": "field-ambiguity",
+                "shownFrom": "The three years the layer covers inherit the permissive new-logo test at × 1.867 — $231 M → $431 M, $166 M → $310 M, $11 M → $21 M — while FY23 and FY24 are supplemented and do not move. The result is that FY25 ($431 M) now sits ABOVE FY23 ($423 M), so a monotonic five-year decline becomes a rise and then a fall, and FY25's Y/Y flips sign from -33% to 25%.",
+                "wouldYouNotice": "Yes, and not from any figure — every value is individually plausible. From the SHAPE. A five-year decline that turns upward in the middle is visibly wrong against the two points either side of it, and those two are the supplemented ones that did not move. The panel is caught by its own control group.",
+                "certifiedDelta": "three of five points moved · the trend reverses direction mid-series",
+                "layerProvides": "A governed commit measure with a declared grain and one new-logo definition rather than three.",
+                "layerDoesNotProvide": "Two of these five years, and the polarity that says a rise here is good news — neither model declares direction-of-good on any measure.",
+                "metrics": {
+                  "series": [
+                    423,
+                    345,
+                    431.3,
+                    309.9,
+                    20.5
+                  ],
+                  "display": [
+                    "$423 M",
+                    "$345 M",
+                    "$431 M",
+                    "$310 M",
+                    "$21 M"
+                  ],
+                  "yoy": [
+                    "-6%",
+                    "-18%",
+                    "25%",
+                    "-28%",
+                    "-74%"
+                  ],
+                  "pointProvenance": [
+                    "supplemented",
+                    "supplemented",
+                    "inferred",
+                    "inferred",
+                    "inferred"
+                  ],
+                  "headline": "$310 M",
+                  "runRate": 41,
+                  "runRateDisplay": "$41 M",
+                  "caption": "FY25 now sits above FY23 — the shape broke at the seam"
+                }
               }
             },
             {
@@ -5619,7 +6506,14 @@ export const FALLBACK_BOARD = {
                 "goodDirection": "up",
                 "headline": "$3659 M",
                 "headlineNote": "FY26 — last full year",
-                "caption": "First decline in five years, with a 5pt FY27 accounting headwind"
+                "caption": "First decline in five years, with a 5pt FY27 accounting headwind",
+                "pointProvenance": [
+                  "supplemented",
+                  "supplemented",
+                  "supplemented",
+                  "supplemented",
+                  "supplemented"
+                ]
               },
               "semantic": {
                 "metricName": "Recognized Revenue",
@@ -5650,7 +6544,24 @@ export const FALLBACK_BOARD = {
                 "thesisTag": "T3",
                 "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
                 "risk": "Attribute an accounting change to sales execution",
-                "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud"
+                "trustCost": "Ungoverned but usable — the tier where errors are quiet rather than loud",
+                "hazard": "none",
+                "shownFrom": null,
+                "metrics": {
+                  "pointProvenance": [
+                    "supplemented",
+                    "supplemented",
+                    "supplemented",
+                    "supplemented",
+                    "supplemented"
+                  ]
+                },
+                "supplementedFrom": "A finance-maintained sheet, downstream of the accounting treatment change documented for FY27.",
+                "supplementCost": "No lineage to the treatment change, so the FY27 discontinuity is visible in the series and unexplained by it. No enforced grain, so nothing prevents a revenue figure being compared with an ACV figure as though they were the same kind of thing.",
+                "wouldYouNotice": "Nothing to notice. All five points are the same in both modes. This panel does not move when the toggle flips, because it never went through the layer and there is no guarantee to withdraw. Four panels on this board behave this way, and they are the control group: what moved is what the layer was protecting.",
+                "certifiedDelta": "unchanged",
+                "layerProvides": null,
+                "layerDoesNotProvide": null
               }
             }
           ]

@@ -7,7 +7,13 @@
  * the way. So this waits for the build to settle before it shoots, can shoot
  * deliberately early, and reports everything the console said.
  *
- *   node scripts/shoot.mjs <urlPath> <w>x<h> <name> [--direct] [--at ms]
+ *   node scripts/shoot.mjs <urlPath> <w>x<h> <name> [--direct] [--at ms] [--probe expr]
+ *
+ * --probe runs an expression in the settled page and prints the result. It
+ * lives here rather than in a scratch script on purpose: this harness is the
+ * only thing in the tree that asserts the rendered tab matches the requested
+ * one, and a probe that measures the wrong tab is worse than no probe. Two
+ * agents have already been fooled by silent tab fallback.
  */
 
 import { spawn } from "node:child_process";
@@ -24,6 +30,8 @@ const [width, height] = size.split("x").map(Number);
 const direct = rest.includes("--direct");
 const atIndex = rest.indexOf("--at");
 const at = atIndex >= 0 ? Number(rest[atIndex + 1]) : null;
+const probeIndex = rest.indexOf("--probe");
+const probe = probeIndex >= 0 ? rest[probeIndex + 1] : null;
 
 mkdirSync("shots", { recursive: true });
 
@@ -150,6 +158,14 @@ const audit = await send("Runtime.evaluate", {
   })()`,
   returnByValue: true
 }, sessionId);
+
+if (probe) {
+  const r = await send("Runtime.evaluate", {
+    expression: `(() => { try { return JSON.stringify(${probe}); } catch (e) { return 'PROBE ERROR: ' + e.message; } })()`,
+    returnByValue: true
+  }, sessionId);
+  console.log("  probe:", r.result.value);
+}
 
 const { data } = await send("Page.captureScreenshot", { format: "png" }, sessionId);
 writeFileSync(`shots/${name}.png`, Buffer.from(data, "base64"));

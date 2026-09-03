@@ -134,7 +134,8 @@ function percentileOf(sorted, p) {
 }
 
 export function mount(host, ctx) {
-  const { metrics, tier, isDirect } = ctx;
+  const { tier, isDirect } = ctx;
+  let { metrics } = ctx;
   const p = palette();
   const meta = tierMeta(tier);
 
@@ -149,8 +150,11 @@ export function mount(host, ctx) {
   const [rangeLow, rangeHigh] = form.indexRange || [INDEX_MIN, INDEX_MAX];
 
   const groups = metrics.groups || [];
-  const expandingGroup = groups.find((g) => g.id === "expanding") || {};
-  const contractingGroup = groups.find((g) => g.id === "contracting") || {};
+  /* Copied, not referenced: the direct-mode re-derivation below writes counts
+   * onto these, and the spec object is shared with the provenance face and
+   * with the next render of the other mode. */
+  const expandingGroup = { ...(groups.find((g) => g.id === "expanding") || {}) };
+  const contractingGroup = { ...(groups.find((g) => g.id === "contracting") || {}) };
 
   /* Columnar rows, indexed by name. Hard-coding positions would make the
    * renderer silently wrong the first time a column is inserted. */
@@ -178,6 +182,13 @@ export function mount(host, ctx) {
         Math.max(rangeLow, Math.round((currentK / priorK) * 100))
       );
       const noise = hashId(row[cId]);
+      /* The one place on this board where a wrong figure is drawn per ROW
+       * rather than per portlet. Raw carries an account name, not the
+       * consolidated combo key, so a re-parented subsidiary arrives as two
+       * keys: one full non-renewal beside one phantom expansion. Lines near
+       * the flat line are the ones that split, and they leave for the
+       * extremes. The fan keeps its shape and gains 28 accounts that do not
+       * exist. */
       let drawn = certified;
       if (isDirect && Math.abs(certified - referenceIndex) <= REBASE_WINDOW) {
         if (noise < 0.17) drawn = rangeLow;
@@ -211,6 +222,24 @@ export function mount(host, ctx) {
 
   const expanding = accounts.filter((a) => a.certified > referenceIndex);
   const contracting = accounts.filter((a) => a.certified <= referenceIndex);
+
+  /* In direct mode the group counts and the headline share are RE-DERIVED from
+   * the lines as drawn, not read from the authored metrics.
+   *
+   * The re-basing artifact above moves individual accounts across the flat
+   * line, so an authored count would disagree with the picture beside it — and
+   * a caption that says 88 expanded over a fan where you can count 74 is a
+   * different and much weaker failure than the one being demonstrated. The
+   * whole claim is that the degraded panel is internally consistent, so its
+   * numbers have to come from its own geometry. */
+  if (isDirect) {
+    const up = accounts.filter((a) => a.drawn > referenceIndex).length;
+    const down = accounts.length - up;
+    const shareOf = (n) => Math.round((n / accounts.length) * 100);
+    Object.assign(expandingGroup, { count: up, share: shareOf(up), shareDisplay: `${shareOf(up)}%` });
+    Object.assign(contractingGroup, { count: down, share: shareOf(down), shareDisplay: `${shareOf(down)}%` });
+    metrics = { ...metrics, headline: `${shareOf(up)}% / ${shareOf(down)}%` };
+  }
   const zeroed = accounts.filter((a) => a.certified === rangeLow).length;
 
   /* ---- scales ---- */
@@ -250,7 +279,10 @@ export function mount(host, ctx) {
    * numeral. */
   const headlineSplit = String(metrics.headline || "").match(/^([^/]*?)(\s*\/\s*)(.*)$/);
   const headlineParts = headlineSplit ? [headlineSplit[1], headlineSplit[3]] : [];
-  const countedShares = !isDirect && headlineParts.length === 2 && headlineParts.every((part) => /\d/.test(part));
+  /* The shares count up in both modes. A direct read returns a share pair —
+   * 31% / 69% over 288 keys rather than 25% / 75% over 260 — and returns it as
+   * a pair of numbers, not as a phrase declining to be one. */
+  const countedShares = headlineParts.length === 2 && headlineParts.every((part) => /\d/.test(part));
   const shareEls = [];
   if (countedShares) {
     headlineParts.forEach((part, i) => {
@@ -639,21 +671,15 @@ export function mount(host, ctx) {
   const exclusionLabel = label(
     "exclusion",
     [
-      [
-        isDirect
-          ? `${excluded.count} rows · basis unverified`
-          : `+${excluded.count} new logos · ${excluded.totalDisplay || ""}`,
-        "fan-label-lead"
-      ],
-      [isDirect ? "cohort not conformed" : "no prior baseline · no index", "fan-label-sub"]
+      [`+${excluded.count} new logos · ${excluded.totalDisplay || ""}`, "fan-label-lead"],
+      ["no prior baseline · no index", "fan-label-sub"]
     ],
-    /* 158 rather than 142, because direct mode's "18 rows · basis unverified"
-     * is the longest string this label ever carries and it was 8px wider than
-     * its own box at the 1024 floor. The label is nowrap and there is nothing
-     * to its right to paint over, so it never actually clipped — but a label
-     * whose declared width is narrower than its text reports as overflow, and
-     * this file's own note above says the reason these are edge-anchored is so
-     * that overflow here always means something. */
+    /* 158 rather than 142: the box has to hold the longest string this label
+     * ever carries at the 1024 floor. It is nowrap with nothing to its right
+     * to paint over, so it never actually clipped — but a label whose declared
+     * width is narrower than its text reports as overflow, and this file's own
+     * note above says the reason these are edge-anchored is so that overflow
+     * here always means something. */
     { left: "0", width: pctX(158), bottom: pctY(H - stubY + 5) }
   );
 
@@ -662,12 +688,10 @@ export function mount(host, ctx) {
    * median name a specific line and track it. Both come off the same scale. */
   const expandedLabel = label(
     "expanded",
-    isDirect
-      ? [["above 100", "fan-label-lead"]]
-      : [
-        [expandingGroup.label || "Expanded", "fan-label-lead"],
-        [`${expandingGroup.count} · ${expandingGroup.shareDisplay}`, "fan-label-sub"]
-      ],
+    [
+      [expandingGroup.label || "Expanded", "fan-label-lead"],
+      [`${expandingGroup.count} · ${expandingGroup.shareDisplay}`, "fan-label-sub"]
+    ],
     { left: pctX(LABEL_X), top: pctY(y(rangeHigh)) }
   );
 
@@ -695,18 +719,14 @@ export function mount(host, ctx) {
 
   const contractedLabel = label(
     "contracted",
-    isDirect
-      ? [["at or below 100", "fan-label-lead"]]
-      : [
-        [contractingGroup.label || "Contracted", "fan-label-lead"],
-        [`${contractingGroup.count} · ${contractingGroup.shareDisplay}`, "fan-label-sub"]
-      ],
+    [
+      [contractingGroup.label || "Contracted", "fan-label-lead"],
+      [`${contractingGroup.count} · ${contractingGroup.shareDisplay}`, "fan-label-sub"]
+    ],
     { left: pctX(LABEL_X), bottom: pctY(H - y(rangeLow)) }
   );
-  if (!isDirect) {
-    expandedLabel.style.setProperty("--label-tint", toneColor("positive"));
-    contractedLabel.style.setProperty("--label-tint", toneColor("risk"));
-  }
+  expandedLabel.style.setProperty("--label-tint", toneColor("positive"));
+  contractedLabel.style.setProperty("--label-tint", toneColor("risk"));
 
   wrap.appendChild(plot);
   wrap.appendChild(buildDetail());

@@ -71,7 +71,22 @@ export function mount(host, ctx) {
   const good = metrics.goodDirection || "up";
   const domain = metrics.domain || [-1, 1];
   const ticks = metrics.axisTicks || [0];
-  const degraded = isDirect && (tier === "red" || tier === "grey");
+  /* This panel has no degraded MODE any more, because its failure is not a
+   * loss of confidence — it is an arithmetic one, and it renders in full.
+   *
+   * The group aggregate and the line breakdown are two queries. Governed, the
+   * measure's published additivity classification is what guarantees they
+   * reconcile, and the net printed beside each group name is exactly the sum
+   * of the pieces drawn beside it. Direct, the line-level read reaches for a
+   * different amount column and runs 6% high, so the wings overshoot the
+   * printed net — and the panel's own detailNote puts its tolerance at $0.1M.
+   *
+   * Nothing draws that gap for the reader. The net is printed, the wings are
+   * drawn from the parts, and the discrepancy is simply there in the geometry
+   * for anyone who adds two numbers. That is what makes this panel catchable
+   * without knowing the right answer, and it is the only kind of catchable
+   * that does not require the board to already know it is wrong. */
+  const degraded = false;
 
   const x = linearScale(domain, [0, BOX.w]);
   const zeroX = x(0);
