@@ -93,7 +93,9 @@ await send("Emulation.setDeviceMetricsOverride", {
   width, height, deviceScaleFactor: 2, mobile: false
 }, sessionId);
 
-const url = `http://localhost:8765/${urlPath}`;
+// A full URL passes through, so the same audit can be run against the deployed
+// board rather than only against the local server.
+const url = /^https?:\/\//.test(urlPath) ? urlPath : `http://localhost:8765/${urlPath}`;
 await send("Page.navigate", { url }, sessionId);
 await new Promise((r) => setTimeout(r, 1400));
 
