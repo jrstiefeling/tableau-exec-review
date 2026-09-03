@@ -230,20 +230,33 @@
 
 /* -------------------------- outlook tab grid (4) -------------------------- */
 
+/* Two columns with a spanning rail, the same idea as the trend tab one row
+   deeper: header strip over the matrix on the left, the deals rail full height
+   on the right. Both renderers were built against this — the matrix's cells
+   want 96px rows and the rail spends its slack on leading — and stacking the
+   three bands full-width instead gave the matrix 270px where it needs 352 and
+   the rail 188px where it needs 272, which is where the overflow came from. */
 .panel[data-tab="q3-outlook"] .panel-bands {
-  grid-template-rows: minmax(0, 0.86fr) minmax(0, 1.34fr) minmax(0, 0.96fr);
+  grid-template-columns: minmax(0, 1fr) minmax(176px, 0.235fr);
+  grid-template-rows: minmax(0, 0.34fr) minmax(0, 1fr);
 }
 
 .band[data-layout="outlook-head"] {
+  grid-column: 1;
+  grid-row: 1;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .band[data-layout="outlook-matrix"] {
+  grid-column: 1;
+  grid-row: 2;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
 }
 
 .band[data-layout="outlook-deals"] {
+  grid-column: 2;
+  grid-row: 1 / -1;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
 }
@@ -402,8 +415,12 @@
     font-size: clamp(23px, 2.4vw, 34px);
   }
 
+  /* The matrix gives, not the header strip. Measured at 1024x768 the matrix
+     has 479px against the 352 its cells need, and a header tile with a hero
+     numeral, a delta chip, a centre-anchored bar, a caption and a footnote is
+     a fixed stack of about 164px with nothing in it that can lose a line. */
   .panel[data-tab="q3-outlook"] .panel-bands {
-    grid-template-rows: minmax(0, 0.82fr) minmax(0, 1.38fr) minmax(0, 0.96fr);
+    grid-template-rows: minmax(0, 0.4fr) minmax(0, 1fr);
   }
 }
 
@@ -432,6 +449,15 @@
     grid-auto-rows: minmax(168px, auto);
   }
 
+  /* Named per tab rather than as a bare `.panel .panel-bands`, for the same
+     reason as the band reset below: every tab defines its own rows, and some
+     its own columns, at this specificity. A universal selector here loses and
+     the tab keeps its multi-column grid inside a single-column panel. */
+  .panel[data-tab="exec"] .panel-bands,
+  .panel[data-tab="analytics-performance"] .panel-bands,
+  .panel[data-tab="performance-by-segment"] .panel-bands,
+  .panel[data-tab="q3-outlook"] .panel-bands,
+  .panel[data-tab="trend"] .panel-bands,
   .panel .panel-bands {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
@@ -446,6 +472,18 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
     grid-auto-rows: minmax(190px, auto);
+  }
+
+  /* The outlook bands are the only ones placed explicitly, for the spanning
+     deals rail. Release them, or they keep reaching for a second column that
+     no longer exists once the panel collapses to one. Repeating the attribute
+     selector is deliberate: a media query adds no specificity, so a bare
+     `.band` here would lose to the placement rules above. */
+  .band[data-layout="outlook-head"],
+  .band[data-layout="outlook-matrix"],
+  .band[data-layout="outlook-deals"] {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   /* The two matrices and the fan are wide by nature and are the portlets that
