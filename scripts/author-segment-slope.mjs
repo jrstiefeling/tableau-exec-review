@@ -117,6 +117,21 @@ seg.directMode.metrics.axisNote =
 seg.directMode.metrics.caption =
   "Every total is unchanged. $2M moved between two columns.";
 
+/* The governed note closes on the segment tilt inside the platform block, and
+ * that is the one figure this hazard moves: reallocating $2M between columns
+ * is exactly a change to the tilt. Everything before it survives — the
+ * product-line and motion splits are computed across segments, and the
+ * All Segments rates the spans use are authored unchanged in both modes,
+ * which perf-hierarchy's own certifiedDelta states as "rates unchanged". So
+ * direct mode drops the last sentence and keeps the rest. Nothing is
+ * recomputed here; a claim is withdrawn. */
+seg.directMode.metrics.verdictNote =
+  "Platform's two lines are 2 points apart at All Segments; Embedded's are 429. "
+  + "Of the $56.1M that moved, knowing a dollar's product line explains $16.4M, its segment "
+  + "$4.6M, and its motion only $3.5M — so the platform block is the finding, not the "
+  + "two-motion split. What the segment tilt inside that block is worth is not "
+  + "answerable here: this reading is what moved the dollars between columns.";
+
 writeFileSync(PATH, `${JSON.stringify(board, null, 2)}\n`);
 console.log(`seg-matrix -> ${seg.kind}; All Segments copied onto ${copied} rows`);
 console.log(`platform ${round1(platformMove)}M, Next +${round1(nextMove)}M — verdict cross-checked`);

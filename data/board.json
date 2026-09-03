@@ -9955,7 +9955,8 @@
                     }
                   },
                   "axisNote": "Y/Y on a stated scale, over four columns assembled from three sources",
-                  "caption": "Every total is unchanged. $2M moved between two columns."
+                  "caption": "Every total is unchanged. $2M moved between two columns.",
+                  "verdictNote": "Platform's two lines are 2 points apart at All Segments; Embedded's are 429. Of the $56.1M that moved, knowing a dollar's product line explains $16.4M, its segment $4.6M, and its motion only $3.5M — so the platform block is the finding, not the two-motion split. What the segment tilt inside that block is worth is not answerable here: this reading is what moved the dollars between columns."
                 },
                 "hazard": "definition-drift",
                 "shownFrom": "Public Sector is not a segment; it is an Operating Unit, and the fourth column is a coalesce the model owner describes as a rule to apply rather than a field to select. Without it, a PubSec account that also carries an Enterprise segment value lands in Enterprise. Modelled at 13% of each row's PubSec dollars: at the top level $2M moves, so PubSec reads $13M rather than $15M and Enterprise $41M rather than $39M. Y/Y recomputes against the same priors: PubSec -1% rather than +14%, Enterprise -32% rather than -35%. Every row total is unchanged, because the dollars moved sideways.",
