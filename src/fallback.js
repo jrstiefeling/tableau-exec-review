@@ -10596,7 +10596,7 @@ export const FALLBACK_BOARD = {
                           "label": "*OU Roll-up",
                           "display": "$88.9M",
                           "yoy": 34,
-                          "yoyDisplay": "34% Y/Y",
+                          "yoyDisplay": "+34% Y/Y",
                           "value": 88.9
                         }
                       },
@@ -10774,7 +10774,7 @@ export const FALLBACK_BOARD = {
                           "value": 47.6,
                           "display": "$47.6M",
                           "yoy": 6,
-                          "yoyDisplay": "6% Y/Y"
+                          "yoyDisplay": "+6% Y/Y"
                         }
                       }
                     },
@@ -10796,7 +10796,7 @@ export const FALLBACK_BOARD = {
                           "value": 15.9,
                           "display": "$15.9M",
                           "yoy": 81,
-                          "yoyDisplay": "81% Y/Y"
+                          "yoyDisplay": "+81% Y/Y"
                         }
                       }
                     },
