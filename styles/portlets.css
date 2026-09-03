@@ -4707,3 +4707,275 @@ body.auditing .portlet[data-audit] .portlet-audit {
   line-height: 1.4;
   color: var(--ink-dim);
 }
+
+/* ------------------------- acvSources: two panels ------------------------- */
+
+/* "Where does ACV come from" — dollars per motion as lines, the same motions
+   as a 100% strip beneath, one quarterly axis between them.
+
+   The whole problem here is vertical. The portlet body is 410x124 CSS pixels
+   at the board's 1024 floor, and the content is a full slide. The stack is
+   two elements: a plot box that takes what is left, and one line-clamped
+   paragraph that is the only thing allowed to shrink. Nothing else has a
+   flexible height, because everything else is a chart. */
+.acvs {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.5vh, 6px);
+}
+
+/* The card carries more stacked content than any other on the exec tab, so it
+   gives back the shared head gap the neighbours can afford — the same trade
+   the alluvial it replaced made. */
+.portlet[data-kind="acvSources"] .portlet-front {
+  gap: 4px;
+}
+
+.acvs-canvas {
+  flex: 1 1 auto;
+  min-height: clamp(74px, 11vh, 150px);
+  min-width: 0;
+  display: flex;
+}
+
+/* The plot box is the marks' coordinate space and the label layer's containing
+   block at once. preserveAspectRatio is "none" on the SVG, so a user unit is a
+   fixed fraction of this box on each axis independently — which is what lets a
+   percentage-positioned DOM label sit exactly on the mark it names, at any
+   breakpoint, with no measurement.
+
+   container-type: size because the label set has to thin out with the plot
+   rather than with the viewport: the mix band is one row of a height-driven
+   grid, so the same viewport width gives this box different heights depending
+   on what the rows above it need. The box is content-independent already —
+   flex:1, both children absolutely positioned — which is what size containment
+   requires. */
+.acvs-plot {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  container-type: size;
+}
+
+.acvs-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.acvs-labels {
+  position: absolute;
+  inset: 0;
+  /* The marks underneath carry every tooltip, so the label layer must never
+     take the pointer — except the endpoint labels and the strip numerals,
+     which have tooltips of their own and re-enable it below. */
+  pointer-events: none;
+}
+
+.acvs-label {
+  position: absolute;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The fiscal year, flush with the left edge of the columns it names. Faint and
+   small: it is a frame, not a finding, and it exists so FY27's two columns
+   read as two quarters rather than as a fall. */
+.acvs-label[data-kind="year"] {
+  /* Inside the plot box, not above it. Above it the label sat on the
+     sublabel's descenders, and the sublabel is the portlet's first claim. */
+  pointer-events: auto;
+  cursor: default;
+}
+
+.acvs-label-year {
+  font-size: clamp(7.5px, 0.54vw, 9.5px);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* The shared axis: the quarter, and under it the quarter total — the number
+   that would have been a sixth line. Centred on its column, which a transform
+   can do and `left` alone cannot. */
+.acvs-label[data-kind="axis"] {
+  transform: translateX(-50%);
+  align-items: center;
+  gap: 0;
+  pointer-events: auto;
+  cursor: default;
+}
+
+.acvs-label-q {
+  font-size: clamp(8px, 0.58vw, 10px);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.acvs-label-total {
+  font-size: clamp(7.5px, 0.55vw, 9.5px);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* The endpoint labels are the y axis. Each carries a colour rule on its left
+   edge rather than a swatch, because a 3px square beside 8px type at this
+   density reads as noise and a 2px rule reads as a line continuing. */
+.acvs-label[data-kind="end"] {
+  padding-left: 5px;
+  border-left: 2px solid var(--acvs-tint, var(--accent));
+  pointer-events: auto;
+  cursor: default;
+}
+
+.acvs-label-end {
+  font-size: clamp(7.5px, 0.55vw, 9.5px);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* The one numeral inside the strip, in the one band tall enough to hold it.
+   White on the dominant motion's fill, centred in its band. */
+.acvs-label[data-kind="share"] {
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: default;
+}
+
+.acvs-label-share {
+  font-size: clamp(7px, 0.52vw, 9px);
+  font-weight: 700;
+  color: #ffffff;
+  /* The band is 10px tall at the floor and the fill is a mid-value blue, so
+     the numeral needs a hair of separation from the two bands above it. */
+  text-shadow: 0 0 2px rgba(20, 22, 26, 0.45);
+}
+
+/* Hairlines between the strip's bands, in the paper colour, so the stack stays
+   contiguous — a gap would take share out of a whole that sums to 100 — while
+   the boundaries stay findable. */
+.acvs-band {
+  stroke: var(--surface-solid);
+  stroke-width: 0.4;
+}
+
+/* The one flexible element in the stack. Two of the three claims, clamped, so
+   vertical pressure at a tight breakpoint lands on the thing that can lose a
+   line rather than on the chart or on a label. */
+.acvs-insight {
+  flex: 0 1 auto;
+  min-height: 0;
+  margin: 0;
+  font-size: clamp(9px, 0.66vw, 11.5px);
+  line-height: 1.32;
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.acvs-insight strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Below 66px of plot the endpoint labels are taller than the band they have to
+   dodge inside, so the two smallest drop out. The lines and the strip are
+   untouched; what goes is a key the tooltips still carry. */
+@container (max-height: 66px) {
+  .acvs-label[data-kind="year"] {
+    display: none;
+  }
+}
+
+@container (max-height: 54px) {
+  .acvs-label[data-kind="share"]:not(:first-of-type) {
+    display: none;
+  }
+}
+
+/* ---- the expanded card ---- */
+
+.acvs-subhead {
+  margin: 14px 0 6px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.acvs-subhead:first-child {
+  margin-top: 0;
+}
+
+.acvs-list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.acvs-list li {
+  margin-bottom: 4px;
+}
+
+.acvs-list-lead {
+  margin: 8px 0 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* The thirty numerals the face gave up. Tabular, because the point of the
+   table is that a reader can run down a motion or across a quarter. */
+.acvs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.acvs-table th,
+.acvs-table td {
+  padding: 3px 6px;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+
+.acvs-table thead th {
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.acvs-table tbody th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--ink);
+  border-left: 2px solid var(--acvs-tint, transparent);
+  padding-left: 6px;
+}
+
+.acvs-table tbody tr:last-child th,
+.acvs-table tbody tr:last-child td {
+  border-bottom: none;
+  font-weight: 700;
+  color: var(--ink);
+}

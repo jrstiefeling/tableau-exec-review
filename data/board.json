@@ -303,113 +303,710 @@
           "layout": "mix",
           "portlets": [
             {
-              "id": "mix-acv",
-              "kind": "mixBar",
-              "label": "ACV by product motion",
-              "sublabel": "Embedded is growing into a shrinking base",
-              "accent": "#12806A",
+              "id": "acv-sources",
+              "kind": "acvSources",
+              "label": "Where does ACV come from",
+              "sublabel": "Five sales motions, FY26 Q1 → FY27 Q2 · dollars above, share below",
+              "accent": "#2F5FA8",
               "metrics": {
-                "total": 82,
-                "totalDisplay": "$82M",
                 "unit": "$M",
-                "segments": [
+                "total": 64.8,
+                "totalDisplay": "$64.8M",
+                "periodLabel": "FY2027 Q2",
+                "priorPeriodLabel": "FY2026 Q2",
+                "priorTotal": 69.6,
+                "priorTotalDisplay": "$69.6M",
+                "headline": "58%",
+                "headlineNote": "Cloud & Server expansion, share of ACV",
+                "goodDirection": "up",
+                "motions": [
                   {
-                    "id": "embedded",
-                    "label": "Embedded Analytics",
-                    "detail": "TabNext & CRMA",
-                    "value": 24,
-                    "display": "$24M",
-                    "yoy": 54,
-                    "yoyDisplay": "+54% Y/Y",
-                    "goodDirection": "up",
-                    "color": "#12806A",
-                    "priorValue": 15.58,
-                    "priorDisplay": "$15.6M"
+                    "id": "exp-cs",
+                    "label": "Expansion: Cloud & Server",
+                    "short": "Exp C&S",
+                    "color": "#4C6E9C",
+                    "value": 37.6,
+                    "display": "$37.6M",
+                    "share": 58,
+                    "shareDisplay": "58.0%",
+                    "priorValue": 40.4,
+                    "priorDisplay": "$40.4M",
+                    "yoy": -7,
+                    "yoyDisplay": "-7% Y/Y",
+                    "goodDirection": "up"
                   },
                   {
-                    "id": "agentic",
-                    "label": "Agentic Analytics",
-                    "detail": "Tab Cloud & Server",
-                    "value": 58,
-                    "display": "$58M",
-                    "yoy": -41,
-                    "yoyDisplay": "-41% Y/Y",
-                    "goodDirection": "up",
-                    "color": "#2F5FA8",
-                    "priorValue": 98.31,
-                    "priorDisplay": "$98.3M"
+                    "id": "exp-crma",
+                    "label": "Expansion: CRMA & Next",
+                    "short": "Exp CRMA",
+                    "color": "#9DBBD8",
+                    "value": 6.7,
+                    "display": "$6.7M",
+                    "share": 10.3,
+                    "shareDisplay": "10.3%",
+                    "priorValue": 2.2,
+                    "priorDisplay": "$2.2M",
+                    "yoy": 205,
+                    "yoyDisplay": "+205% Y/Y",
+                    "goodDirection": "up"
+                  },
+                  {
+                    "id": "migration",
+                    "label": "Cloud Migration",
+                    "color": "#D8A93C",
+                    "short": "Migration",
+                    "value": 4.5,
+                    "display": "$4.5M",
+                    "share": 7,
+                    "shareDisplay": "7.0%",
+                    "priorValue": 18,
+                    "priorDisplay": "$18.0M",
+                    "yoy": -75,
+                    "yoyDisplay": "-75% Y/Y",
+                    "goodDirection": "up"
+                  },
+                  {
+                    "id": "nc-cs",
+                    "label": "New Customer: Cloud & Server",
+                    "short": "NC C&S",
+                    "color": "#8DC079",
+                    "value": 10,
+                    "display": "$10.0M",
+                    "share": 15.4,
+                    "shareDisplay": "15.4%",
+                    "priorValue": 6,
+                    "priorDisplay": "$6.0M",
+                    "yoy": 67,
+                    "yoyDisplay": "+67% Y/Y",
+                    "goodDirection": "up"
+                  },
+                  {
+                    "id": "nc-crma",
+                    "label": "New Customer: CRMA & Next",
+                    "short": "NC CRMA",
+                    "color": "#2F7A55",
+                    "value": 6,
+                    "display": "$6.0M",
+                    "share": 9.3,
+                    "shareDisplay": "9.3%",
+                    "priorValue": 3,
+                    "priorDisplay": "$3.0M",
+                    "yoy": 100,
+                    "yoyDisplay": "+100% Y/Y",
+                    "goodDirection": "up"
                   }
                 ],
-                "insight": "<strong>29% of Q2 ACV, up from 14%</strong> — Embedded's ribbon widens into the narrower column. It grew $15.6M to $24M while Agentic fell $98.3M to $58M.",
-                "caption": "FY26 Q2 $113.9M → FY27 Q2 $82M · column width is the total",
-                "priorTotal": 113.89,
-                "priorTotalDisplay": "$113.9M",
-                "priorPeriodLabel": "FY26 Q2",
-                "periodLabel": "FY27 Q2"
+                "quarters": [
+                  {
+                    "id": "fy26q1",
+                    "year": "FY 2026",
+                    "q": "Q1",
+                    "label": "FY2026 Q1",
+                    "total": 51.4,
+                    "totalDisplay": "$51.4M",
+                    "values": [
+                      32.4,
+                      0.9,
+                      10.3,
+                      5.2,
+                      2.6
+                    ],
+                    "displays": [
+                      "$32.4M",
+                      "$0.9M",
+                      "$10.3M",
+                      "$5.2M",
+                      "$2.6M"
+                    ],
+                    "shares": [
+                      63,
+                      1.8,
+                      20,
+                      10.1,
+                      5.1
+                    ],
+                    "shareDisplays": [
+                      "63.0%",
+                      "1.8%",
+                      "20.0%",
+                      "10.1%",
+                      "5.1%"
+                    ],
+                    "sourced": []
+                  },
+                  {
+                    "id": "fy26q2",
+                    "year": "FY 2026",
+                    "q": "Q2",
+                    "label": "FY2026 Q2",
+                    "total": 69.6,
+                    "totalDisplay": "$69.6M",
+                    "values": [
+                      40.4,
+                      2.2,
+                      18,
+                      6,
+                      3
+                    ],
+                    "displays": [
+                      "$40.4M",
+                      "$2.2M",
+                      "$18.0M",
+                      "$6.0M",
+                      "$3.0M"
+                    ],
+                    "shares": [
+                      58,
+                      3.2,
+                      25.9,
+                      8.6,
+                      4.3
+                    ],
+                    "shareDisplays": [
+                      "58.0%",
+                      "3.2%",
+                      "25.9%",
+                      "8.6%",
+                      "4.3%"
+                    ],
+                    "sourced": [
+                      "migration"
+                    ]
+                  },
+                  {
+                    "id": "fy26q3",
+                    "year": "FY 2026",
+                    "q": "Q3",
+                    "label": "FY2026 Q3",
+                    "total": 63.4,
+                    "totalDisplay": "$63.4M",
+                    "values": [
+                      37.4,
+                      2.9,
+                      14.2,
+                      5.8,
+                      3.1
+                    ],
+                    "displays": [
+                      "$37.4M",
+                      "$2.9M",
+                      "$14.2M",
+                      "$5.8M",
+                      "$3.1M"
+                    ],
+                    "shares": [
+                      59,
+                      4.6,
+                      22.4,
+                      9.1,
+                      4.9
+                    ],
+                    "shareDisplays": [
+                      "59.0%",
+                      "4.6%",
+                      "22.4%",
+                      "9.1%",
+                      "4.9%"
+                    ],
+                    "sourced": []
+                  },
+                  {
+                    "id": "fy26q4",
+                    "year": "FY 2026",
+                    "q": "Q4",
+                    "label": "FY2026 Q4",
+                    "total": 102.5,
+                    "totalDisplay": "$102.5M",
+                    "values": [
+                      61.5,
+                      5.1,
+                      12.5,
+                      15.4,
+                      8
+                    ],
+                    "displays": [
+                      "$61.5M",
+                      "$5.1M",
+                      "$12.5M",
+                      "$15.4M",
+                      "$8.0M"
+                    ],
+                    "shares": [
+                      60,
+                      5,
+                      12.2,
+                      15,
+                      7.8
+                    ],
+                    "shareDisplays": [
+                      "60.0%",
+                      "5.0%",
+                      "12.2%",
+                      "15.0%",
+                      "7.8%"
+                    ],
+                    "sourced": [
+                      "total"
+                    ]
+                  },
+                  {
+                    "id": "fy27q1",
+                    "year": "FY 2027",
+                    "q": "Q1",
+                    "label": "FY2027 Q1",
+                    "total": 40.5,
+                    "totalDisplay": "$40.5M",
+                    "values": [
+                      25.5,
+                      3.2,
+                      5.6,
+                      4.2,
+                      2
+                    ],
+                    "displays": [
+                      "$25.5M",
+                      "$3.2M",
+                      "$5.6M",
+                      "$4.2M",
+                      "$2.0M"
+                    ],
+                    "shares": [
+                      63,
+                      7.9,
+                      13.8,
+                      10.4,
+                      4.9
+                    ],
+                    "shareDisplays": [
+                      "63.0%",
+                      "7.9%",
+                      "13.8%",
+                      "10.4%",
+                      "4.9%"
+                    ],
+                    "sourced": []
+                  },
+                  {
+                    "id": "fy27q2",
+                    "year": "FY 2027",
+                    "q": "Q2",
+                    "label": "FY2027 Q2",
+                    "total": 64.8,
+                    "totalDisplay": "$64.8M",
+                    "values": [
+                      37.6,
+                      6.7,
+                      4.5,
+                      10,
+                      6
+                    ],
+                    "displays": [
+                      "$37.6M",
+                      "$6.7M",
+                      "$4.5M",
+                      "$10.0M",
+                      "$6.0M"
+                    ],
+                    "shares": [
+                      58,
+                      10.3,
+                      7,
+                      15.4,
+                      9.3
+                    ],
+                    "shareDisplays": [
+                      "58.0%",
+                      "10.3%",
+                      "7.0%",
+                      "15.4%",
+                      "9.3%"
+                    ],
+                    "sourced": [
+                      "total",
+                      "exp-cs",
+                      "migration",
+                      "nc-cs",
+                      "nc-crma"
+                    ]
+                  }
+                ],
+                "claims": [
+                  {
+                    "id": "expansion-led",
+                    "text": "Expansion of installed customers is 68% of ACV, and Cloud & Server expansion alone is 58% of total — the largest contributor in all six quarters."
+                  },
+                  {
+                    "id": "migration-slowing",
+                    "text": "Cloud Migration is slowing significantly — $4.5M against $18.0M in the same quarter a year ago, down 75% year over year."
+                  },
+                  {
+                    "id": "new-customer-mix",
+                    "text": "New-customer ACV is still driven largely by Cloud & Server — $10.0M against $6.0M for CRMA & Next."
+                  }
+                ],
+                "insight": "<strong>Cloud Migration is the motion that left</strong> — $18.0M to $4.5M, down 75% Y/Y. New-customer ACV is still Cloud & Server: $10.0M against $6.0M for CRMA & Next.",
+                "caption": "4 quarters of FY26 · 2 of FY27 · dollars above, share below, one axis",
+                "form": {
+                  "note": "Two panels, one quarterly axis. The top panel is dollars per motion as lines, so level and trajectory read directly. The bottom panel is the same six quarters as a 100% stacked strip, so share reads without being confounded by level. They are separate panels on purpose: collapsed into one stacked dollar chart the '58% of total' claim would have to be read off a band whose height is doing two jobs at once, and it could not be read at all.",
+                  "dollarDomain": [
+                    0,
+                    65
+                  ],
+                  "dollarDomainNote": "Linear, from zero, to just above the largest motion. Not to the largest TOTAL: the totals are printed on the axis instead of drawn as a sixth line, which buys back 40% of the plot height for the five lines that are the subject — the largest motion reaches the top of the band instead of three fifths of the way up it. The cost is that the total's shape is a numeral sequence rather than a curve, and it is stated here so the trade is visible rather than discovered.",
+                  "sacrificed": [
+                    "The y axis and every gridline. Five endpoint labels carry the scale instead, each naming its motion and its FY27 Q2 dollars — the only column where a reader needs a number off the line panel, because it is the column all three claims are about.",
+                    "The total as a drawn line. It is printed under each quarter tick, which is where the axis already is, so the '$51.4M → $102.5M → $64.8M' sequence the slide labels is still legible in order.",
+                    "Full-height composition bars. The strip is 24 of the viewBox's 100 units — about 24px at the 1024 floor and 32px at 1440. That is enough for the dominant band to carry its own share numeral and for the other four to read as colour against the endpoint labels above, and it is not enough to label a 7% band in place.",
+                    "Per-quarter motion labelling. Every value is on a tooltip and in the expanded card; six quarters × five motions is thirty numerals and the slide only ever printed nine of them."
+                  ],
+                  "yearSplit": {
+                    "note": "FY26 and FY27 are drawn as two separate line segments with a ruled gap between them, not as one continuous six-point series. FY27 has two quarters because two have happened. The gap and the year labels are what stop the two-column FY27 panel reading as a collapse in level, and the lines are broken there because a Q4-to-Q1 step is a fiscal boundary rather than a trend — the slide draws it the same way, in two framed panels.",
+                    "fy26Quarters": 4,
+                    "fy27Quarters": 2,
+                    "fy26Total": 286.9,
+                    "fy26TotalDisplay": "$286.9M",
+                    "h1Compare": "FY26 H1 $121.0M → FY27 H1 $105.3M, -13.0% — the like-for-like read, and the only one the two panels support. FY27's $105.3M against FY26's full-year $286.9M is not a comparison."
+                  },
+                  "stackOrder": "Bottom-to-top as authored, dominant motion on the baseline. A 58% band floating in the middle of a stack is measured from a wobbling edge and cannot be read; on the baseline it is measured from a straight one.",
+                  "shareLabelling": "Only Expansion: Cloud & Server carries a numeral in the strip, in all six quarters — 63% · 58% · 59% · 60% · 63% · 58%. That sequence IS the headline claim, and the other four bands are between 1.8% and 25.9%, which at this strip height is between 0.3px and 4.6px of type room."
+                },
+                "reconciliation": {
+                  "note": "Both panels are computed from one authored dollar table. Shares are dollars divided by the quarter total, by largest remainder to one decimal, so every quarter sums to exactly 100.0 and the strip can never show a sliver of unexplained white.",
+                  "checks": [
+                    "FY2026 Q1: 32.4 + 0.9 + 10.3 + 5.2 + 2.6 = 51.4 = $51.4M, and 63.0 + 1.8 + 20.0 + 10.1 + 5.1 = 100.0.",
+                    "FY2026 Q2: 40.4 + 2.2 + 18.0 + 6.0 + 3.0 = 69.6 = $69.6M, and 58.0 + 3.2 + 25.9 + 8.6 + 4.3 = 100.0.",
+                    "FY2026 Q3: 37.4 + 2.9 + 14.2 + 5.8 + 3.1 = 63.4 = $63.4M, and 59.0 + 4.6 + 22.4 + 9.1 + 4.9 = 100.0.",
+                    "FY2026 Q4: 61.5 + 5.1 + 12.5 + 15.4 + 8.0 = 102.5 = $102.5M, and 60.0 + 5.0 + 12.2 + 15.0 + 7.8 = 100.0.",
+                    "FY2027 Q1: 25.5 + 3.2 + 5.6 + 4.2 + 2.0 = 40.5 = $40.5M, and 63.0 + 7.9 + 13.8 + 10.4 + 4.9 = 100.0.",
+                    "FY2027 Q2: 37.6 + 6.7 + 4.5 + 10.0 + 6.0 = 64.8 = $64.8M, and 58.0 + 10.3 + 7.0 + 15.4 + 9.3 = 100.0.",
+                    "Cloud Migration FY2026 Q2 $18.0M → FY2027 Q2 $4.5M = -75.0% exactly, which is the claim.",
+                    "New-customer motions at FY2027 Q2: $10.0M and $6.0M, the two figures the slide states.",
+                    "Expansion motions at FY2027 Q2: $37.6M + $6.7M = $44.3M, 68.4% of total — \"driven by expansion of existing customers\", as one arithmetic statement."
+                  ],
+                  "doesNotReconcileTo": "kpi-acv, the tile three rows above, and this is the portlet's most useful failure. FY2027 Q2 reads $64.8M here against a certified $82M there — 79% of it — and FY2026 Q2 reads $69.6M against $113.89M, 61%. The five motions are a hand-built taxonomy over a subset of the book, and their coverage of the certified total moved 18 points between the two quarters the tile above compares, for reasons no source can explain, because no source defines the taxonomy. Rendered as authored and not annotated on the face: a reconciliation badge here would imply somebody had reconciled it."
+                },
+                "provenanceOfFigures": {
+                  "note": "Which numbers came from the slide and which are inference. Recorded per figure because the slide's two panels do not agree with each other, so 'from the slide' is not one thing.",
+                  "fromStatedClaims": [
+                    "FY2027 Q2 total $64.8M, and FY26 Q4 $102.5M — both stated as totals.",
+                    "FY2027 Q2 Expansion: Cloud & Server at 58.0% of total.",
+                    "FY2027 Q2 Cloud Migration $4.5M, down 75% Y/Y — which fixes FY2026 Q2 at $18.0M, a value the slide independently prints.",
+                    "FY2027 Q2 New Customer: Cloud & Server $10.0M and New Customer: CRMA & Next $6.0M."
+                  ],
+                  "readFromTheChart": [
+                    "The four other quarter totals — 51.4, 69.6, 63.4 in FY26 and 40.5 in FY27 — are the values printed along the slide's line panel.",
+                    "The five motion names and their colours are the slide's legend, read upward."
+                  ],
+                  "inferred": [
+                    "Every per-motion dollar figure in FY26 Q1-Q4 and FY27 Q1. The slide labels nine values across those five quarters and does not say which line each belongs to. They are shaped to the trends the slide asserts in words and nothing else about them should be relied on.",
+                    "Expansion: CRMA & Next in all six quarters. It is the residual — the slide never labels it, in either panel, in any quarter. Its FY27 Q2 value of $6.7M is what is left after the four claimed figures.",
+                    "The per-quarter shares of the four non-dominant motions, since they are derived from inferred dollars."
+                  ],
+                  "departsFromTheSlide": [
+                    "The slide's own stacked panel. Its FY26 Q2 column shows no band near 26%, and Cloud Migration at $18.0M of $69.6M is 25.9%. The slide's line panel and its share panel cannot both be right, and the 75% claim depends on the line panel, so the line panel wins and the FY26 share labels are not used.",
+                    "The slide's per-quarter share numerals for FY26 generally. They are between three and ten points from the shares this portlet derives, because they belong to the reading in which the labelled line is Expansion: Cloud & Server rather than the total."
+                  ]
+                }
               },
               "semantic": {
-                "metricName": "ACV by Product Motion",
-                "definition": "ACV_clc grouped by APM_L218 and folded into Embedded and Agentic by a mapping this board defines. No motion dimension exists in either model: Tableau Next and Tableau Server are L2 siblings, not children of two motions.",
+                "metricName": "ACV by Sales Motion",
+                "definition": "ACV_clc grouped by fiscal quarter and by a five-value motion taxonomy — Expansion / New Customer crossed with Cloud & Server / CRMA & Next, plus Cloud Migration — that no model publishes. The measure is certified. The grouping is a business vocabulary that lives in slides.",
                 "sdm": "Sls_Forecasting_Metrics_Expanded",
                 "measure": "ACV_clc",
-                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × APM_L218, excluding APM_L120 = 'Other'.",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × motion, six quarters across two fiscal years.",
                 "lineage": [
                   "Org62 Opportunity",
                   "Tableau Extract (.tdsx)",
-                  "APM product hierarchy (L1/L2/L3)"
+                  "APM product hierarchy (L1/L2/L3)",
+                  "a motion taxonomy that exists only in the deck — the supplement"
                 ],
-                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
-                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
-                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible six-quarter series, not an error.",
+                "certifiedBy": "ACV_clc: Casey O'Donnell, document owner — the SDM has no certifier property. The motion taxonomy: nobody. No model publishes a motion dimension, so the five values this portlet is entirely composed of have no owner, no definition and no version.",
+                "freshness": "ACV_clc: Jul 28, 2026 · 9:00 AM PT, SDM checked hourly over a daily ~8 AM PT extract. The taxonomy: whenever the deck was last edited.",
                 "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
-                "why": "The split adds to the same certified $82M as the tile above because both resolve to one measure. The grouping is the part that does not exist yet — the layer publishes APM L1/L2, not Embedded versus Agentic — so this mapping is one the board defines and has to version. That is the argument the board is making, arriving as a gap in the board itself."
+                "why": "Expansion versus new customer, and Cloud & Server versus CRMA & Next, is the vocabulary the business actually reasons in — every claim on the source slide is phrased in it. Neither documented model has it. The closest governed grouping is APM_L120 family and APM_L218 sub-product, which splits products rather than motions and puts Tableau Next and Tableau Server side by side as L2 siblings. So this portlet's entire subject is a grouping assembled by hand, and the evidence is on its face: the same five motions cover 61% of the certified quarter total a year ago and 79% of it now. A taxonomy whose own coverage moves eighteen points between two quarters is not a taxonomy, it is a habit. That is the argument, and it arrives as a gap in the board itself."
               },
               "directMode": {
                 "provenance": "supplemented",
                 "tier": "red",
                 "detectability": "silent",
-                "groundedIn": "ACV_clc certified; no product-motion dimension exists (§5.4, §5.6)",
+                "groundedIn": "ACV_clc certified; no motion dimension exists in either model (§5.4, §5.6)",
                 "candidates": [
-                  "no product-motion grouping exists"
+                  "no product-motion grouping exists at any level"
                 ],
-                "missing": "The SKU-to-motion taxonomy — Org62 stores product codes, not the Embedded / Agentic grouping the business reasons in, and no semantic model publishes one either",
-                "effect": "The split cannot be produced at all, so the mix-rotation insight disappears rather than degrades",
+                "missing": "The motion taxonomy. Org62 stores product codes and the models publish a product hierarchy; neither publishes Expansion versus New Customer, and nothing anywhere publishes Cloud Migration as a motion. Also missing: the default APM_L120 = 'Other' exclusion the layer applies when a level-1 breakout is visible.",
+                "effect": "Both panels still draw, and that is the problem. A name-matched pull returns five motions and six quarters, the strip still sums to 100% in every quarter, and the shape of the story survives — expansion dominant, migration falling, new customer growing. What moves is the claim: the migration decline reads -65% rather than -75%, and Cloud & Server expansion reads 54% of total rather than 58%.",
                 "thesisTag": "T4",
                 "thesis": "Business vocabulary is an asset that has to live somewhere shared — otherwise every analysis rebuilds the same grouping by hand, slightly differently.",
-                "risk": "Miss that Embedded nearly doubled its share while the base fell",
-                "trustCost": "The insight is not wrong, it is absent — the most expensive failure mode",
+                "risk": "Take 'slowing significantly' off the slide, rebuild it from the warehouse to check, get -65%, and conclude the deck was overstating a decline that is in fact steeper than the deck said",
+                "trustCost": "The most expensive shape of wrong on this board: not a missing panel but a complete one, whose two arithmetic checks both pass and whose headline claim has quietly changed size.",
                 "metrics": {
-                  "total": 89,
-                  "totalDisplay": "$89M",
-                  "priorTotal": 123.6,
-                  "priorTotalDisplay": "$123.6M",
-                  "segments": {
+                  "total": 70.3,
+                  "totalDisplay": "$70.3M",
+                  "priorTotal": 75.5,
+                  "priorTotalDisplay": "$75.5M",
+                  "headline": "54%",
+                  "motions": {
                     "0": {
-                      "value": 28,
-                      "display": "$28M",
-                      "yoy": 66,
-                      "yoyDisplay": "+66% Y/Y",
-                      "priorValue": 16.9,
-                      "priorDisplay": "$16.9M"
+                      "value": 37.7,
+                      "display": "$37.7M",
+                      "share": 53.6,
+                      "shareDisplay": "53.6%",
+                      "priorValue": 40.8,
+                      "priorDisplay": "$40.8M",
+                      "yoy": -8,
+                      "yoyDisplay": "-8% Y/Y"
                     },
                     "1": {
-                      "value": 61,
-                      "display": "$61M",
-                      "yoy": -43,
-                      "yoyDisplay": "-43% Y/Y",
-                      "priorValue": 106.7,
-                      "priorDisplay": "$106.7M"
+                      "value": 7.3,
+                      "display": "$7.3M",
+                      "share": 10.4,
+                      "shareDisplay": "10.4%",
+                      "priorValue": 2.4,
+                      "priorDisplay": "$2.4M",
+                      "yoy": 204,
+                      "yoyDisplay": "+204% Y/Y"
+                    },
+                    "2": {
+                      "value": 7.9,
+                      "display": "$7.9M",
+                      "share": 11.2,
+                      "shareDisplay": "11.2%",
+                      "priorValue": 22.5,
+                      "priorDisplay": "$22.5M",
+                      "yoy": -65,
+                      "yoyDisplay": "-65% Y/Y"
+                    },
+                    "3": {
+                      "value": 10.9,
+                      "display": "$10.9M",
+                      "share": 15.5,
+                      "shareDisplay": "15.5%",
+                      "priorValue": 6.5,
+                      "priorDisplay": "$6.5M",
+                      "yoy": 68,
+                      "yoyDisplay": "+68% Y/Y"
+                    },
+                    "4": {
+                      "value": 6.5,
+                      "display": "$6.5M",
+                      "share": 9.3,
+                      "shareDisplay": "9.3%",
+                      "priorValue": 3.3,
+                      "priorDisplay": "$3.3M",
+                      "yoy": 97,
+                      "yoyDisplay": "+97% Y/Y"
                     }
                   },
-                  "insight": "<strong>31% of Q2 ACV, up from 14%</strong> — Embedded's ribbon widens into the narrower column. It grew $16.9M to $28M while Agentic fell $106.7M to $61M.",
-                  "caption": "$123.6M → $89M · retaining a line the business excludes"
+                  "quarters": {
+                    "0": {
+                      "total": 55.8,
+                      "totalDisplay": "$55.8M",
+                      "values": [
+                        32.2,
+                        1,
+                        14.2,
+                        5.6,
+                        2.8
+                      ],
+                      "displays": [
+                        "$32.2M",
+                        "$1.0M",
+                        "$14.2M",
+                        "$5.6M",
+                        "$2.8M"
+                      ],
+                      "shares": [
+                        57.7,
+                        1.8,
+                        25.5,
+                        10,
+                        5
+                      ],
+                      "shareDisplays": [
+                        "57.7%",
+                        "1.8%",
+                        "25.5%",
+                        "10.0%",
+                        "5.0%"
+                      ],
+                      "sourced": []
+                    },
+                    "1": {
+                      "total": 75.5,
+                      "totalDisplay": "$75.5M",
+                      "values": [
+                        40.8,
+                        2.4,
+                        22.5,
+                        6.5,
+                        3.3
+                      ],
+                      "displays": [
+                        "$40.8M",
+                        "$2.4M",
+                        "$22.5M",
+                        "$6.5M",
+                        "$3.3M"
+                      ],
+                      "shares": [
+                        54,
+                        3.2,
+                        29.8,
+                        8.6,
+                        4.4
+                      ],
+                      "shareDisplays": [
+                        "54.0%",
+                        "3.2%",
+                        "29.8%",
+                        "8.6%",
+                        "4.4%"
+                      ],
+                      "sourced": []
+                    },
+                    "2": {
+                      "total": 68.8,
+                      "totalDisplay": "$68.8M",
+                      "values": [
+                        37.6,
+                        3.1,
+                        18.4,
+                        6.3,
+                        3.4
+                      ],
+                      "displays": [
+                        "$37.6M",
+                        "$3.1M",
+                        "$18.4M",
+                        "$6.3M",
+                        "$3.4M"
+                      ],
+                      "shares": [
+                        54.7,
+                        4.5,
+                        26.7,
+                        9.2,
+                        4.9
+                      ],
+                      "shareDisplays": [
+                        "54.7%",
+                        "4.5%",
+                        "26.7%",
+                        "9.2%",
+                        "4.9%"
+                      ],
+                      "sourced": []
+                    },
+                    "3": {
+                      "total": 111.2,
+                      "totalDisplay": "$111.2M",
+                      "values": [
+                        63.7,
+                        5.5,
+                        16.6,
+                        16.7,
+                        8.7
+                      ],
+                      "displays": [
+                        "$63.7M",
+                        "$5.5M",
+                        "$16.6M",
+                        "$16.7M",
+                        "$8.7M"
+                      ],
+                      "shares": [
+                        57.3,
+                        5,
+                        14.9,
+                        15,
+                        7.8
+                      ],
+                      "shareDisplays": [
+                        "57.3%",
+                        "5.0%",
+                        "14.9%",
+                        "15.0%",
+                        "7.8%"
+                      ],
+                      "sourced": []
+                    },
+                    "4": {
+                      "total": 43.9,
+                      "totalDisplay": "$43.9M",
+                      "values": [
+                        24.5,
+                        3.5,
+                        9.1,
+                        4.6,
+                        2.2
+                      ],
+                      "displays": [
+                        "$24.5M",
+                        "$3.5M",
+                        "$9.1M",
+                        "$4.6M",
+                        "$2.2M"
+                      ],
+                      "shares": [
+                        55.8,
+                        8,
+                        20.7,
+                        10.5,
+                        5
+                      ],
+                      "shareDisplays": [
+                        "55.8%",
+                        "8.0%",
+                        "20.7%",
+                        "10.5%",
+                        "5.0%"
+                      ],
+                      "sourced": []
+                    },
+                    "5": {
+                      "total": 70.3,
+                      "totalDisplay": "$70.3M",
+                      "values": [
+                        37.7,
+                        7.3,
+                        7.9,
+                        10.9,
+                        6.5
+                      ],
+                      "displays": [
+                        "$37.7M",
+                        "$7.3M",
+                        "$7.9M",
+                        "$10.9M",
+                        "$6.5M"
+                      ],
+                      "shares": [
+                        53.6,
+                        10.4,
+                        11.2,
+                        15.5,
+                        9.3
+                      ],
+                      "shareDisplays": [
+                        "53.6%",
+                        "10.4%",
+                        "11.2%",
+                        "15.5%",
+                        "9.3%"
+                      ],
+                      "sourced": []
+                    }
+                  },
+                  "insight": "<strong>Cloud Migration is the motion that left</strong> — $22.5M to $7.9M, down 65% Y/Y. New-customer ACV is still Cloud & Server: $10.9M against $6.5M for CRMA & Next.",
+                  "caption": "4 quarters of FY26 · 2 of FY27 · dollars above, share below, one axis"
                 },
                 "hazard": "exclusion-convention",
-                "shownFrom": "Two conventions the layer applies whether or not you ask are absent. First, APM_L120 = 'Other' is excluded by default when the level-1 breakout is visible; retained, it inflates every figure by 8.5% — $82M × 1.085 = $89.0M. Second, there is no SKU-to-motion dimension in raw product codes, so the split is recovered by name-matching, which moves $2M of Agentic codes into Embedded. Embedded: $24M × 1.085 + $2M = $28.0M. Agentic: $58M × 1.085 − $2M = $61.0M. They still sum to $89.0M, so the one check anyone runs passes. Share reads 31% rather than 29%.",
-                "wouldYouNotice": "No, and this is the tile the whole design rests on. The ribbon, the column widths, the direction of the story and the shape of the mark are identical to the governed version. Only the numbers moved, and they moved in the flattering direction: Embedded's share of the book reads two points better and the total reads seven million dollars bigger.",
-                "certifiedDelta": "+$7.0M total · +2pt share",
-                "layerProvides": "One certified ACV measure, and the APM product hierarchy with its default 'Other' exclusion held as a business preference in the model rather than in each author's query.",
-                "layerDoesNotProvide": "No product-motion dimension exists. The Embedded-versus-Agentic grouping is not governed in either model — the closest governed grouping is APM_L120 family and APM_L218 sub-product, and Tableau Next and Tableau Server are both L2 values, so even the governed grouping needs OR-matching across two levels."
+                "shownFrom": "Two conventions the layer applies whether or not you ask. First, APM_L120 = 'Other' is excluded by default when the level-1 breakout is visible; retained, every figure inflates by 8.5% — $64.8M × 1.085 = $70.3M. Second, there is no SKU-to-motion dimension, so the motions are recovered by name-matching product codes, and 'Cloud' matches the Cloud & Server expansion codes and the migration SKUs alike: $3.0M lands in Cloud Migration instead of Expansion: Cloud & Server, in every quarter. FY2027 Q2 migration: $4.5M × 1.085 + $3.0M = $7.9M. FY2026 Q2: $18.0M × 1.085 + $3.0M = $22.5M. The strip still sums to 100.0% in all six quarters and the motions still sum to the total, so both checks pass.",
+                "wouldYouNotice": "No. Six quarters, five lines, one strip, same shape, same story, same direction. The migration line still falls away and the expansion band is still the largest in every quarter — the two things a reader takes from this portlet in three seconds are both still there. What changed is the size of the one claim the slide put in bold: -65% instead of -75%. Nobody reads a decline of two thirds and a decline of three quarters as different findings, which is precisely why this is the expensive one.",
+                "certifiedDelta": "+$5.5M total · migration reads -65% not -75%",
+                "layerProvides": "One certified ACV measure across both fiscal years from one grouped query on the same field, and the APM product hierarchy with its default 'Other' exclusion held as a business preference in the model rather than in each author's query. That is the numerator and the period alignment, and both are real.",
+                "layerDoesNotProvide": "The motions. There is no motion dimension at any level of either documented model — not Expansion versus New Customer, not Cloud Migration, not the Cloud & Server versus CRMA & Next split within either. The closest governed grouping is APM_L120 family and APM_L218 sub-product, and Tableau Next and Tableau Server are both L2 values, so even that needs OR-matching across two levels. Nothing in the layer certifies that these five motions partition the book, and the portlet's own arithmetic says they do not: they are 79% of the certified quarter and were 61% a year ago."
               }
             },
             {
@@ -492,7 +1089,7 @@
                     "title": "Repositioned Tableau",
                     "body": "as an Agentic Analytics Platform at Tableau Conference, driving strong excitement across the #DataFam community and customer base (NPS up significantly).",
                     "links": [
-                      "mix-acv"
+                      "acv-sources"
                     ]
                   },
                   {
@@ -508,7 +1105,7 @@
                     "title": "Revised product strategy",
                     "body": "in May and drove rapid innovation build cycles around Knowledge Graph, Tableau AI Studio, and Proactive Intelligence.",
                     "links": [
-                      "mix-acv"
+                      "acv-sources"
                     ]
                   },
                   {
@@ -516,7 +1113,7 @@
                     "title": "Customer Zero",
                     "body": "launched Tableau Next in Slackbot for Sales.",
                     "links": [
-                      "mix-acv"
+                      "acv-sources"
                     ]
                   },
                   {
@@ -614,7 +1211,7 @@
                     "railTitle": "Continued product innovation",
                     "body": "across Generative Data Apps, Tableau Studio, Knowledge Graph, Teams integration, Project Beacon, Command Center, and Private Connect for GCP and Azure.",
                     "links": [
-                      "mix-acv"
+                      "acv-sources"
                     ]
                   }
                 ]

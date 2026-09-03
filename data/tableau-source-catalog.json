@@ -508,7 +508,7 @@
         "APM_Specialist_Cloud_Routing"
       ],
       "pulseDisagreement": "PULSE names six-to-eight L1 families including labels 'Tableau' and 'Agentforce'. FCST's catalogue lists twelve L1 values plus null, includes 'Informatica' and 'Customer Success Plans', and does not use the labels 'Tableau' or 'Agentforce' at all. Trust FCST; enumerate live.",
-      "thereIsNoMotionDimension": "No product-motion dimension exists in either model. There is no Embedded/Agentic grouping, no deployment-model dimension, and nothing resembling one. The board's Embedded/Agentic split is a NEW MAPPING layered on APM L2, not a lookup of an existing governed dimension. Note also that the board's authored labels invert against APM: mix-acv labels Embedded as 'TabNext & CRMA' and Agentic as 'Tab Cloud & Server', while APM puts Tableau Next and Tableau Server side by side as L2 siblings. 'CRMA' is a name variation the docs flag for retry as 'CRM Analytics'."
+      "thereIsNoMotionDimension": "No product-motion dimension exists in either model. There is no Embedded/Agentic grouping, no deployment-model dimension, and nothing resembling one. The board's Embedded/Agentic split is a NEW MAPPING layered on APM L2, not a lookup of an existing governed dimension. Note also that the board's authored labels imply a hierarchy level APM does not have: acv-sources names a 'Cloud & Server' motion spanning two APM L2 values that sit beside 'Tableau Next' as siblings, and the mix-acv portlet it replaced labelled Embedded as 'TabNext & CRMA' against Agentic as 'Tab Cloud & Server' — the same error in the other direction. The absence is now WIDER than it was, because acv-sources also needs an Expansion-versus-New-Customer axis, and no field in either model distinguishes an expansion booking from a new logo. 'CRMA' is a name variation the docs flag for retry as 'CRM Analytics'."
     },
     "rowLevelSecurity": {
       "queryInheritsTheCallersEntitlementNotTheSubjects": "The most operationally dangerous property in the whole layer. PULSE states it best: 'Both SDMs enforce row-level security scoped to the CALLER (whoever's Salesforce credentials are connected), not the subject. If Slackbot is running as John Stiefeling and John's entitled hierarchy doesn't include Alfano's org, the queries will return John's data SILENTLY. Verify by checking if returned pipe numbers are in the right magnitude.'",
@@ -930,9 +930,14 @@
         "Sls_Forecasting_Metrics_Expanded"
       ]
     },
-    "mix-acv": {
+    "acv-sources": {
       "tab": "exec",
       "status": "partial",
+      "replacedPortlet": {
+        "was": "mix-acv — ACV by product motion, Embedded against Agentic, two quarters as a proportional alluvial",
+        "why": "Same measure, same absent dimension, a strictly larger question. The alluvial split the book two ways over two quarters; this splits it five ways over six and separates level from share, which is what carries the source slide's three claims. The reason for the swap is not that the old entry was wrong — every correction below survived the replacement — but that the vocabulary the business argues in has five values, not two, and the portlet was answering a smaller question than the one being asked of it.",
+        "whatCarriedOver": "theDecisionNotALookup, orMatchingRule, lineageCorrection and the 'Other' exclusion rule, all unchanged and all still the substance of the entry. What changed is the mapping's arity — two motions became five — which makes the mapping-not-a-lookup point larger rather than different."
+      },
       "model": "Sls_Forecasting_Metrics_Expanded",
       "measures": {
         "primary": "ACV_clc"
@@ -941,32 +946,38 @@
         "APM_L120",
         "APM_L218",
         "Close_Date_Fiscal_Quarter_Datepart_clc",
-        "Close_Date_Relative_Year_clc"
+        "Close_Date_Fiscal_Year_Datepart_clc"
       ],
       "rowGrain": "one row per metric per opportunity per user in the reporting hierarchy",
-      "presentationGrain": "fiscal quarter x APM_L218 (the split lives at L2, not L1)",
+      "presentationGrain": "fiscal quarter x sales motion, six quarters across two fiscal years (FY26 Q1-Q4, FY27 Q1-Q2)",
       "dateAnchor": "Close_Date17",
       "requiredFilters": [
         "exactly one dedup filter",
         "exclude APM_L120 = 'Other'",
-        "filter NULL dimension values"
+        "filter NULL dimension values",
+        "Is_QTD_ACV_1_clc = TRUE if the latest quarter is open, or the last column is a partial quarter beside five full ones"
       ],
-      "utteranceShape": "Return ACV (ACV_clc) grouped by APM_L218 for <scope filter>, filtered to Close_Date_Fiscal_Quarter_Datepart_clc = <resolved> and Close_Date_Relative_Year_clc = 'CY'. Exclude APM_L120 = 'Other'. Filter out null dimension values.",
+      "utteranceShape": "Return ACV (ACV_clc) grouped by APM_L218 and by Close_Date_Fiscal_Quarter_Datepart_clc for <scope filter>, filtered to Close_Date_Fiscal_Year_Datepart_clc IN (<FY26>, <FY27>). Return ALL matching rows — do not limit the result set. Exclude APM_L120 = 'Other'. Filter out null dimension values.",
+      "utteranceNote": "Six quarters is a series rather than a comparison, so the year is a FISCAL YEAR datepart rather than Close_Date_Relative_Year_clc. Relative year is the right field for a two-point Y/Y read — it is what acv-ae-fan and kpi-acv use — and the wrong one for a series, because 'CY' and 'PY' are two buckets and this portlet needs six. Do not add Is_Current_Quarter_clc: on a multi-quarter grouped pull it double-counts (§2.5).",
       "needs": [
-        "segmentValues",
-        "segmentYoy",
-        "total",
-        "sharePct"
+        "motionValues (5 motions x 6 quarters, in dollars)",
+        "motionShares (the same 30 cells as share of quarter)",
+        "quarterTotals",
+        "motionYoy (same fiscal quarter, FY27 Q2 against FY26 Q2)"
       ],
       "cannotSource": [
-        "the Embedded vs Agentic grouping — NO product-motion dimension exists in either model"
+        "the five-value motion taxonomy — NO product-motion dimension exists in either model, at any level",
+        "the Expansion versus New Customer axis — nothing in either model distinguishes an expansion booking from a new-logo one. This is a SECOND absent dimension and it is not the same absence as the product one: even a perfect APM-L2-to-product mapping would not produce it",
+        "Cloud Migration as a motion — it is a deal shape, not a product, and no field describes it",
+        "the taxonomy's coverage of the book. The portlet's own arithmetic shows the five motions are 79% of the certified quarter total and were 61% of it a year before, so the mapping is not even a stable partition of what it does cover"
       ],
-      "theDecisionNotALookup": "The authored claim that the split 'comes from a governed SKU-to-motion dimension, not from a keyword match on product name' is false against this layer. What exists is the APM hierarchy, where 'Tableau Next' and 'Tableau Server' are both L2 VALUES. The split is a NEW MAPPING layered on APM L2, not a lookup. That is still a defensible thing to build — and building it is precisely the argument the board makes about business vocabulary needing somewhere shared to live — but the tile should say so rather than claim the mapping already exists.",
-      "wouldRequireToSourceFully": "A governed motion dimension on either SDM, or an explicit versioned APM-L2-to-motion mapping artifact committed to this repo and labelled as a mapping this board defines. <TBD: L2-to-motion mapping — a decision, not a lookup.>",
-      "orMatchingRule": "A product may be identified at either level: (APM_L120 = 'Tableau Next' OR APM_L218 = 'Tableau Next'). Verify at both before concluding a product is absent.",
-      "labelInversionWarning": "The board labels Embedded as 'TabNext & CRMA' and Agentic as 'Tab Cloud & Server', while APM puts Tableau Next and Tableau Server side by side as L2 siblings. 'CRMA' is a name variation the docs flag for retry as 'CRM Analytics'.",
-      "reconciliation": "The L2 subtotals must sum to the same ACV_clc total returned for kpi-acv at the same scope and period. If they do not, the difference is products excluded by the 'Other' rule or the null filter, and it must be shown, not absorbed.",
-      "lineageCorrection": "'Product SKU Taxonomy' does not exist. The real name is the APM product hierarchy (L1/L2/L3).",
+      "theDecisionNotALookup": "Unchanged from mix-acv and now larger. The authored claim that a motion split 'comes from a governed SKU-to-motion dimension, not from a keyword match on product name' is false against this layer. What exists is the APM hierarchy, where 'Tableau Next' and 'Tableau Server' are both L2 VALUES. The five motions are a NEW MAPPING over APM L2 crossed with a booking-type axis that has no field at all, not a lookup. That is still a defensible thing to build — building it is precisely the argument the board makes about business vocabulary needing somewhere shared to live — but the portlet must say so rather than claim the mapping already exists. It does: semantic.certifiedBy names nobody for the taxonomy, and directMode.layerDoesNotProvide states both absences.",
+      "wouldRequireToSourceFully": "Three artifacts, not one. (1) A governed motion dimension on either SDM, or an explicit versioned APM-L2-to-product mapping committed to this repo and labelled as a mapping this board defines. (2) A booking-type field — expansion / new customer / migration — which does not exist in either model and is the harder of the two, because it is a property of the customer relationship at close rather than of the product. (3) A stated rule for what the five motions do NOT cover, since they are 79% of the certified total and the residual is currently unexplained. <TBD: motion taxonomy — two decisions and a residual, not a lookup.>",
+      "orMatchingRule": "A product may be identified at either level: (APM_L120 = 'Tableau Next' OR APM_L218 = 'Tableau Next'). Verify at both before concluding a product is absent. This is what the direct-mode name-match gets wrong in the other direction: 'Cloud' matches both the Cloud & Server expansion codes and the migration SKUs, which is the $3.0M misattribution in shownFrom.",
+      "labelInversionWarning": "The five motion names are the source slide's, not the layer's. 'CRMA' is a name variation the docs flag for retry as 'CRM Analytics'. 'Cloud & Server' spans two APM L2 values that sit beside 'Tableau Next' as siblings, so the motion name implies a hierarchy level the product hierarchy does not have.",
+      "reconciliation": "The motion subtotals must sum to the quarter total, and they do — by construction, since the portlet's shares are derived from its dollars. They do NOT sum to the ACV_clc total returned for kpi-acv at the same scope and period: FY27 Q2 is $64.8M against a certified $82M, and FY26 Q2 is $69.6M against $113.89M. That gap is the taxonomy's coverage of the book, it moved 18 points between the two quarters kpi-acv compares, and no source explains it. Shown as authored and not annotated on the portlet face, per the no-reconciliation-UI rule: a badge here would imply somebody had reconciled it.",
+      "figureProvenance": "Every figure is authored from one slide, and the slide does not close — read its labelled line as the quarter total and FY27 Q2 satisfies all three of its written claims exactly; read it as Expansion: Cloud & Server and FY27 Q2's claims break by a factor of two while FY26's shares start working. The board takes the first reading, because the '75% year over year' claim independently fixes Cloud Migration at $18.0M in FY26 Q2, a value the slide separately prints. Consequence: the four FY26 quarters and FY27 Q1 are INFERRED motion by motion, and Expansion: CRMA & Next is inferred in all six quarters as the residual. Recorded per figure on metrics.provenanceOfFigures.",
+      "lineageCorrection": "'Product SKU Taxonomy' does not exist. The real name is the APM product hierarchy (L1/L2/L3). Carried over from mix-acv unchanged.",
       "lineage": [
         "Org62 Opportunity",
         "Tableau Extract (.tdsx)",
@@ -1165,7 +1176,7 @@
         "the level-1 grouping itself — the two nodes 'Agentic Analytics Platform' and 'Embedded Agentic Analytics' are the motion split, and NO motion dimension exists in either model",
         "the seven-node taxonomy as authored — the real hierarchy is APM L1 -> L2 -> L3, and 'Tableau Next' and 'Tableau Server' are L2 SIBLINGS, not children of two different motions"
       ],
-      "wouldRequireToSourceFully": "The same versioned APM-L2-to-motion mapping mix-acv needs. With that mapping committed as an explicit repo artifact, the roll-up is sourceable: the level-2 dollars come from APM_L218 and the level-1 dollars are the mapping's sums. Without it, the level-1 boundary this portlet exists to draw is not a governed boundary.",
+      "wouldRequireToSourceFully": "The same versioned APM-L2-to-motion mapping acv-sources needs — and only the product half of it, since a hierarchy roll-up needs no booking-type axis. With that mapping committed as an explicit repo artifact, the roll-up is sourceable: the level-2 dollars come from APM_L218 and the level-1 dollars are the mapping's sums. Without it, the level-1 boundary this portlet exists to draw is not a governed boundary.",
       "theRollUpClaimSurvives": "The portlet's core claim — 'the roll-up is the portlet; all three levels are one certified measure read at three grains, not three queries that happen to agree' — is TRUE of ACV_clc and is the strongest thing the layer supports here. What is not governed is the level-1 taxonomy, not the roll-up property.",
       "additivity": "ACV_clc is additive; the roll-up geometry is safe. The Y/Y rates are NOT additive and must never be rolled up — the portlet already treats them as a separate channel, which matches the layer's own additive / non-additive split.",
       "lineage": [
@@ -1180,7 +1191,7 @@
         "kind": "derived-in-board",
         "source": "Board-side grouping over APM_L120 / APM_L218",
         "supplies": "The parent rows. Every leaf and every dollar is ACV_clc.",
-        "because": "§5.2, §11 — as mix-acv.",
+        "because": "§5.2, §11 — as acv-sources.",
         "cost": "The roll-up closes by additivity, which the layer does guarantee (§7.1). What it does not guarantee is that these are the right parents."
       }
     },
@@ -1233,7 +1244,7 @@
         "kind": "derived-in-board",
         "source": "Board-side grouping over APM_L120 / APM_L218",
         "supplies": "Which leaves belong to which wing. The nets and the movements are ACV_clc.",
-        "because": "§5.2, §11 — as mix-acv. Additivity itself is governed (§3.4, §7.1), which is what makes an inferred decomposition that does not close a self-evident failure.",
+        "because": "§5.2, §11 — as acv-sources. Additivity itself is governed (§3.4, §7.1), which is what makes an inferred decomposition that does not close a self-evident failure.",
         "cost": "The wings are authored; the arithmetic is not. That asymmetry is the panel's whole value in direct mode."
       }
     },
@@ -2000,7 +2011,7 @@
         "severity": "no dimension exists",
         "evidence": "No product-motion, deployment-model or Embedded/Agentic dimension in either model. What exists is the APM hierarchy, where 'Tableau Next' and 'Tableau Server' are both L2 values needing OR-matching across L1 and L2.",
         "affectedPortlets": [
-          "mix-acv",
+          "acv-sources",
           "acv-ae-fan",
           "perf-hierarchy",
           "perf-divergence",
@@ -2379,7 +2390,7 @@
     "4. DECIDE THE MODEL PER PORTLET, AND NEVER MIX. Two unrelated SDMs, no relationship, same words meaning different numbers. Every portlet gets exactly one model. No portlet's choice is open any more: acv-account-fan was the last one where the Specialist model was a live alternative, and its replacement acv-ae-fan is settled on Sls_Forecasting_Metrics_Expanded because it reconciles to kpi-acv. seg-matrix's is settled: the segment derivation in step 5 only works on Sls_Forecasting_Metrics_Expanded, because Segment10 is the only segment field carrying SMB and the derivation cannot create one.",
     "5. BUILD THE DERIVED SEGMENT DIMENSION, IN THE SEMANTIC LAYER. The board's four segment columns are NOT four values of one native dimension. Per the model owner: PubSec is an OPERATING UNIT, not a segment, and the four-way split is a derived dimension — 'IF OU = Public Sector then OU else segment end'. That single line, quoted verbatim, is the definition. Add it to the SDM as a calculated dimension so every consumer inherits the same answer, including the Analytics Agent, which generates SQL from apiNames and cannot infer a rule that lives in someone's workbook. DO NOT reimplement it client-side in each workbook or app: a one-line rule that determines what 'PubSec' means, left out of the model, gets rebuilt slightly differently by every analyst who needs it, and four segment breakouts that all look right disagree with no error anywhere. THEN CONFIRM THE ONE OUTSTANDING IDENTIFIER: the OU field's apiName is <TBD> and neither documented candidate is confirmed to carry a Public-Sector value — OU_Operating_Unit (Forecasting, no value set documented at all) or OU_Group_clc (Specialist, whose value list shows a truncated 'Pub Se…'). The near-hit and the SMB value are in different models and the models cannot be joined, so this check is the highest-value discovery call on the segment tab: if Forecasting's OU field carries no Public Sector value, the four-column set is blocked again and genuinely this time. Resolve the literal with a distinct-values probe, never from a document. See portlets['seg-matrix'].derivedSegmentDimension. STILL OWED SEPARATELY: the board's own enterprise / commercial / growth tier labels used elsewhere match neither model's vocabulary, and the model owner's answer does not address them; and ESMB, which Segment10 carries and the four columns do not show, needs a stated destination.",
     "6. DECIDE WHAT THE FIVE YEAR TREND TAB SHOWS, BEFORE IT GOES LIVE. THE TAB AS DESIGNED CANNOT BE SOURCED. It draws five periods (FY23, FY24, FY25, FY26, FY27 H1) and the model owner confirms there are only three years of ACV data — 'Correct, only 3 years of ACV data.' Three years is the extent of the data, not of the relative-year vocabulary, so there is no date-filter workaround. Four of the seven metric panels have no measure at all and are confirmed unavailable by the model owner (trend-aov, trend-revenue, trend-ae-capacity, trend-ae-productivity); the other three (trend-acv, trend-attrition, trend-nnaov) reach three of five points. The Y/Y channel reaches two of five and the two-year CAGR channel reaches one of five, because a 2-year CAGR at the earliest available year has no prior basis to compute from. DECIDE ONE OF: (a) re-cut the tab as a three-year trend of the three flow metrics that exist, with FY27 as the period-to-date detached point — the recommendation, and still a defensible chart; (b) hold the tab in mock and label it as such; (c) source the missing years from outside this semantic layer, which is a different project. WHAT IS NOT AVAILABLE is rendering five periods against three years of data and fixing it in the caption — two of the five points would have no source, and a chart with two invented points is the exact failure this board exists to argue against. See gaps.fiveYearTrendTabCannotBeSourced.",
-    "7. DECIDE THE PRODUCT-MOTION MAPPING, IN THE OPEN. No motion dimension exists. Commit an explicit, versioned APM-L2-to-motion mapping to this repo, labelled as a mapping THIS BOARD DEFINES rather than one the layer provides. Five portlets depend on it: mix-acv, perf-hierarchy, perf-divergence, seg-matrix, outlook-matrix. acv-ae-fan no longer does — it is keyed on a rep, not a product.",
+    "7. DECIDE THE PRODUCT-MOTION MAPPING, IN THE OPEN. No motion dimension exists. Commit an explicit, versioned APM-L2-to-motion mapping to this repo, labelled as a mapping THIS BOARD DEFINES rather than one the layer provides. Five portlets depend on it: acv-sources, perf-hierarchy, perf-divergence, seg-matrix, outlook-matrix — and acv-sources needs a SECOND decision besides, an Expansion-versus-New-Customer axis with no field behind it at all. acv-ae-fan no longer does — it is keyed on a rep, not a product.",
     "8. READ businessPreferences ON BOTH MODELS AND APPLY THEM. They apply to every generated query whether or not you ask. AND DO NOT LIFT A LITERAL FILTER VALUE OUT OF THEM — the stored 'UP +' string is documentation, not data, and filtering on it returns zero rows with no error. Resolve every filter VALUE with a distinct-values probe instead.",
     "9. CONFIRM EVERY FIELD'S VISIBILITY AND aggregationType BEFORE NAMING IT IN AN UTTERANCE. Several fields the board wants are hidden (SFR_Pipe_Gen_Amount_clc, Coverage_clc in the Specialist model, SFR_ID). A hidden field returns nothing rather than erroring. Coverage_clc is the correct field in one model and hidden in the other.",
     "10. WIRE THE ALWAYS-ON FILTERS PER MODEL, NOT GLOBALLY. Forecasting needs exactly ONE dedup filter chosen from the seven scenarios, or results run 3-10x too large; Is_My_Data_clc and User_Name10 are mutually exclusive. Specialist needs Is_Specialist_AE_Covered_Cleaned_clc = TRUE on every query without exception, plus COUNT(DISTINCT Opportunity_ID35) for any count. Note that if the runtime identity has no forecast record, Is_My_Data_clc becomes a NO-OP THAT RETURNS ALL DATA — an analyst or service identity is the likeliest to hit this.",

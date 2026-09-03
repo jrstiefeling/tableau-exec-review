@@ -593,7 +593,7 @@ variety is what makes the tab-to-tab reading interesting, and it comes free from
 | `kpi-acv` | Exec | field-ambiguity — four amount columns | red |
 | `kpi-attrition` | Exec | point-in-time — actuals one month in arrears | red |
 | `kpi-pipegen` | Exec | fan-out — no dedup filter, 3× the hierarchy | **yellow** |
-| `mix-acv` | Exec | exclusion-convention — `APM_L1 'Other'` retained, no motion taxonomy | red |
+| `acv-sources` | Exec | exclusion-convention — `APM_L1 'Other'` retained, no motion taxonomy | red |
 | `hc-ae` | Exec | no-source — no headcount measure in either model | grey |
 | ~~`acv-account-fan`~~ | Exec | ~~conformed-identity — raw account name, not the consolidated key~~ | ~~red~~ |
 | `acv-ae-fan` | Exec | point-in-time — a current roster with no as-of-period-end read | **yellow**, and **supplemented**: nothing moves |
@@ -805,9 +805,16 @@ Two traps the harness had to learn, recorded because they cost an hour each:
 - **`exec-governed` beside `exec-direct` at 1024×580 is the deliverable.** Two boards, the same
   confidence, four different figures on the hero strip, and one card that changed colour in the
   wrong direction.
-- **`mix-acv` is the argument in one card.** A 29% share becomes 31% and the total gains $7M,
-  which at this size is one pixel of geometry. The ribbon, the widths and the story are identical.
-  Only the numbers moved.
+- **`acv-sources` is the argument in one card.** Six quarters, five lines and a composition strip
+  redraw identically: same shape, same dominant motion, same falling migration line. The total
+  gains $5.5M on the stated 8.5% and the strip still sums to 100% in every quarter, so both checks
+  anyone runs pass. What moved is the claim the slide put in bold — the migration decline reads
+  −65% rather than −75%, and Cloud & Server expansion reads 54% of total rather than 58%. Nobody
+  reads two thirds and three quarters as different findings.
+
+  This replaced `mix-acv`, whose version of the beat was a 29% share becoming 31% and a total
+  gaining $7M — one pixel of geometry. The new one is better because the degradation lands on a
+  sentence rather than on a numeral.
 - **`hc-ae` is the control group, and it is on the exec tab on purpose.** Its dot is amber in both
   modes, it grows no glyph, its 745 does not move, and in the audit pass it is the one card with
   nothing struck. A viewer who notices that one card did not react has understood the whole
@@ -845,7 +852,7 @@ the estimate and collides with nobody.
 ### Done and ready to merge
 
 - **All 29 `directMode` blocks**, in final shape, in `direct-mode-blocks.json`. Every `shownFrom`
-  arithmetic computed and cross-checked; the exec `mix-acv` and Product
+  arithmetic computed and cross-checked; the exec `acv-sources` and Product
   `perf-hierarchy` figures all carry the same 8.5% `'Other'` inflation so the tabs agree with each
   other.
 - **The supplemented register** for `data/tableau-source-catalog.json`, staged in

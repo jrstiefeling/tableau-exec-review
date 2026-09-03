@@ -20,6 +20,7 @@
 
 import { mount as attainment } from "./attainment.js";
 import { mount as mixBar } from "./mixBar.js";
+import { mount as acvSources } from "./acvSources.js";
 import { mount as statTile } from "./statTile.js";
 import { mount as cardRail } from "./cardRail.js";
 import { mount as trendPanel } from "./trendPanel.js";
@@ -36,6 +37,7 @@ import { mount as dealRail } from "./dealRail.js";
 export const CHARTS = {
   attainment,
   mixBar,
+  acvSources,
   statTile,
   cardRail,
   trendPanel,
