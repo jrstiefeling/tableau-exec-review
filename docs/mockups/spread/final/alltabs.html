@@ -1,0 +1,67 @@
+<!doctype html>
+<!-- Whole-board regression check. This build deleted a renderer (growthSpread)
+     and its stylesheet block, and edited two files every tab reads, so the
+     question is not "do my two panels work" but "does anything else still
+     depend on what I removed".
+
+     Every tab, by its real id, asserted on arrival. Real ids: exec,
+     analytics-performance, performance-by-segment, q3-outlook, trend. -->
+<meta charset="utf-8">
+<title>all tabs</title>
+<style>
+  html, body { margin: 0; background: #111; color: #eee; font: 12px/1.55 ui-monospace, monospace; }
+  #out { padding: 12px; white-space: pre-wrap; }
+  iframe { position: fixed; left: -9999px; width: 1280px; height: 620px; border: 0; }
+  .ok { color: #6ee7a8; } .bad { color: #ff8f8f; } .hd { color: #8ecbff; font-weight: 700; }
+</style>
+<div id="out"></div>
+<iframe id="f"></iframe>
+<script type="module">
+const out = document.getElementById("out");
+const f = document.getElementById("f");
+const log = (s, c = "") => { const d = document.createElement("div"); if (c) d.className = c; d.textContent = s; out.appendChild(d); };
+
+const TABS = ["exec", "analytics-performance", "performance-by-segment", "q3-outlook", "trend"];
+let fails = 0;
+
+for (const tab of TABS) {
+  const errs = [];
+  await new Promise((res) => {
+    f.onload = () => {
+      const w = f.contentWindow;
+      w.addEventListener("error", (e) => errs.push(`error: ${e.message}`));
+      w.addEventListener("unhandledrejection", (e) => errs.push(`reject: ${e.reason}`));
+      const ce = w.console.error;
+      w.console.error = (...a) => { errs.push("console.error: " + a.join(" ")); ce.apply(w.console, a); };
+      setTimeout(res, 2000);
+    };
+    f.src = `/index.html?v=${Date.now()}-${Math.random()}#${tab}`;
+  });
+
+  const doc = f.contentDocument;
+  const live = doc.querySelector(".panel.is-active");
+  const got = live && live.dataset.tab;
+  if (got !== tab) { log(`FAIL ${tab}: rendered '${got}'`, "bad"); fails++; continue; }
+
+  const head = (live.querySelector(".panel-headline") || {}).textContent || "";
+  const portlets = [...live.querySelectorAll(".portlet")];
+  // A portlet whose renderer threw mounts its shell and no marks.
+  const empty = portlets.filter((p) => {
+    const b = p.querySelector(".portlet-body");
+    return !b || b.children.length === 0;
+  });
+  // Anything still referencing the deleted renderer's classes.
+  const orphans = live.querySelectorAll("[class*='spread-']");
+
+  log(`${tab}`, "hd");
+  log(`   "${head.trim().slice(0, 58)}"`);
+  log(`   ${portlets.length} portlets, ${empty.length} empty, ${orphans.length} orphan .spread-* nodes`
+    + `, ${errs.length} errors`, (empty.length || orphans.length || errs.length) ? "bad" : "ok");
+  errs.slice(0, 4).forEach((e) => log(`      ${e.slice(0, 130)}`, "bad"));
+  empty.forEach((p) => log(`      empty: ${p.id || p.className}`, "bad"));
+  if (empty.length || orphans.length || errs.length) fails++;
+}
+
+log("");
+log(fails ? `${fails} TABS WITH PROBLEMS` : "ALL FIVE TABS CLEAN", fails ? "bad" : "ok");
+</script>
