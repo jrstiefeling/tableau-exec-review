@@ -33,6 +33,28 @@ const at = atIndex >= 0 ? Number(rest[atIndex + 1]) : null;
 const probeIndex = rest.indexOf("--probe");
 const probe = probeIndex >= 0 ? rest[probeIndex + 1] : null;
 
+/* The tab the caller ASKED for, taken from the fragment.
+ *
+ * This used to be a comment claiming the harness asserted the rendered tab
+ * against the requested one. It did not — it only ever reported on whichever
+ * panel happened to be active, which is precisely how a cache-buster appended
+ * AFTER the fragment ("index.html#q3-outlook?v=123") made every frame the exec
+ * tab while the log looked correct. idFromHash() in tabs.js falls back to
+ * tabs[0] on any unrecognised fragment, silently, so a malformed URL is
+ * indistinguishable from a deliberate exec shot unless something checks.
+ *
+ * A query string after the fragment is a caller error, not a cache-buster, so
+ * it is rejected here rather than quietly normalised: normalising it would
+ * still leave the caller believing a thing that is not true. */
+const frag = urlPath.includes("#") ? urlPath.slice(urlPath.indexOf("#") + 1) : "";
+const wantTab = frag.replace(/^\/?/, "");
+if (/[?&]/.test(wantTab)) {
+  console.error(`FATAL: query string inside the URL fragment ("${wantTab}").`);
+  console.error("  A cache-buster belongs before the '#', not after it. As written this");
+  console.error("  fragment matches no tab and the board would silently render the exec tab.");
+  process.exit(2);
+}
+
 mkdirSync("shots", { recursive: true });
 
 const chrome = spawn(CHROME, [
@@ -148,9 +170,71 @@ const audit = await send("Runtime.evaluate", {
         out.clipped.push((el.className || el.tagName) + ' :: ' + el.textContent.trim().slice(0, 40));
       }
     });
+
+    /* Painted-box clipping, asked of the descendants rather than of a clone.
+     *
+     * The scroller check above deliberately skips overflow:hidden, because a
+     * hidden box is not a scroller — but hidden is the ONE place content is
+     * lost with no scrollbar to betray it, so nothing was checking it. And it
+     * must not be checked by cloning the node at height:auto onto body: the
+     * clone leaves .panel/.band and loses --bar-h, the tab grid and every band
+     * override, which once produced a confident report of six frames clipped
+     * by up to 407px against screenshots that were clean.
+     *
+     * So: for every clipping box in the live tree, ask its leaf descendants
+     * where their painted boxes actually are, and compare against the
+     * clipper's own padding box in the same coordinate space. Nothing is
+     * cloned, moved or restyled. */
+    out.paintClip = [];
+    const leaves = (root) => Array.from(root.querySelectorAll('*')).filter((n) =>
+      n.children.length === 0 && (n.textContent.trim() || n.tagName === 'rect'
+        || n.tagName === 'circle' || n.tagName === 'path' || n.tagName === 'line'));
+    document.querySelectorAll('.panel.is-active *').forEach((box) => {
+      if (hidden(box)) return;
+      const s = getComputedStyle(box);
+      const clips = (p) => p === 'hidden' || p === 'clip';
+      if (!clips(s.overflowY) && !clips(s.overflowX)) return;
+      const br = box.getBoundingClientRect();
+      if (br.height <= 0 || br.width <= 0) return;
+      let worst = 0; let who = '';
+      leaves(box).forEach((leaf) => {
+        if (hidden(leaf)) return;
+        const lr = leaf.getBoundingClientRect();
+        if (lr.height <= 0 && lr.width <= 0) return;
+        // Only the axes that actually clip can lose paint.
+        const over = Math.max(
+          clips(s.overflowY) ? lr.bottom - br.bottom : 0,
+          clips(s.overflowY) ? br.top - lr.top : 0,
+          clips(s.overflowX) ? lr.right - br.right : 0,
+          clips(s.overflowX) ? br.left - lr.left : 0
+        );
+        if (over > worst) {
+          worst = over;
+          who = (leaf.getAttribute('class') || leaf.tagName) + ' :: '
+            + leaf.textContent.trim().slice(0, 30);
+        }
+      });
+      // 1.5px covers subpixel rounding and deliberate hairline bleed.
+      if (worst > 1.5) {
+        out.paintClip.push((box.getAttribute('class') || box.tagName)
+          + ' clips ' + Math.round(worst) + 'px of ' + who);
+      }
+    });
     const panel = document.querySelector('.panel.is-active .panel-bands');
     out.bands = panel ? Math.round(panel.getBoundingClientRect().height) : null;
     out.stage = sb ? Math.round(sb.height) : null;
+    /* What actually rendered, so the caller's request can be checked against
+     * it. Both are reported: the panel is what was photographed, the nav
+     * button is what the rail claims is selected, and a board that disagrees
+     * with itself is its own defect. out.active counts panels holding the
+     * is-active class — rapid tab switching must leave exactly one. */
+    const live = document.querySelectorAll('.panel.is-active');
+    out.tab = live.length ? (live[live.length - 1].dataset.tab || null) : null;
+    out.active = live.length;
+    out.activeTabs = Array.from(live).map((p) => p.dataset.tab);
+    const navOn = document.querySelector('.tabnav-btn.is-active');
+    out.navTab = navOn ? (navOn.dataset.tab || null) : null;
+    out.hash = location.hash;
     out.invisible = Array.from(document.querySelectorAll('.panel.is-active *'))
       .filter((el) => el.style.opacity === '0')
       .map((el) => (el.getAttribute('class') || el.tagName) + (hidden(el) ? ' [offscreen]' : ' [ON PAGE]'));
@@ -183,12 +267,32 @@ const errors = events.filter((e) =>
 
 console.log(`shots/${name}.png`);
 const a = JSON.parse(audit.result.value);
+
+/* The assertion the header has always promised. Loud, and non-zero exit, so a
+ * mis-routed frame cannot be mistaken for a passing one in a sweep's log. */
+let routing = 0;
+if (wantTab && a.tab !== wantTab) {
+  console.log(`  TAB MISMATCH: asked for "${wantTab}", rendered "${a.tab}" (hash ${a.hash})`);
+  routing += 1;
+}
+if (a.tab !== a.navTab) {
+  console.log(`  NAV DISAGREES: panel "${a.tab}" but rail marks "${a.navTab}" active`);
+  routing += 1;
+}
+if (a.active !== 1) {
+  console.log(`  ACTIVE PANELS: ${a.active} (${a.activeTabs.join(", ")}) — expected exactly 1`);
+  routing += 1;
+}
+if (!routing) console.log(`  tab ok: ${a.tab}`);
+
 console.log("  stage", a.stage, "bands", a.bands, "| scrollers", a.scrollers.length,
-  "| stage-overflow", a.overflow.length, "| clipped", a.clipped.length, "| still-hidden", a.invisible.length);
+  "| stage-overflow", a.overflow.length, "| clipped", a.clipped.length,
+  "| paint-clip", (a.paintClip || []).length, "| still-hidden", a.invisible.length);
 a.invisible.forEach((s) => console.log("    HIDDEN", s));
 a.scrollers.slice(0, 6).forEach((s) => console.log("    SCROLL", s));
 a.overflow.slice(0, 8).forEach((s) => console.log("    OVER  ", s));
 a.clipped.slice(0, 8).forEach((s) => console.log("    CLIP  ", s));
+(a.paintClip || []).slice(0, 8).forEach((s) => console.log("    PAINT ", s));
 if (errors.length) {
   console.log(`  CONSOLE ERRORS: ${errors.length}`);
   errors.slice(0, 6).forEach((e) => console.log("   ", JSON.stringify(e.params).slice(0, 400)));
@@ -198,4 +302,6 @@ if (errors.length) {
 
 ws.close();
 done();
-process.exit(0);
+/* Routing failures exit non-zero. Layout findings do not: they are reported
+ * for judgement, whereas a frame of the wrong tab is not evidence at all. */
+process.exit(routing ? 3 : 0);
