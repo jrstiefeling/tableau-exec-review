@@ -2318,8 +2318,27 @@
 .fan-reference-hit,
 .fan-origin-hit,
 .fan-pct-hit,
-.fan-exclusion {
+.fan-exclusion,
+.fan-overflow {
   cursor: pointer;
+}
+
+/* The overflow count sits on the marks against the caret it explains, so it
+   takes the same paper back the median chip does — and the same right-hand
+   alignment, because both are anchored off the axis rather than off the label
+   column. It is a count of lines whose terminal is not a value, which is a
+   caveat rather than a reading, so it stays in the dimmer ink. */
+.fan-label[data-kind="overflow"] {
+  align-items: flex-end;
+  padding: 1px 4px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--surface-solid) 86%, transparent);
+}
+
+.fan-label[data-kind="overflow"] .fan-label-lead {
+  font-weight: 600;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---- vertical pressure ----
@@ -3543,11 +3562,18 @@
 
 /* ---------------------------- benchmark axes ------------------------------ */
 
-/* Several subjects on one axis per measure, so each subject is read against
-   its own benchmark and against the others at the same time. The axes sit side
-   by side rather than stacked: two stacked axes need roughly twice the height
-   this band can afford, and the readings are short enough to halve the width
-   without crowding the plot. */
+/* Signed distance from a benchmark, several subjects to an axis. The axes sit
+   side by side rather than stacked: two stacked axes need roughly twice the
+   height this band can afford, and the readings are short enough to halve the
+   width without crowding the plot.
+
+   The column widths are the one negotiation in here. The readout now carries
+   three short lines — the absolute reading, the verdict, and the benchmark it
+   is a verdict against — where it carried two, and the width for the third
+   comes out of the plot rather than out of the row label: the labels here run
+   to "Embedded Agentic Analytics", and a gutter narrow enough to break that
+   over three lines costs more height than the plot's last fifteen pixels are
+   worth. */
 .bxa {
   flex: 1;
   min-height: 0;
@@ -3570,9 +3596,9 @@
   min-width: 0;
   display: grid;
   grid-template-columns:
-    clamp(86px, 8.6vw, 124px)
+    clamp(86px, 8.4vw, 120px)
     minmax(0, 1fr)
-    clamp(48px, 5vw, 70px);
+    clamp(68px, 6.8vw, 96px);
   grid-auto-rows: minmax(0, 1fr);
   grid-template-rows: auto;
   align-items: center;
@@ -3638,25 +3664,6 @@
   height: clamp(26px, 4.4vh, 36px);
 }
 
-/* Above the dot rather than below it, so the last row's labels never collide
-   with the tick strip underneath them. */
-.bxa-histlab {
-  position: absolute;
-  top: 0;
-  left: var(--hist-x);
-  transform: translateX(-50%);
-  font-size: 8px;
-  font-weight: 600;
-  line-height: 1;
-  color: var(--ink-dim);
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  pointer-events: none;
-}
-
-.bxa-histlab[data-edge="start"] { left: 0; transform: none; }
-.bxa-histlab[data-edge="end"] { left: auto; right: 0; transform: none; }
-
 .bxa-read {
   grid-column: 3;
   min-width: 0;
@@ -3672,21 +3679,47 @@
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.12;
-  color: var(--val-tint, var(--ink));
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  transition: color 0.5s var(--ease);
 }
 
-/* Wraps rather than clips. The governed form is short — "−0.1× vs hist" — but
-   the severed one is a phrase, and the readout column is sized for the numeral
-   above it rather than for the longest thing that can appear beneath it. */
-.bxa-delta {
-  margin: 0;
+/* The finding, in words, tinted the same as the mark that draws it. Three
+   channels saying one thing — position, colour and the word — because the
+   reader who does not know which way is good on a coverage multiplier is
+   exactly the reader this panel is for.
+
+   Wraps rather than clips: the word and the amount are two flex items so a
+   narrow column drops the amount to its own line instead of truncating it. */
+.bxa-verdict {
+  margin: 1px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+  column-gap: 4px;
   font-size: clamp(8px, 0.62vw, 9.5px);
-  font-weight: 600;
   line-height: 1.2;
+  font-variant-numeric: tabular-nums;
   color: var(--ink-soft);
+}
+
+.bxa-verdict b {
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--val-tint, var(--ink-soft));
+}
+
+/* The benchmark, once per row and small. It is context for the verdict above
+   it, not a second figure to be differenced — the differencing is done. */
+.bxa-base {
+  margin: 0;
+  font-size: clamp(7.5px, 0.57vw, 9px);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
 }
 
 .bxa-strip {
@@ -3708,6 +3741,13 @@
   color: var(--ink-dim);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.bxa-tick[data-kind="zero"] {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
 .bxa-tick[data-edge="start"] { left: 0; transform: none; }
@@ -3733,11 +3773,10 @@
 
 .bxa-key {
   flex: none;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 1.7px solid var(--ink-dim);
-  background: var(--surface-solid, #fff);
+  width: 2px;
+  height: 12px;
+  border-radius: 1px;
+  background: var(--ink-soft);
 }
 
 .bxa-caption {
@@ -3941,11 +3980,11 @@
    renders the ties — this measures them against the shortfall they exist to
    close. The fill is what these five would take out of it; the space at the
    end is what would still have to be found. */
-.deals[data-mode="gap"] {
+.deals[data-mode="total"] {
   gap: clamp(4px, 0.8vh, 10px);
 }
 
-.deals-gaphead {
+.deals-sumhead {
   flex: none;
   display: flex;
   align-items: baseline;
@@ -3954,7 +3993,7 @@
   row-gap: 1px;
 }
 
-.deals-gaptotal {
+.deals-sumtotal {
   margin: 0;
   font-family: var(--font-display);
   font-size: clamp(20px, 1.85vw, 30px);
@@ -3966,7 +4005,7 @@
   white-space: nowrap;
 }
 
-.deals-gapclaim {
+.deals-sumclaim {
   margin: 0;
   flex: 1 1 128px;
   min-width: 0;
@@ -3977,35 +4016,10 @@
   font-variant-numeric: tabular-nums;
 }
 
-.deals-gapclaim em {
-  font-style: normal;
-  font-weight: 500;
-  font-size: 0.78em;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-  margin-left: 5px;
-}
-
-.deals-gapclaim[data-void="true"] {
-  font-weight: 500;
-  font-style: italic;
-  color: var(--ink-dim);
-}
-
-/* Without a gap the track is the authored total, which has no space at its
-   end — so the dashed edge says the scale is the sum of what is on it rather
-   than a target it is measured against. */
-.deals-gaptrack[data-void="true"] {
-  background: none;
-  outline: 1px dashed var(--line-strong);
-  outline-offset: 1px;
-}
-
-/* The track is the gap, so its full width is a quantity rather than a
+/* The track is the total, so its full width is a quantity rather than a
    container. Every offset and width below is authored arithmetic handed to the
    layout engine, which is what keeps the two ties exact. */
-.deals-gaptrack {
+.deals-sumtrack {
   position: relative;
   flex: none;
   height: clamp(17px, 2.8vh, 26px);
@@ -4039,30 +4053,7 @@
   overflow: hidden;
 }
 
-/* Space, not a sixth segment. It is the absence of a deal, and drawing it as
-   one would put a deal nobody has on the same footing as five that exist. */
-/* Anchored to the end rather than centred in the space it names. The space is
-   whatever the five deals leave, which at 20% of a 250px track is about 50px
-   — narrower than the label at any legible size, so a centred label straddles
-   the last segment's edge. End-anchored it is bounded by the same rule the
-   track is, and it reads as a remainder measured back from the target. */
-.deals-residual {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(var(--seg-from) / var(--deal-scale) * 100%);
-  right: 0;
-  display: grid;
-  align-items: center;
-  justify-items: end;
-  padding-right: 5px;
-  font-size: clamp(7.5px, 0.6vw, 9px);
-  font-weight: 700;
-  color: var(--residual-tint, var(--ink-soft));
-  white-space: nowrap;
-}
-
-.deals-gapend {
+.deals-sumend {
   position: absolute;
   top: -3px;
   bottom: -3px;
@@ -4201,7 +4192,7 @@
     gap: 3px;
   }
 
-  .deals[data-mode="gap"] {
+  .deals[data-mode="total"] {
     gap: 4px;
   }
 }
