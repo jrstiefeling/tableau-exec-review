@@ -57,15 +57,38 @@
   transition: var(--theme-transition);
 }
 
+/* A tinted card, not a white one.
+   The board was almost entirely paper-white with a 2px accent hairline, which
+   is why it read as a wireframe: nothing on it had a surface of its own. Every
+   card now carries a wash of its own accent falling away over the top two
+   thirds, and where the card is a verdict rather than a reading — the four
+   attainment KPIs — --tone-wash overrides it with the card's own sentiment, so
+   three cards wash red and one washes green and the quarter is legible before
+   a figure is read. Both washes resolve through tokens that drain, so direct
+   mode takes the colour off the board through one path. */
+.portlet-front {
+  background:
+    linear-gradient(
+      168deg,
+      var(--tone-wash, color-mix(in srgb, var(--accent) 6%, transparent)),
+      transparent 64%
+    ),
+    var(--surface-raised);
+}
+
 .portlet-front::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), transparent 72%);
-  opacity: 0.9;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--tone-edge, var(--accent)),
+    color-mix(in srgb, var(--tone-edge, var(--accent)) 22%, transparent) 58%,
+    transparent
+  );
   transition: background 0.5s var(--ease);
 }
 
@@ -75,8 +98,21 @@
   gap: 10px;
 }
 
+/* A card whose chart declared data-surface="tone" takes its sentiment on the
+   surface and on the top edge instead of its accent. Only the four attainment
+   KPIs do, because only they are a verdict rather than a reading. */
+.portlet[data-surface="tone"] .portlet-front {
+  --tone-wash: color-mix(in srgb, var(--tone-color) 11%, transparent);
+  --tone-edge: var(--tone-color);
+  border-color: color-mix(in srgb, var(--tone-color) 22%, var(--line));
+}
+
 .portlet:hover .portlet-front {
   border-color: color-mix(in srgb, var(--accent) 34%, var(--line));
+}
+
+.portlet[data-surface="tone"]:hover .portlet-front {
+  border-color: color-mix(in srgb, var(--tone-color) 46%, var(--line));
 }
 
 /* --------------------------------- head ----------------------------------- */
@@ -92,13 +128,73 @@
   min-width: 0;
 }
 
+/* One line for the whole head on the laptop tier — where it fits.
+   A stacked label and sublabel is two 14px line boxes plus a 2px gap: 30px of
+   a 134px card, spent on naming a thing the reader is already looking at. Run
+   together on one baseline it is 15px, and 15px per portlet is 45px back on
+   the exec tab alone.
+
+   It wraps rather than truncating, and that distinction is the whole rule.
+   The sublabel keeps `min-width: auto`, so flex cannot shrink it below its
+   own text and it drops to a second line instead — which means a wide portlet
+   pays 15px and a narrow one pays 30px, each according to whether its
+   subtitle actually fits. Truncating on one line instead gave the drivers rail
+   a subtitle reading "H". Ellipsis is the fallback for a subtitle that will
+   not fit even on a line of its own. */
+@media (max-height: 700px) {
+  .portlet-titles {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    column-gap: 7px;
+    row-gap: 0;
+  }
+
+  /* Shrinkable, so a long label wraps at a word rather than running under the
+     tools. "Q3 TOP ACV DEALS" in a 186px head is the case: at `flex: none` its
+     basis is max-content and flex-shrink is off, so it kept its full width and
+     printed under the expand caret. */
+  .portlet-titles .portlet-label {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .portlet-titles .portlet-sublabel {
+    margin: 0;
+    /* `0 0 auto` is load-bearing: flex-shrink has to be off, or the line
+       squeezes the subtitle down to a letter and an ellipsis instead of
+       breaking to the next line. */
+    flex: 0 0 auto;
+    max-width: 100%;
+    /* And then it wraps normally once it is on a line of its own, clamped at
+       two. The narrow cards on the Five Year and Q3 tabs have a head about
+       110px wide and subtitles like "ACV per quota-carrying AE" that cannot
+       fit on one line at any weight — for those the choice is not one line
+       versus two, it is two lines versus "ACV per quota-carrying …". The
+       subtitle is the metric's definition and the label above it is an
+       abbreviation, so the definition is worth 13px. */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .portlet-face {
+    gap: 6px;
+    padding: clamp(9px, 0.95vw, 14px);
+  }
+}
+
+/* Mixed toward ink rather than left at full accent. At 11px, uppercase and
+   tracked out, a saturated accent has less contrast against a tinted card
+   than it did against white — and this is a label, not a datum. */
 .portlet-label {
   margin: 0;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.11em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: color-mix(in srgb, var(--accent) 76%, var(--ink));
   transition: color 0.5s var(--ease);
 }
 
@@ -625,12 +721,19 @@
 /* 1.14 rather than 1: at these sizes the font's own content box is taller
    than one em, so `line-height: 1` reports a box the glyphs do not fit in and
    every ancestor inherits the discrepancy as overflow. */
+/* Two points smaller than it was, and that is the point. Where a card has to
+   choose between a big numeral and a readable chart the chart wins: the
+   numeral is legible at 22px and the attainment track was not legible at all.
+   line-height comes from the token measured off the face's own outlines
+   (fonts.css) rather than a literal, so a font swap has one number to
+   re-measure instead of a dozen tuned values. */
 .attain-value {
   font-family: var(--font-display);
-  font-size: clamp(24px, 2.5vw, 37px);
+  font-size: clamp(22px, 2.3vw, 35px);
   font-weight: 600;
   letter-spacing: -0.025em;
-  line-height: 1.14;
+  line-height: var(--lh-display-num);
+  color: var(--ink-hero);
   font-variant-numeric: tabular-nums;
 }
 
@@ -672,9 +775,9 @@
 .attain-pct {
   grid-row: 1;
   justify-self: end;
-  font-size: clamp(11.5px, 1vw, 14px);
+  font-size: clamp(13px, 1.15vw, 16px);
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.2;
   color: var(--attain-tint, var(--ink));
   font-variant-numeric: tabular-nums;
   transition: color 0.5s var(--ease);
@@ -691,15 +794,17 @@
   color: var(--ink-dim);
 }
 
+/* 9.5px, from 8.5. The `plan` label is the one word that says what the tick
+   in the track means, and at 8.5px on a laptop it was texture. */
 .attain-axis {
   grid-row: 3;
   position: relative;
-  height: 11px;
-  font-size: 8.5px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  height: 12px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink-dim);
+  color: var(--ink-soft);
 }
 
 .attain-axis-zero,
@@ -926,18 +1031,26 @@
   flex: 0 1 auto;
   display: flex;
   align-items: baseline;
-  gap: clamp(10px, 1.5vw, 26px);
+  flex-wrap: wrap;
+  column-gap: clamp(10px, 1.5vw, 26px);
+  row-gap: 1px;
   min-width: 0;
-  overflow: hidden;
 }
 
+/* `flex: none`, and it matters.
+   The item is `white-space: nowrap`, so a shrinkable box does not shorten the
+   text — it just lets the text hang out past the box, and the next item draws
+   on top of it. That is the "+54% Agentic Analytics" overlap: two legend
+   entries printing in the same pixels. Held at their content width they wrap
+   to a second line instead, which the legend now permits. */
 .mix-item {
   position: relative;
+  flex: none;
   display: flex;
   align-items: baseline;
   gap: 6px;
   padding-left: 9px;
-  min-width: 0;
+  max-width: 100%;
   white-space: nowrap;
 }
 
@@ -1001,6 +1114,10 @@
 
 /* ---------------------------------- rails --------------------------------- */
 
+/* No overflow valve. This list is exactly five one-line rows and it is sized
+   to hold five one-line rows, so there is nothing to scroll — which is the
+   whole point of the rewrite. `space-between` distributes the slack the rail
+   has at taller viewports rather than pooling it at the bottom. */
 .rail {
   flex: 1;
   min-height: 0;
@@ -1009,31 +1126,90 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: clamp(4px, 0.7vh, 9px);
-  overflow-y: auto;
+  justify-content: space-between;
+  gap: 1px;
+  overflow: hidden;
 }
 
-.rail-card {
+/* One row: numeral, title, tag.
+   Centred, not baseline-aligned, and that is a height decision rather than a
+   taste one. Under `align-items: baseline` the row's height is the union of
+   three boxes hung off one baseline — a marker whose digits sit on a lower
+   baseline than the title, a chip with no text of its own, and the title —
+   and it measured 23px. Five of those plus gaps is 119px in a rail that has
+   113px at 1024x580, so the fifth row went off the bottom and Going Well
+   showed four of five: the scrollbar defect again, now with no scrollbar to
+   admit to it. Centred, every box sits inside the tallest and the row is
+   17px, which leaves the rail slack to spend rather than a row to lose. */
+.rail-row {
+  position: relative;
   display: flex;
-  gap: 9px;
-  align-items: flex-start;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 1px 4px 1px 0;
+  border-radius: 6px;
   opacity: 0;
+  cursor: default;
+  transition: background-color 0.2s var(--ease);
+}
+
+.rail-row:hover {
+  background: color-mix(in srgb, var(--card-accent) 9%, transparent);
+}
+
+.rail-row-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+  /* Ellipsis, never a wrap. A wrapped row breaks the scan down the numbered
+     markers, and the full string is on hover and on the expanded card. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rail-marker {
   flex: none;
   display: grid;
   place-items: center;
-  width: 18px;
-  height: 18px;
-  margin-top: 1px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--card-accent) 22%, transparent);
-  border: 1px solid color-mix(in srgb, var(--card-accent) 55%, transparent);
-  color: var(--card-accent);
-  font-size: 9.5px;
+  background: color-mix(in srgb, var(--card-accent) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 58%, transparent);
+  color: color-mix(in srgb, var(--card-accent) 88%, var(--ink));
+  font-size: 9px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+  /* The marker is a circle of caps-height digits, so it takes the tightest
+     box on the board — see the caps note on .attain-axis-zero. */
+  line-height: 1;
+}
+
+/* ---- the expanded read ---- */
+
+.rail-full {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.rail-card {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.rail-card .rail-marker {
+  margin-top: 2px;
+  align-self: flex-start;
 }
 
 .rail-body {
@@ -1042,37 +1218,52 @@
 
 .rail-copy {
   margin: 0;
-  font-size: 11.5px;
-  line-height: 1.42;
+  font-size: 13px;
+  line-height: 1.5;
   color: var(--ink-soft);
 }
 
 .rail-title {
-  color: var(--ink);
+  color: var(--ink-hero);
   font-weight: 700;
 }
 
 .rail-tags {
+  flex: none;
   display: inline;
-  margin-left: 5px;
+  line-height: 1;
   white-space: nowrap;
+}
+
+.rail-card .rail-tags {
+  margin-left: 5px;
 }
 
 /* The tag is the pointer from a qualitative claim to the certified measure
    that can check it. Severing it is what direct mode does to narrative. */
 .rail-tag {
   display: inline-block;
+  max-width: 92px;
   vertical-align: baseline;
-  padding: 1px 7px;
+  padding: 1px 6px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--card-accent) 40%, transparent);
-  background: transparent;
+  background: color-mix(in srgb, var(--card-accent) 8%, transparent);
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--card-accent) 80%, var(--ink));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: var(--theme-transition);
+}
+
+.portlet.is-inspected .rail-tag {
+  max-width: none;
+  font-size: 9.5px;
+  padding: 2px 8px;
 }
 
 .rail-tag:hover {
@@ -1086,8 +1277,53 @@
   opacity: 0.7;
 }
 
+/* The mark form of the chip, worn on the compact rows. Same border, same
+   wash, same hover, no text — so the row spends its width on the claim and
+   the pointer to the measure costs 20px instead of 100. */
+.rail-tag.is-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: none;
+  padding: 1px 4px;
+  /* No text, so no strut: left on the inherited 1.5 the chip would carry an
+     invisible 17px line box into a 10px row element. */
+  line-height: 1;
+}
+
+.rail-tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--card-accent) 72%, transparent);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--card-accent) 22%, transparent);
+}
+
+.rail-tag-more {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.rail-tag.is-mark[data-severed="true"] {
+  text-decoration: none;
+}
+
+/* Severed: a hollow ring with a stroke through it, since a line-through has
+   nothing to strike out on a chip with no text. */
+.rail-tag.is-mark[data-severed="true"] .rail-tag-dot {
+  background: transparent;
+  border: 1.5px solid var(--tier-color);
+  box-shadow: none;
+}
+
 /* --------------------------------- drivers -------------------------------- */
 
+/* Six drivers in a rail that is now the full height of the tab rather than a
+   share of a band, so there is nothing to scroll and the slack is distributed
+   between the items instead of pooling under the last one. */
 .drivers {
   flex: 1;
   min-height: 0;
@@ -1096,8 +1332,9 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: clamp(3px, 0.5vh, 7px);
-  overflow-y: auto;
+  justify-content: space-between;
+  gap: clamp(2px, 0.4vh, 6px);
+  overflow: hidden;
 }
 
 .driver {
@@ -1166,8 +1403,14 @@
 
 /* ---------------------------------- rules --------------------------------- */
 
+/* Rendered only inside the panel head's (i) sheet now — see src/notes.js.
+   The sheet supplies the two-column grid and the reading sizes; what is left
+   here is the shape the renderer builds and the fallback if it is ever
+   mounted somewhere else. There is no overflow valve on it any more: the
+   `overflow-y: auto` this had was hiding 200-256px of rule text on three
+   tabs, which is exactly why the content moved. */
 .rules {
-  flex: 1;
+  flex: none;
   min-height: 0;
   margin: 0;
   padding: 0;
@@ -1175,7 +1418,7 @@
   display: flex;
   flex-direction: column;
   gap: clamp(4px, 0.7vh, 9px);
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .rule {
@@ -1224,11 +1467,17 @@
   flex: none;
 }
 
+/* Two points down from where it was, deliberately.
+   This is the tab whose entire purpose is trend, and it was spending most of
+   every panel on a label, a numeral and a caption while the trajectory got a
+   40px wisp. Where a panel has to choose, the chart wins: $496M is perfectly
+   legible at 19px and the trajectory was not legible at all. */
 .trend-headline {
   font-family: var(--font-display);
-  font-size: clamp(17px, 1.6vw, 24px);
+  font-size: clamp(15px, 1.3vw, 21px);
   font-weight: 600;
   letter-spacing: -0.02em;
+  color: var(--ink-hero);
   /* "$549 K" leads with the tallest glyph in the face; at one em its top
      escaped the box and sat on the panel label above it. */
   line-height: var(--lh-display-num);
@@ -1240,6 +1489,8 @@
   color: var(--ink-dim);
 }
 
+/* The panel's one greedy element. Everything around it is `flex: none` and
+   sized to its content, so the chart takes every pixel the cell has left. */
 .trend-svg {
   flex: 1;
   min-height: 0;
@@ -1247,10 +1498,13 @@
   display: block;
 }
 
+/* Sizes are viewBox user units, not screen pixels — the whole panel scales
+   with the cell — so these are set against the 198-unit box and land at
+   roughly 5.5px on screen at 1024 and 8px at 1920. */
 .trend-tick {
   font-family: var(--font-body);
-  font-size: 9px;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 600;
 }
 
 .trend-tick.is-partial {
@@ -1258,16 +1512,16 @@
 }
 
 .trend-zero {
-  font-size: 8px;
+  font-size: 9px;
   text-anchor: start;
 }
 
 .trend-partial-note,
 .trend-ghost-label {
   font-family: var(--font-body);
-  font-size: 7.5px;
+  font-size: 8.5px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -1278,6 +1532,33 @@
 
 .trend-area {
   pointer-events: none;
+}
+
+/* The caption is the panel's flexible row, and on the laptop tier it gives up
+   its third line so the trajectory keeps its height. Two lines is the floor:
+   it can lose a restatement and must not be able to lose the sentence. */
+.trend-caption {
+  flex: none;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+@media (max-height: 700px) {
+  .trend {
+    gap: 2px;
+  }
+
+  .trend-caption {
+    -webkit-line-clamp: 2;
+    font-size: 10px;
+    line-height: 1.32;
+  }
+
+  .trend-headnote {
+    font-size: 9.5px;
+  }
 }
 
 /* ------------------------------- trend table ------------------------------ */
@@ -1338,17 +1619,16 @@
 
 /* -------------------------------- scrollbars ------------------------------ */
 
-.rail::-webkit-scrollbar,
-.drivers::-webkit-scrollbar,
-.rules::-webkit-scrollbar,
+/* Only two things on this board scroll, and neither of them is a portlet
+   face at rest: an expanded portlet, and the whole board below 900px wide
+   where nothing composes to one viewport honestly. The three rules that used
+   to style the rails' and rules card's scrollbars are gone with the valves
+   themselves. */
 .portlet-face::-webkit-scrollbar,
 .panel-bands::-webkit-scrollbar {
   width: 6px;
 }
 
-.rail::-webkit-scrollbar-thumb,
-.drivers::-webkit-scrollbar-thumb,
-.rules::-webkit-scrollbar-thumb,
 .portlet-face::-webkit-scrollbar-thumb,
 .panel-bands::-webkit-scrollbar-thumb {
   background: var(--line-strong);
@@ -1521,6 +1801,36 @@
 
 .portlet.is-inspected .mix-insight {
   -webkit-line-clamp: 8;
+}
+
+/* The laptop tier drops the caption and spends the row on the insight.
+   The caption reads "FY26 Q2 $113.9M → FY27 Q2 $82M · column width is the
+   total", and the chart prints both of those totals under the columns it
+   draws them as — so it was a restatement occupying a row that the insight
+   needed to finish its sentence. The insight is the only place the $15.6M and
+   $98.3M movements appear at all, and it was being cut at "while Agentic
+   fell". A restated total is a cheaper thing to lose than a fact. */
+@media (max-height: 700px) {
+  .mix-caption {
+    display: none;
+  }
+
+  /* And the legend gives up its product composition for the same reason.
+     "Embedded Analytics TabNext & CRMA +54% Y/Y" needs 537px of legend and the
+     card is 427px wide at 1024, so the legend wrapped to two lines and took
+     the row the insight needed. Without the composition the two entries fit on
+     one line at 427px. What a legend is for is the key from a colour to a
+     motion plus the rate of change, and both survive; which product lines
+     roll into which motion is on the columns' own tooltips and spelled out in
+     full on the Product tab. */
+  .mix-item-detail {
+    display: none;
+  }
+
+  .mix-insight {
+    -webkit-line-clamp: 3;
+    line-height: 1.36;
+  }
 }
 
 @media (max-height: 960px) {
@@ -2260,6 +2570,19 @@
   justify-content: space-between;
 }
 
+/* Stacked by default, which is the tall side column on the Segment tab.
+   The Product tab turns this row and the two intervals go side by side —
+   see the perf-side rule in tabs.css. */
+.spread-rows {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(2px, 0.5vh, 7px);
+  min-width: 0;
+}
+
 .spread-row {
   flex: none;
   display: flex;
@@ -2681,7 +3004,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-.mmx-axis-tick[data-kind="inner"] { top: 5px; }
+.mmx-axis-tick[data-kind="inner"],
+.mmx-axis-tick[data-kind="zero"] { top: 5px; }
 .mmx-axis-tick[data-kind="outer"] { top: 14px; opacity: 0.8; }
 
 /* The decade labels name the strip's own ends, so they are anchored inside it
@@ -2919,17 +3243,116 @@
 
 /* ------------------------------- short screens ---------------------------- */
 
-/* 1024x768 is the case that matters, since it is what a projector tends to be.
-   The matrix is the only portlet on this tab whose content genuinely runs to
-   the edge of its band there, and the height it needs is spent on marks rather
-   than on type — so the marks give back first. */
+/* This matrix was the worst offender on the board, and it failed twice in the
+   same way. Measured at 1024x580 the grid had 251px and its rows wanted 294;
+   a CSS grid with no overflow valve does not clip, it draws past its own
+   edge — so the axis strip printed on top of the footnote, and inside the
+   four richest cells the coverage line printed on top of the axis strip.
+   Both collisions in the reviewer's screenshot are one 43px shortfall, seen
+   from two places. It reappeared at 1440x720, which is why the marks change
+   at 860 and not at 700: 720 is a laptop too.
+
+   43px, and none of it comes out of a figure:
+
+     24  the velocity and coverage pairs put their mark on the same line as
+         its two labels rather than on a line below it;
+     12  the axis strip loses its second line of labels;
+      6  the marks come down from a 90px floor to 78px;
+      3  the three head tiles above stop repeating "Q3 outlook ·" in their
+         subtitles — see data/board.json.
+
+   Every figure the tab printed at 768 tall it still prints at 580. */
 @media (max-height: 860px) {
   .mmx {
     gap: 3px;
+    /* Height is the scarce dimension here and every mark is a fixed-ratio
+       SVG, so the cap on their width is the lever on their height: the bullet
+       track is 148x22 and the Y/Y stub 132x18, which is about 2px of height
+       each per 12px of width. */
+    --mmx-mark: clamp(78px, 11vh, 190px);
   }
 
   .mmx-grid {
-    grid-template-rows: auto repeat(3, minmax(84px, 1fr)) auto;
+    grid-template-rows: auto repeat(3, minmax(80px, 1fr)) auto;
+  }
+
+  /* One line per pair: "Velocity 15% [—o—] 17% hist".
+     The dumbbell is a 148x14 viewBox — 10.6:1 — so at 78px of mark it draws
+     7px tall and sits inside a 12px line box with room over. Stacked under
+     its own label it cost 26px a pair, and there are two pairs in each of the
+     four richest cells: 24 of the missing 43px. Beside its labels it is also
+     in the same label-then-mark order as every other row on the board. */
+  /* The mark column shrinks and the two label columns do not. A dumbbell that
+     gives up 20px still puts its two dots in the right proportion of its
+     domain; "flat on history" that gives up 20px reads "flat on histor…". */
+  .mmx-pair {
+    grid-template-columns:
+      max-content
+      minmax(34px, var(--mmx-mark))
+      max-content;
+    align-items: center;
+    column-gap: 5px;
+  }
+
+  .mmx-pair-svg {
+    grid-column: 2;
+    grid-row: 1;
+    max-width: none;
+  }
+
+  .mmx-pair-hist-label {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  /* The origin, and nothing else.
+     The strip is as wide as the marks it names and the marks are capped at
+     78px here, so five labels on two lines was never going to work — and
+     three on one line does not either: "−1000%", "0" and "+1000%" want about
+     94px and print as "−1000%0+1000%" in 78. The decades keep their dashed
+     gridlines inside every cell and the note under the grid states the rule
+     in words, with the core band's own tint on the chip beside it. The origin
+     is the one position that cannot be recovered from either, so it is the
+     one label that stays. */
+  .mmx-axis {
+    height: 12px;
+    margin-top: 2px;
+  }
+
+  .mmx-axis-tick[data-kind="inner"],
+  .mmx-axis-tick[data-kind="outer"] {
+    display: none;
+  }
+
+  .mmx-axis-tick[data-kind="zero"] {
+    top: 4px;
+  }
+}
+
+/* The laptop tier proper. The floor comes down with the cells, or it holds
+   them apart at a height none of them needs any more and the grid overflows
+   on the strength of the floor alone. Row 1 still sets its own height: it is
+   the only row carrying an alternate basis, and `1fr` lets it. */
+@media (max-height: 700px) {
+  .mmx {
+    gap: 2px;
+    /* The last 6px, and the marks give it up rather than the type: 72px still
+       resolves every bullet track to a length a reader can compare, and the
+       alternative was a cell whose coverage line printed over the row rule
+       under it. */
+    --mmx-mark: clamp(72px, 11vh, 190px);
+  }
+
+  .mmx-grid {
+    grid-template-rows: auto repeat(3, minmax(68px, 1fr)) auto;
+  }
+
+  .mmx-foot {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: clamp(12px, 1.6vw, 26px);
+    row-gap: 1px;
   }
 }
 
