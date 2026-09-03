@@ -3,14 +3,14 @@
     "board": "Analytics Business Review",
     "period": "Q2 FY27",
     "org": "Analytics Business Unit",
-    "generatedAt": "2026-09-01T09:00:00-07:00",
+    "generatedAt": "2026-07-28T09:00:00-07:00",
     "dataMode": "mock",
     "dataModeLabel": "Illustrative mock snapshot",
-    "freshness": "Sep 1, 2026 · 9:00 AM PT",
-    "scope": "Analytics BU · RLS-scoped to viewer hierarchy",
-    "note": "Illustrative figures. Every portlet carries an authored semantic block and a directMode block so the same content can be read as governed or as ungoverned without authoring it twice.",
-    "sdm": "Analytics Revenue SDM",
-    "certifiedBy": "Analytics RevOps"
+    "freshness": "Jul 28, 2026 · 9:00 AM PT · SDM hourly over the ~8 AM PT extract",
+    "scope": "Analytics BU · the caller's hierarchy, not a scope either model has",
+    "note": "Illustrative figures. Every portlet carries an authored semantic block and a directMode block so the same content can be read as governed or as ungoverned without authoring it twice. The semantic blocks are written against docs/semantic-layer.md, with <TBD: ...> wherever the source documents do not state an identifier.",
+    "sdm": "Two unrelated models — Sls_Forecasting_Metrics_Expanded and Sls_Specialist_Reporting, named per portlet",
+    "certifiedBy": "Document owners Casey O'Donnell and Sydney Dollar — neither SDM has a certifier property"
   },
   "tabs": [
     {
@@ -43,21 +43,21 @@
                 "caption": "Weakest attainment on the board"
               },
               "semantic": {
-                "metricName": "Net New Annual Order Value",
-                "definition": "ACV booked on net-new-logo closed-won opportunities, excluding expansion and renewal, at fiscal-quarter grain.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "NNAOV (certified)",
-                "grain": "Fiscal quarter × Business unit",
+                "metricName": "NNAOV Commit",
+                "definition": "NNAOV_Commit_clc — Net New ACV + Offset Value commit. A forecast, not a booking. No booked net-new actual exists in either model, so this tile renders a commit as a quarter result.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "NNAOV_Commit_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter on Close_Date17, after one dedup filter.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Org62 Account",
-                  "FinPlan FY27 Target"
+                  "Tableau Extract (.tdsx)",
+                  "Commits"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Exec Review",
-                "why": "Net-new is the one measure that cannot be reconstructed from opportunity records alone — it depends on a governed first-purchase test against account history."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The measure is a commit and the tile reads it as a booking — the class of error this board exists to argue against, found in the board. The nearest governed net-new concept, New_Logo_Eligible4, is a dimension flag rather than a measure, and no NNAOV target exists at all, so 15% of plan has no denominator in this layer."
               },
               "directMode": {
                 "tier": "red",
@@ -100,20 +100,20 @@
               },
               "semantic": {
                 "metricName": "Annual Contract Value",
-                "definition": "Annualized contract value on closed-won opportunities, normalized to a 12-month term, net of ramp and multi-year discounting.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "ACV (certified)",
-                "grain": "Fiscal quarter × Business unit × Product motion",
+                "definition": "ACV_clc — actual closed-won deal value, anchored on Close_Date17 and read through the calculated fiscal-quarter and relative-year fields rather than hand-rolled date math.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "ACV_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × APM_L120, after one dedup filter.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Product SKU Taxonomy",
-                  "FinPlan FY27 Target"
+                  "Tableau Extract (.tdsx)",
+                  "ACV_HISTORICALS / TODAY_AND_DEAL_MGMT"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Exec Review",
-                "why": "This is the same certified ACV measure the Five Year Trend tab resolves against — which is why the two tabs reconcile rather than merely look similar."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The same ACV_clc the Five Year Trend tab resolves against, which is why the two tabs reconcile rather than merely agree. The row grain is the thing to know: one row per metric per opportunity per user, so a $500K deal is counted again for every leader above its owner and the tile reads 3x to 10x high without the dedup filter. 70% of plan is the part with no source — attainment exists here only for pipegen and Day-1 open pipe."
               },
               "directMode": {
                 "tier": "red",
@@ -156,21 +156,21 @@
               },
               "semantic": {
                 "metricName": "Attrition ACV",
-                "definition": "ACV lost to non-renewal and downsell in the period, measured against the prior-period contract book. Lower is better; the certified measure carries that polarity.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "Attrition ACV (certified)",
-                "grain": "Fiscal quarter × Business unit",
+                "definition": "Attrition_clc — actual attrition, anchored on close date. Actuals land monthly, within five business days of month-end and one month in arrears, so the current quarter is always short by up to a month.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "Attrition_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter on Close_Date17, after one dedup filter.",
                 "lineage": [
-                  "Org62 Contract",
-                  "Revenue Recognition Ledger",
-                  "FinPlan FY27 Target"
+                  "Org62 Opportunity",
+                  "Tableau Extract (.tdsx)",
+                  "ATTRITION_ACTUALS / ATTRITION_UNOFFICIAL"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Exec Review",
-                "why": "Polarity is part of the certified definition. Because the measure declares lower-is-better, 104% of plan renders as over-plan churn automatically — nobody has to remember to color that cell differently by hand.",
-                "polarityNote": "Slide-level color coding is applied by the deck author. Here the direction of good comes from the measure itself, so -12% Y/Y reads positive and 104% of plan reads as a miss."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — and a month behind on this measure: actuals arrive within five business days of month-end, with ATTRITION_UNOFFICIAL covering the in-flight month",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "Direction of good is this board's, not the layer's — no measure here declares one, so lower-is-better is stated on the tile rather than inherited from the definition. What the layer does carry is the arrears lag, which is the caveat this number cannot be read without. What it does not carry is an attrition target, so 104% of plan has no governed denominator.",
+                "polarityNote": "The source slide colours this by hand, cell by cell. The board states the direction once instead — which is the honest version of the claim, because the layer publishes an additivity classification and period-to-date flags and nothing at all about which way is good."
               },
               "directMode": {
                 "tier": "grey",
@@ -178,7 +178,7 @@
                   "requires manual reconstruction"
                 ],
                 "missing": "A point-in-time contract book — Org62 stores current contract state, not the prior-period snapshot attrition is measured against",
-                "effect": "Attrition has to be rebuilt by hand from history objects each quarter, and the polarity is whatever the deck author decides to color it",
+                "effect": "Attrition has to be rebuilt by hand from history objects each quarter, and the one-month arrears lag goes unstated — so a month that has not landed yet reads as an improvement",
                 "thesisTag": "T2",
                 "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
                 "risk": "Rebuild the number differently each quarter and read a trend that is really a methodology change",
@@ -211,20 +211,20 @@
               },
               "semantic": {
                 "metricName": "Pipeline Generation",
-                "definition": "ACV of opportunities that entered a qualified stage during the period, counted at first qualification and never recounted on later stage moves.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "Pipeline Generation (certified)",
-                "grain": "Fiscal quarter × Business unit × Source",
+                "definition": "Pipe_Gen_clc — pipeline created, counted on Stage_2_Flag_Date14 and never on close date. A deal created in Q1 that closes in Q3 is Q1 pipegen and Q3 open pipe.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "Pipe_Gen_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter on Stage_2_Flag_Date14 × Opportunity_Source6, after one dedup filter.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Org62 Opportunity History",
-                  "FinPlan FY27 Target"
+                  "Tableau Extract (.tdsx)",
+                  "PIPE_GEN / PG_TARGETS"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Exec Review",
-                "why": "The never-recount rule is the whole measure. Without it, an opportunity that moves backward and forward through qualification inflates pipegen every time it crosses the line."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The date anchor is the whole measure, and unlike a never-recount rule it is checkable: anchored on close date instead, pipegen lands in the wrong quarter and the wrong year with no error anywhere. This is also the only tile on the board with a governed target and attainment pair — Target_Pipe_Gen_by_Product_clc — so 79% of plan is the one percentage here whose denominator exists in the layer."
               },
               "directMode": {
                 "tier": "yellow",
@@ -297,26 +297,27 @@
               },
               "semantic": {
                 "metricName": "ACV by Product Motion",
-                "definition": "Certified ACV split by the product-motion grouping that maps every SKU to exactly one of Embedded or Agentic.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "ACV (certified)",
-                "grain": "Fiscal quarter × Product motion",
+                "definition": "ACV_clc grouped by APM_L218 and folded into Embedded and Agentic by a mapping this board defines. No motion dimension exists in either model: Tableau Next and Tableau Server are L2 siblings, not children of two motions.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "ACV_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × APM_L218, excluding APM_L120 = 'Other'.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Product SKU Taxonomy"
+                  "Tableau Extract (.tdsx)",
+                  "APM product hierarchy (L1/L2/L3)"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Exec Review",
-                "why": "The split adds to the same certified $82M as the ACV tile above because both resolve to one measure. The mix insight only exists because the SKU-to-motion mapping is governed rather than re-derived per deck."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The split adds to the same certified $82M as the tile above because both resolve to one measure. The grouping is the part that does not exist yet — the layer publishes APM L1/L2, not Embedded versus Agentic — so this mapping is one the board defines and has to version. That is the argument the board is making, arriving as a gap in the board itself."
               },
               "directMode": {
                 "tier": "red",
                 "candidates": [
                   "no product-motion grouping exists"
                 ],
-                "missing": "The SKU-to-motion taxonomy — Org62 stores product codes, not the Embedded / Agentic grouping the business reasons in",
+                "missing": "The SKU-to-motion taxonomy — Org62 stores product codes, not the Embedded / Agentic grouping the business reasons in, and no semantic model publishes one either",
                 "effect": "The split cannot be produced at all, so the mix-rotation insight disappears rather than degrades",
                 "thesisTag": "T4",
                 "thesis": "Business vocabulary is an asset that has to live somewhere shared — otherwise every analysis rebuilds the same grouping by hand, slightly differently.",
@@ -349,19 +350,18 @@
               },
               "semantic": {
                 "metricName": "AE Capacity",
-                "definition": "Count of quota-carrying account executives active on the last day of the period, excluding open requisitions and leaves.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "AE Capacity (certified)",
-                "grain": "Fiscal period end × Business unit",
+                "definition": "Count of quota-carrying AEs active at period end. No headcount measure exists in either documented model — the owner confirms headcount, and anything divided by headcount, is absent. The 745 is the slide's figure, rendered as authored.",
+                "sdm": "None — absent from both documented models",
+                "measure": "No headcount measure — roster only",
+                "grain": "The nearest read is the User Hierarchy roster: current state, refreshed weekly, role changes lagging up to a week. There is no as-of-period-end grain.",
                 "lineage": [
-                  "Workday Headcount",
-                  "Org62 User"
+                  "User Hierarchy table (weekly refresh)"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Exec Review",
-                "why": "Capacity is a stock measured at a point in time, not a flow accumulated across one. The semantic layer carries that distinction, which is what stops it being averaged or annualized downstream."
+                "rls": "n/a — no measure to scope",
+                "certifiedBy": "Nobody — there is no measure to certify",
+                "freshness": "The roster behind it refreshes weekly and only ever describes today · board generated Jul 28, 2026",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "COUNT(DISTINCT User_Name10) where User_Role2 = 'AE' and User_Is_Active1 would return a number, and it would be today's number wearing a period label. That is the whole finding: the roster has no as-of grain, so a headcount for a closed quarter cannot be read from this layer at any price."
               },
               "directMode": {
                 "tier": "yellow",
@@ -369,8 +369,8 @@
                   "745 as of today",
                   "no as-of-quarter-end value"
                 ],
-                "missing": "Point-in-time headcount — the join between Workday and Org62 users resolves as-of-today, not as-of-period-end",
-                "effect": "Every historical quarter silently restates itself as people join and leave",
+                "missing": "Point-in-time headcount — the only roster available is a current-state user table, refreshed weekly, with no as-of-period-end read anywhere",
+                "effect": "Every historical quarter silently restates itself as people join and leave — and that holds inside the semantic layer as much as outside it, because no as-of-period-end headcount exists in either place",
                 "thesisTag": "T2",
                 "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
                 "risk": "Compare this quarter's capacity against a prior quarter that has quietly changed since it closed",
@@ -441,18 +441,17 @@
               "semantic": {
                 "metricName": "Q2 Wins Narrative",
                 "definition": "Qualitative wins authored by the BU leadership team, each tagged to the certified measure it is claimed to move.",
-                "sdm": "Analytics Revenue SDM",
+                "sdm": "None — authored narrative",
                 "measure": null,
-                "grain": "Fiscal quarter × Business unit",
+                "grain": "Fiscal quarter × board scope",
                 "lineage": [
-                  "Exec Review Narrative",
-                  "Org62 Opportunity"
+                  "Exec Review Narrative"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics BU Chief of Staff",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Exec Review",
-                "why": "Each claim carries a link to the certified measure it is supposed to move, so a qualitative win can be checked against a governed number instead of standing on its own."
+                "rls": "Not scoped — the cards are authored; the measures they link to carry their own scope",
+                "certifiedBy": "Analytics BU Chief of Staff, narrative owner",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "Each claim carries a link to the measure it is supposed to move, so a qualitative win can be checked against a governed number instead of standing on its own — and where the measure turns out not to exist, the tag is what makes that visible rather than the claim quietly passing."
               },
               "directMode": {
                 "tier": "grey",
@@ -526,18 +525,17 @@
               "semantic": {
                 "metricName": "H2 Focus Commitments",
                 "definition": "Forward commitments for H2 FY27, each tagged to the certified measure it is intended to move.",
-                "sdm": "Analytics Revenue SDM",
+                "sdm": "None — authored narrative",
                 "measure": null,
-                "grain": "Fiscal half × Business unit",
+                "grain": "Fiscal half × board scope",
                 "lineage": [
-                  "Exec Review Narrative",
-                  "FinPlan FY27 Target"
+                  "Exec Review Narrative"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics BU Chief of Staff",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Exec Review",
-                "why": "A commitment tagged to a governed measure can be reviewed next quarter against that same measure. An untagged commitment can only be reviewed against memory."
+                "rls": "Not scoped — the cards are authored; the measures they link to carry their own scope",
+                "certifiedBy": "Analytics BU Chief of Staff, narrative owner",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "A commitment tagged to a governed measure can be reviewed next quarter against that same measure; an untagged one can only be reviewed against memory. Card 3 is tagged to attrition and ACV because those are the measures the board has — the layer carries a whole renewals vocabulary, Renewal_Key_Risk_Category1 and Open_Available_to_Renew_clc among them, which would grade it better."
               },
               "directMode": {
                 "tier": "grey",
@@ -3223,21 +3221,21 @@
               },
               "semantic": {
                 "metricName": "Annual Contract Value",
-                "definition": "Certified ACV for the fiscal quarter at account grain, paired with the same measure for the same quarter a year earlier on a conformed account identity, so each account's movement is a comparison of one definition against itself.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "ACV (certified)",
-                "grain": "Fiscal quarter × Account",
+                "definition": "ACV_clc at conformed-account grain for the current and prior year of the same fiscal quarter, from one grouped query on Close_Date_Relative_Year_clc — so both years are the same measure by construction rather than by agreement.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded — the fan has to reconcile to the ACV tile, so it cannot be the Specialist model",
+                "measure": "ACV_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. The dedup filter is what collapses it to one row per account. Presented: conformed account × Close_Date_Relative_Year_clc.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Org62 Account",
-                  "Account Hierarchy Conformance",
-                  "Product SKU Taxonomy"
+                  "Tableau Extract (.tdsx)",
+                  "ACV_HISTORICALS",
+                  "Global_Combo_Name6 / Combo_Company_Name15"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch, and account-grain rows are the most tightly scoped rows on the board",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Exec Review",
-                "why": "This is the same certified ACV measure as the tile and the mix bar above it, one grain finer. That is the whole claim: 278 account rows sum to the certified $82M, the 18 net-new rows sum to the certified $6M, and the two motion groups sum to the certified $24M and $58M. Detail that reconciles to the total is what a semantic layer is for — the fan is only drawable because the roll-up is guaranteed rather than checked by hand afterwards."
+                "rls": "The caller's entitled hierarchy, not a business unit — and account-grain rows are the most tightly scoped on the board, so a wrong caller returns a smaller fan that still draws.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The same ACV_clc as the tile and the mix bar above, one grain finer, with both years pulled in one grouped query rather than two — which is what makes the one-formula check true by construction instead of by inspection. Global_Combo_Name6 and Combo_Company_Name15 are the real conformed identity this portlet used to invent a name for. Which of the two is the parent is still an open question, and it decides the portlet: the wrong one reproduces the re-parented-subsidiary failure the fan exists to demonstrate."
               },
               "directMode": {
                 "tier": "red",
@@ -3404,21 +3402,21 @@
               },
               "semantic": {
                 "metricName": "Annual Contract Value by Product",
-                "definition": "Certified ACV split by the two-level product taxonomy that maps every SKU to exactly one product motion and every motion to exactly one product line, at fiscal-quarter grain.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "ACV (certified)",
-                "grain": "Fiscal quarter × Business unit × Product motion × Product line",
+                "definition": "ACV_clc read at three grains — total, motion, and APM L2 product line. The layer publishes APM L1/L2/L3; the two motion nodes between them are the board's own mapping.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "ACV_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × APM_L120 × APM_L218, excluding APM_L120 = 'Other'.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Org62 OpportunityLineItem",
-                  "Product SKU Taxonomy",
-                  "Product Hierarchy"
+                  "Tableau Extract (.tdsx)",
+                  "ACV_HISTORICALS / TODAY_AND_DEAL_MGMT",
+                  "APM product hierarchy (L1/L2/L3)"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Product Performance",
-                "why": "The roll-up is the portlet. Cloud and Server tile the Platform bar and the two motions tile the total because all three levels are one certified measure read at three grains — not three queries that happen to agree. The partition closes by construction, which is why it can be drawn rather than checked."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The roll-up is the portlet and it is the part the layer guarantees: ACV_clc is additive, so three grains of one measure tile exactly rather than three queries happening to agree. The Y/Y channel is the part that is not additive and is never rolled up — that is the catalogue's own split, published as headed sections rather than inferred. What is not governed here is the level-1 boundary."
               },
               "directMode": {
                 "tier": "red",
@@ -3516,20 +3514,21 @@
               },
               "semantic": {
                 "metricName": "Within-Motion Growth Dispersion",
-                "definition": "The interval between the slowest and fastest certified Y/Y growth among the product lines inside one product motion, at fiscal-quarter grain.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "ACV (certified)",
-                "grain": "Fiscal quarter × Product motion",
+                "definition": "The interval between the slowest and fastest ACV_clc Y/Y among the APM L2 lines inside one motion, at fiscal-quarter grain.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "ACV_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × motion, from the same APM_L218 pull as the panel beside it.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Product SKU Taxonomy",
-                  "Product Hierarchy"
+                  "Tableau Extract (.tdsx)",
+                  "ACV_HISTORICALS",
+                  "APM product hierarchy (L1/L2/L3)"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Product Performance",
-                "why": "Both ends of each interval are the same certified measure at the same grain, which is what makes the interval a comparison rather than two numbers set beside each other. A motion average would report the same two motions as broadly similar."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "Both ends are the same measure at the same grain, which is what makes the interval a comparison rather than two numbers set beside each other. Taking the min and max is a selection over governed values, so it is safe client-side — the rates themselves are not, because a Y/Y is non-additive and has to come from the layer rather than from dividing two fetched totals."
               },
               "directMode": {
                 "tier": "red",
@@ -3584,7 +3583,7 @@
                 ],
                 "rls": "Not scoped — rules apply to every viewer identically",
                 "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT",
                 "dashboard": "Analytics Product Performance",
                 "why": "These rules are properties of the measures rather than of the charts, so every chart, export and agent reading those measures inherits them. Nobody has to remember to apply them, and nobody can quietly not."
               },
@@ -3881,23 +3880,22 @@
                 "allSegmentsNote": "The All Segments reading of every row is the Analytics Performance tab, in full."
               },
               "semantic": {
-                "metricName": "Annual Contract Value by Product and Segment",
-                "definition": "Certified ACV at product-line grain crossed with the certified customer-segment dimension, where every account resolves to exactly one segment as of the period close.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "ACV (certified)",
-                "grain": "Fiscal quarter × Product line × Customer segment",
+                "metricName": "ACV by Product and Derived Segment",
+                "definition": "ACV_clc at APM L2 grain crossed with a derived segment dimension. PubSec is an Operating Unit rather than a segment peer, so the four columns are the model owner's own expression: IF OU = Public Sector then OU else segment end. Segment10 also carries ESMB, which these four columns do not show.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded — Segment10 is the only segment field carrying SMB, so the derivation can run nowhere else",
+                "measure": "ACV_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × APM_L218 × the derived segment, from Segment10 and <TBD: the OU field's apiName>.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Org62 Account",
-                  "Product SKU Taxonomy",
-                  "Customer Segment Dimension",
-                  "Account Hierarchy Conformance"
+                  "Tableau Extract (.tdsx)",
+                  "ACV_HISTORICALS",
+                  "Segment10 + <TBD: OU field>"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch, and the segment dimension does not widen it",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Segment Performance",
-                "why": "Segment is a property of the account as of the period, not of the opportunity owner's territory. Because the segment dimension is certified and time-aware, a row read this quarter and the same row read next quarter are the same row — which is the only thing that makes a five-column comparison worth making."
+                "rls": "The caller's entitled hierarchy, not a business unit — and the derived segment does not widen it. Filter-driven here, so a wrong scope returns a plausible matrix, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "PubSec is an Operating Unit, not a fourth segment, so these columns are a derived dimension rather than four values of a native one — IF OU = Public Sector then OU else segment end, in the model owner's own words. That one line belongs in the model: left in the client, one analyst tests 'Public Sector', another 'Pub Sec', another forgets ESMB, and four breakouts that all look right disagree with no error anywhere. The OU field's apiName is still unconfirmed, and confirming it is the highest-value discovery call on this board."
               },
               "directMode": {
                 "tier": "red",
@@ -3906,7 +3904,7 @@
                   "a hand-maintained Segment__c",
                   "the owner's territory role"
                 ],
-                "missing": "A certified customer-segment dimension with an as-of rule — Org62 offers Account.Type, a manually-maintained Segment__c and the opportunity owner's territory role, and accounts move between them mid-year with no statement of which reading the quarter was closed on",
+                "missing": "A certified customer-segment dimension with an as-of rule — Org62 offers Account.Type, a manually-maintained Segment__c and the owner's territory role, and PubSec is not a segment at all but an Operating Unit, so the fourth column is a derivation somebody has to write down once",
                 "effect": "All thirty-five cells still render. They just stop being one breakout: each column is whichever segment source the query author reached for, and an account that moved up-market in April is counted in two different segments across two readings of the same quarter",
                 "thesisTag": "T1",
                 "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
@@ -4004,21 +4002,21 @@
               },
               "semantic": {
                 "metricName": "Within-Segment Growth Dispersion",
-                "definition": "The interval between the slowest and fastest certified Y/Y growth among the product lines inside one customer segment, at fiscal-quarter grain.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "ACV (certified)",
-                "grain": "Fiscal quarter × Customer segment",
+                "definition": "The interval between the slowest and fastest ACV_clc Y/Y among the product lines inside one segment, taken from the same grouped pull as the matrix beside it.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded — the segment derivation decides the model for both portlets",
+                "measure": "ACV_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × the derived segment.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Org62 Account",
-                  "Product SKU Taxonomy",
-                  "Customer Segment Dimension"
+                  "Tableau Extract (.tdsx)",
+                  "ACV_HISTORICALS",
+                  "Segment10 + <TBD: OU field>"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Segment Performance",
-                "why": "Each interval is one certified measure read at two product lines inside one segment, so the width of the interval is a fact about the segment rather than an artifact of two different definitions being compared. A segment-level average would report every segment as broadly declining."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "Each interval is one measure read at two product lines inside one segment, so its width is a fact about the segment rather than an artifact of two definitions. The endpoints are a selection over governed values; the rates behind them are non-additive and come from the layer, never from dividing two fetched totals."
               },
               "directMode": {
                 "tier": "red",
@@ -4073,7 +4071,7 @@
                 ],
                 "rls": "Not scoped — rules apply to every viewer identically",
                 "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT",
                 "dashboard": "Analytics Segment Performance",
                 "why": "A dense matrix is only readable if the reader can trust that every cell was made the same way. These rules are properties of the measure and its dimensions, so that trust is a property of the data rather than a promise made by the chart."
               },
@@ -4122,22 +4120,21 @@
                 "caption": "87% of Product FinPlan"
               },
               "semantic": {
-                "metricName": "Annual Contract Value",
-                "definition": "Annualized contract value expected to close in the fiscal quarter: closed-won to date plus in-quarter pipeline weighted by the certified stage-probability model, normalized to a 12-month term.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "ACV (certified)",
-                "grain": "Fiscal quarter × Business unit",
+                "metricName": "ACV Commit",
+                "definition": "Current_Commit_clc — the governed ACV forecast commit for the in-flight quarter. There is no stage-probability model in this layer, so the closed-plus-weighted-pipeline composition this tile used to describe is not a measure that exists.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "Current_Commit_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter on Close_Date17, after one dedup filter.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Product SKU Taxonomy",
-                  "Stage Probability Model",
-                  "FinPlan FY27 Target"
+                  "Tableau Extract (.tdsx)",
+                  "Commits"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Q3 Outlook",
-                "why": "This is the same certified ACV measure as the Q2 tile and the five-year row, with one addition the measure carries explicitly: a stated weighting for the part of the quarter that has not closed. Turn on the knowledge graph to see the three of them resolve to one definition."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "This tile is a commit, so it is deliberately not the ACV measure the Q2 tile and the five-year row share — the knowledge graph draws no edge to them, and binding it to ACV_clc to make one appear would be exactly the loose measure-identity claim this board argues against. The 87% of Product FinPlan under it has no denominator here either: no FinPlan object exists in either model, and the only governed targets are pipegen and Day-1 open pipe."
               },
               "directMode": {
                 "tier": "red",
@@ -4175,23 +4172,22 @@
                 "caption": "Rising year over year on a lower-is-better measure"
               },
               "semantic": {
-                "metricName": "Attrition ACV",
-                "definition": "ACV expected to be lost to non-renewal and downsell in the fiscal quarter, measured against the prior-period contract book. Lower is better; the certified measure carries that polarity.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "Attrition ACV (certified)",
-                "grain": "Fiscal quarter × Business unit",
+                "metricName": "Attrition Commit",
+                "definition": "Attrition_Commit_clc — the current attrition forecast commit. Unlike the actual measure it carries no arrears lag, because it is a forecast rather than a month-end landing.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "Attrition_Commit_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter on Close_Date17, after one dedup filter.",
                 "lineage": [
-                  "Org62 Contract",
-                  "Revenue Recognition Ledger",
-                  "Renewal Book Snapshot",
-                  "FinPlan FY27 Target"
+                  "Org62 Opportunity",
+                  "Tableau Extract (.tdsx)",
+                  "Commits / ATTRITION_UNOFFICIAL"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Q3 Outlook",
-                "why": "Polarity is part of the certified definition, so +20% Y/Y renders as bad news without anyone remembering that rising churn is not growth. The same measure carries the Q2 tile and the five-year row.",
-                "polarityNote": "On the source slide the sign of this movement is coloured by the deck author. Here the direction of good comes from the measure, so a rise reads as a rise in something the business is trying to reduce."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "This is the one tile where the commit measure is the right one: an outlook wants a forecast, which is what the exec and five-year NNAOV readings of a commit measure are not. Direction of good is the board's own — nothing in this layer declares one — so a rising churn figure reads as bad news because the tile says so.",
+                "polarityNote": "On the source slide the sign of this movement is coloured by the deck author. Here it is stated once, on the measure's own tile, rather than per cell — which is as far as this layer supports the claim, because it publishes no direction of good."
               },
               "directMode": {
                 "tier": "grey",
@@ -4199,7 +4195,7 @@
                   "requires manual reconstruction"
                 ],
                 "missing": "A point-in-time renewal book for the quarter being forecast — Org62 holds current contract state, not the book Q3 attrition will be measured against",
-                "effect": "The quarter's churn exposure has to be rebuilt by hand from history objects, and the polarity is whatever the deck author decides to colour it",
+                "effect": "The quarter's churn exposure has to be rebuilt by hand from history objects, and nothing states whether the figure is a forecast or a landing — a commit read as an actual looks identical either way",
                 "thesisTag": "T2",
                 "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
                 "risk": "Forecast against a renewal book that has quietly changed since the forecast was built",
@@ -4227,22 +4223,21 @@
                 "caption": "Steepest decline of the three outlook measures"
               },
               "semantic": {
-                "metricName": "Net New Annual Order Value",
-                "definition": "Order value expected to close in the fiscal quarter on net-new-logo accounts, excluding expansion and renewal, tested against account history at the certified first-purchase definition.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "NNAOV (certified)",
-                "grain": "Fiscal quarter × Business unit",
+                "metricName": "NNAOV Commit",
+                "definition": "NNAOV_Commit_clc — Net New ACV + Offset Value commit, read for the in-flight quarter. On an outlook tile a commit is the right measure, which is what the exec and five-year readings of the same field are not.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "NNAOV_Commit_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter on Close_Date17, after one dedup filter.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Org62 Account",
-                  "Stage Probability Model",
-                  "FinPlan FY27 Target"
+                  "Tableau Extract (.tdsx)",
+                  "Commits"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Q3 Outlook",
-                "why": "The first-purchase test is harder forward than backward: an open opportunity has no close date to test against, so the measure carries an explicit rule for which account history a still-open deal is tested on. That rule is the measure."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "No first-purchase rule is documented on this measure — New_Logo_Eligible4 is a separate dimension flag — so the tile claims the forecast it can support and not the test it cannot. The Y/Y has to come from a grouped pull on Close_Date_Relative_Year_clc as well: no NNAOV Y/Y measure is documented, and dividing two fetched numbers is the path this board refuses."
               },
               "directMode": {
                 "tier": "red",
@@ -4465,22 +4460,21 @@
               },
               "semantic": {
                 "metricName": "Q3 Outlook by Product and Measure",
-                "definition": "Certified ACV, Attrition ACV and NNAOV for the in-flight fiscal quarter at product-motion grain, each stated against its Product FinPlan target and, where authored, its pipeline velocity and coverage on the governed prior-period benchmark.",
-                "sdm": "Analytics Revenue SDM",
+                "definition": "Three commit measures for the in-flight quarter at motion grain — Current_Commit_clc, Attrition_Commit_clc and NNAOV_Commit_clc — with velocity and coverage stated against their historical benchmark.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
                 "measure": null,
-                "grain": "Fiscal quarter × Business unit × Product motion",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × product motion × measure.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Org62 Contract",
-                  "Product SKU Taxonomy",
-                  "Stage Probability Model",
-                  "FinPlan FY27 Target"
+                  "Tableau Extract (.tdsx)",
+                  "Commits / Historical Commits / PIPE_HISTORICALS",
+                  "APM product hierarchy (L1/L2/L3)"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Q3 Outlook",
-                "why": "This portlet draws three certified measures, so it claims none of them as its own — the three tiles above it each carry one measure and hold the links to the Q2 and five-year readings of the same definitions. A portlet claiming one measure while drawing three would be the board making exactly the loose claim it argues against. What the matrix adds is the plan basis: every attainment percentage names the FinPlan version it is graded on, and every historical benchmark is the same day of the prior quarter rather than the prior quarter's close."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "Three measures, so the portlet claims none of them as its own. Two of its claims need correcting against the layer: there is no FinPlan object anywhere in it, so 87%, 78% and 128% have no governed denominator; and 'hist' is not the same day of the prior quarter but the average of the same fiscal quarter across the prior two years, which needs the relative-year window to reach PY-1 or every historical figure returns null. Velocity and coverage are real, governed and non-additive — which is why they are never rolled up the motion rail."
               },
               "directMode": {
                 "tier": "red",
@@ -4488,7 +4482,7 @@
                   "87% of a plan version nobody named",
                   "78% or 91% or 64%, by vintage"
                 ],
-                "missing": "FinPlan itself and the mapping into it — plan targets live in the planning system at OU and product-family grain, are re-versioned at every reforecast, and nothing in a CRM export states which version a quarter is graded against or how a product family maps onto the product taxonomy",
+                "missing": "FinPlan itself and the mapping into it — plan targets live in the planning system at OU and product-family grain, are re-versioned at every reforecast, and no version of them reaches the semantic layer either, where the only governed targets are pipegen and Day-1 open pipe",
                 "effect": "Every attainment loses its denominator, so the plan tracks have no target and no bands. Velocity and Coverage lose their benchmarks too, because a historical figure here is a governed same-day-of-quarter comparison against the prior period, not the prior period's closing number",
                 "thesisTag": "T3",
                 "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
@@ -4551,21 +4545,21 @@
                 "caption": "Ranked on one certified ACV definition"
               },
               "semantic": {
-                "metricName": "Top Open ACV Deals",
-                "definition": "The five largest open opportunities by certified ACV expected to close in the fiscal quarter, ranked on one amount definition and scoped to the viewer's branch.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "ACV (certified)",
-                "grain": "Fiscal quarter × Opportunity",
+                "metricName": "Top Open Deals by Open Pipe",
+                "definition": "The five largest open opportunities by Open_Pipe_clc. ACV_clc is closed-won value and reads $0 on an open deal, so ranking this rail on ACV would return the wrong rail with no error.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "Open_Pipe_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. The dedup filter collapses it to one row per opportunity. Presented: fiscal quarter × opportunity.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Org62 Account",
-                  "Product SKU Taxonomy"
+                  "Tableau Extract (.tdsx)",
+                  "TODAY_AND_DEAL_MGMT"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch, and opportunity-grain rows are the most tightly scoped rows on the board",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Q3 Outlook",
-                "why": "The ranking is the content, and a ranking is only stable if every row is measured with one formula. Two of these five are within $0.2M of each other, which is inside the spread between the candidate amount columns — so the order means something here only because the definition is settled."
+                "rls": "The caller's entitled hierarchy, not a business unit — and opportunity-grain rows are the most tightly scoped on the board, so a wrong caller returns five plausible deals belonging to someone else.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The ranking is the content, so it turns on the right measure and on re-sorting the rows rather than trusting the order they arrive in. Open Pipe carries its own hazard too: it is $0 the moment a deal is deaded, so a deal that dies between two readings drops off this rail instead of showing as a loss, and Yesterdays_Open_Pipe_clc is what shows what left."
               },
               "directMode": {
                 "tier": "yellow",
@@ -4671,18 +4665,18 @@
               },
               "semantic": {
                 "metricName": "Trend Drivers",
-                "definition": "Leadership-authored causes for the five-year trajectory, each mapped to the certified measures it is claimed to explain.",
-                "sdm": "Analytics Revenue SDM",
+                "definition": "Leadership-authored causes for the five-year trajectory, each mapped to the measures it is claimed to explain.",
+                "sdm": "None — authored narrative",
                 "measure": null,
-                "grain": "Fiscal year × Business unit",
+                "grain": "Fiscal year × board scope",
                 "lineage": [
                   "Exec Review Narrative"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics BU Chief of Staff",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Five Year Trend",
-                "why": "The driver-to-measure mapping is what turns a list of causes into something checkable. Hovering a driver lights exactly the metrics it claims, so an unsupported claim is visible as an empty highlight."
+                "rls": "Not scoped — the drivers are authored; the panels they light carry their own scope",
+                "certifiedBy": "Analytics BU Chief of Staff, narrative owner",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The driver-to-measure mapping is what turns a list of causes into something checkable — hovering a driver lights exactly the metrics it claims. Three of the six reach at least one metric this layer has no measure for, and the mapping is what makes that visible rather than a claim that quietly passes."
               },
               "directMode": {
                 "tier": "grey",
@@ -4742,28 +4736,26 @@
               },
               "semantic": {
                 "metricName": "AE Capacity",
-                "definition": "Count of quota-carrying account executives active on the last day of the fiscal period.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "AE Capacity (certified)",
-                "grain": "Fiscal period end × Business unit",
+                "definition": "Count of quota-carrying AEs at fiscal period end. No headcount measure exists in either documented model, and the roster it would be built from is current state on a weekly refresh. The five figures here are the slide's, rendered as authored.",
+                "sdm": "None — absent from both documented models",
+                "measure": "No headcount measure",
+                "grain": "None available — the roster is current state, refreshed weekly, with role changes lagging up to a week",
                 "lineage": [
-                  "Workday Headcount",
-                  "Org62 User",
-                  "Fiscal Calendar"
+                  "User Hierarchy table (weekly refresh)"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Five Year Trend",
-                "why": "Capacity is a stock, so the semantic layer refuses to annualize it. 745 heads at H1 is 745 heads — doubling it would be meaningless, and the measure knows that."
+                "rls": "n/a — no measure to scope",
+                "certifiedBy": "Nobody — there is no measure to certify",
+                "freshness": "The roster behind it refreshes weekly and only ever describes today · board generated Jul 28, 2026",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The caveat under this panel turns out to be literally true of the semantic layer and not only of a CRM export: the roster is as-of-today, so a closed year read again next week is a different number. A five-year capacity line needs five as-of-period-end reads, and this layer holds none."
               },
               "directMode": {
                 "tier": "yellow",
                 "candidates": [
                   "745 as of today"
                 ],
-                "missing": "Point-in-time headcount per fiscal period end",
-                "effect": "Closed years restate themselves as the Workday join resolves to today",
+                "missing": "Point-in-time headcount per fiscal period end — the roster is weekly and current-state, in the semantic layer as much as outside it",
+                "effect": "Closed years restate themselves every time the roster refreshes, so the five-year line is a series of todays wearing five different labels",
                 "thesisTag": "T2",
                 "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
                 "risk": "Read a five-year capacity trend that changes every time it is run",
@@ -4810,24 +4802,24 @@
               },
               "semantic": {
                 "metricName": "AE Productivity",
-                "definition": "Certified ACV divided by certified AE Capacity for the same fiscal period and business unit.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "AE Productivity (derived)",
-                "derivedFrom": [
-                  "ACV (certified)",
-                  "AE Capacity (certified)"
-                ],
-                "grain": "Fiscal year × Business unit",
+                "definition": "ACV per quota-carrying AE. No productivity measure exists and neither does the denominator — the model owner names productivity specifically. Computing it from two separately fetched numbers is the ungoverned path this panel exists to warn about.",
+                "sdm": "None — the numerator exists, the denominator does not",
+                "measure": "No productivity measure, no denominator",
+                "grain": "Would be fiscal year × board scope. Neither input is available at that grain.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Workday Headcount",
-                  "Fiscal Calendar"
+                  "Tableau Extract (.tdsx)",
+                  "ACV_HISTORICALS — numerator only"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Five Year Trend",
-                "why": "A derived measure is only as governed as its inputs. Because both ACV and AE Capacity are certified at the same grain, this ratio reconciles with the ACV and Capacity panels rather than drifting from them."
+                "rls": "n/a — no measure to scope",
+                "certifiedBy": "Nobody — there is no measure to certify",
+                "freshness": "Not refreshed — the figures on this panel are the slide's · board generated Jul 28, 2026",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "A derived measure is only as governed as its inputs, and one of these two does not exist in any form. The panel's own rule already gives the answer: if the ratio is not a governed calculated measure, do not compute it client-side. Against this layer it renders as unavailable, and the panel is right about why.",
+                "derivedFrom": [
+                  "ACV_clc",
+                  "No headcount measure"
+                ]
               },
               "directMode": {
                 "tier": "red",
@@ -4836,7 +4828,7 @@
                   "$268K",
                   "$181K"
                 ],
-                "missing": "Both inputs at a matching grain — an ambiguous ACV numerator divided by an as-of-today capacity denominator",
+                "missing": "Both inputs at a matching grain — an ambiguous ACV numerator divided by an as-of-today capacity denominator that has no governed version to fall back to",
                 "effect": "Ambiguity compounds: two ungoverned inputs produce a ratio with a wider spread than either",
                 "thesisTag": "T1",
                 "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
@@ -4890,20 +4882,20 @@
               },
               "semantic": {
                 "metricName": "Annual Contract Value",
-                "definition": "Annualized contract value on closed-won opportunities, normalized to a 12-month term, net of ramp and multi-year discounting.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "ACV (certified)",
-                "grain": "Fiscal year × Business unit",
+                "definition": "ACV_clc by fiscal year, through Close_Date_Relative_Year_clc. That field reaches CY, PY and PY-1 — FY27, FY26 and FY25 — which is the extent of the data rather than a windowing choice.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "ACV_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal year via Close_Date_Relative_Year_clc, after one dedup filter.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Product SKU Taxonomy",
-                  "Fiscal Calendar"
+                  "Tableau Extract (.tdsx)",
+                  "ACV_HISTORICALS"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Five Year Trend",
-                "why": "Same certified measure as the ACV tile on the Exec Summary tab, at a different grain. That is why the two tabs reconcile — turn on the knowledge graph to see the link."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The same ACV_clc as the tile on the Exec Summary tab at a coarser grain, which is a real edge and the reason the two tabs reconcile. Two of the five points are not: only three years of ACV exist, confirmed by the model owner, so FY23 and FY24 have no source and cannot be given one. The FY27 point is where the layer is most specific — a partial period needs Is_QTD_ACV_1_clc to be read against a full one, which is exactly what the detached point draws."
               },
               "directMode": {
                 "tier": "red",
@@ -4913,7 +4905,7 @@
                   "$447M"
                 ],
                 "missing": "A governed ACV formula — four competing Amount columns on Opportunity with no defined winner",
-                "effect": "A five-year trajectory whose slope depends on which Amount column each year was built from",
+                "effect": "A five-year trajectory whose slope depends on which Amount column each year was built from — and the two earliest years exist only on this path, because the certified history reaches three",
                 "thesisTag": "T1",
                 "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
                 "risk": "Read a decline that is partly a change in query authorship",
@@ -4966,20 +4958,20 @@
               },
               "semantic": {
                 "metricName": "Attrition ACV",
-                "definition": "ACV lost to non-renewal and downsell in the period, measured against the prior-period contract book. Lower is better; the certified measure carries that polarity.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "Attrition ACV (certified)",
-                "grain": "Fiscal year × Business unit",
+                "definition": "Attrition_clc by fiscal year. Actuals land monthly and one month in arrears, so the current year's point is always short by up to a month, with ATTRITION_UNOFFICIAL covering the in-flight one.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "Attrition_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal year via Close_Date_Relative_Year_clc, after one dedup filter.",
                 "lineage": [
-                  "Org62 Contract",
-                  "Revenue Recognition Ledger",
-                  "Fiscal Calendar"
+                  "Org62 Opportunity",
+                  "Tableau Extract (.tdsx)",
+                  "ATTRITION_ACTUALS / ATTRITION_UNOFFICIAL"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Five Year Trend",
-                "why": "Because the measure declares lower-is-better, the -8% at H1 renders as the only green reading on this panel automatically — the polarity is not a color choice made in the deck."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — and a month behind on this measure: actuals arrive within five business days of month-end",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "Direction of good is stated by this board, not by the measure — nothing in this layer declares one. What the layer does state is depth and lag: three years of history at the outside, and actuals a month in arrears, so the FY27 reading is both partial and behind. Whether attrition reaches three years is itself unconfirmed — the owner's answer was about ACV, and attrition reads from a different CTE."
               },
               "directMode": {
                 "tier": "grey",
@@ -4987,7 +4979,7 @@
                   "requires manual reconstruction per year"
                 ],
                 "missing": "A point-in-time contract book for each of five prior periods",
-                "effect": "Five years each rebuilt by hand, so the trend partly measures how the method changed",
+                "effect": "Five years each rebuilt by hand, so the trend partly measures how the method changed — and the two earliest are outside the certified history entirely, so only the hand-built version has them",
                 "thesisTag": "T2",
                 "thesis": "Time-aware context has to be mediated by a semantic layer — a system of record holds the present, not the comparison.",
                 "risk": "Celebrate a -8% improvement that is a methodology artifact",
@@ -5038,20 +5030,18 @@
               },
               "semantic": {
                 "metricName": "Annual Order Value",
-                "definition": "Total annualized value of the active order book at period end. A balance, not an accumulation.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "AOV (certified)",
-                "grain": "Fiscal period end × Business unit",
+                "definition": "Total annualised value of the active order book at period end. No measure for it exists: AOV is excluded in writing from both models, and Forecasting instructs skill writers to tell users the question cannot be answered there. The five figures are the slide's, rendered as authored.",
+                "sdm": "None — excluded in writing from both documented models",
+                "measure": "No AOV measure in either model",
+                "grain": "Would be period end × board scope. There is no measure to carry it.",
                 "lineage": [
-                  "Revenue Recognition Ledger",
-                  "Org62 Contract",
-                  "Fiscal Calendar"
+                  "No source in this layer"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Five Year Trend",
-                "why": "AOV is a stock. The measure declares that, so nothing downstream offers to annualize the H1 figure — the run-rate ghost that appears on flow panels is deliberately absent here."
+                "rls": "n/a — no measure to scope",
+                "certifiedBy": "Nobody — there is no measure to certify",
+                "freshness": "Not refreshed — the figures on this panel are the slide's · board generated Jul 28, 2026",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "AOV cannot be sourced here at all: it is excluded from both models in writing, Forecasting tells skill writers to say so, and the model owner confirms it. The nearest real balance in this layer is Open_Pipe_clc, which the Specialist doc exempts from period-to-date treatment by name — a stock the layer will actually answer for, where this one is not."
               },
               "directMode": {
                 "tier": "red",
@@ -5059,8 +5049,8 @@
                   "$3594M",
                   "$7188M if H1 is doubled"
                 ],
-                "missing": "The stock-versus-flow declaration — nothing stops a half-year book balance being annualized like a flow",
-                "effect": "H1 gets doubled to $7,188M by anyone treating this row like the ACV row above it",
+                "missing": "Any source at all — this metric is excluded from both semantic models in writing, so the hand-built read is the only read there is",
+                "effect": "H1 gets doubled to $7,188M by anyone treating this row like the ACV row above it, and with no governed measure behind it nothing can refuse the doubling",
                 "thesisTag": "T3",
                 "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
                 "risk": "Double a balance and report a book twice its real size",
@@ -5112,21 +5102,21 @@
                 "caption": "Down 97% from FY23 on an H1 run-rate basis"
               },
               "semantic": {
-                "metricName": "Net New Annual Order Value",
-                "definition": "Order value booked on net-new-logo accounts, excluding expansion and renewal, at fiscal-year grain.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "NNAOV (certified)",
-                "grain": "Fiscal year × Business unit",
+                "metricName": "NNAOV Commit",
+                "definition": "NNAOV_Commit_clc by fiscal year — a series of forecasts, not of results. No booked net-new actual exists in either model.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "measure": "NNAOV_Commit_clc",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal year via Close_Date_Relative_Year_clc, after one dedup filter.",
                 "lineage": [
                   "Org62 Opportunity",
-                  "Org62 Account",
-                  "Fiscal Calendar"
+                  "Tableau Extract (.tdsx)",
+                  "Commits"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Five Year Trend",
-                "why": "Same certified measure as the NNAOV tile on the Exec Summary tab. The quarter figure and the five-year figure resolve against one definition, so the two tabs cannot disagree."
+                "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The same field as the NNAOV tile on the Exec Summary tab, so the two tabs cannot disagree — they are consistently mislabelled together, because both render a commit as a booking. Two of the five points have no source either way: three years of history is the outside limit here too."
               },
               "directMode": {
                 "tier": "red",
@@ -5135,7 +5125,7 @@
                   "$310M",
                   "$122M"
                 ],
-                "missing": "A governed net-new-logo test across five years of account history",
+                "missing": "A governed net-new-logo test across five years of account history — the layer holds three years and a commit measure, not five years and a booking",
                 "effect": "The steepest decline on the board becomes the least defensible number on the board",
                 "thesisTag": "T1",
                 "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
@@ -5182,7 +5172,7 @@
                 ],
                 "rls": "Not scoped — rules apply to every viewer identically",
                 "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT",
                 "dashboard": "Analytics Five Year Trend",
                 "why": "These rules are the semantic layer doing its job. They are properties of the measures, so every chart, export and agent reading those measures inherits them — nobody has to remember to apply them, and nobody can quietly not."
               },
@@ -5239,19 +5229,18 @@
               },
               "semantic": {
                 "metricName": "Recognized Revenue",
-                "definition": "Revenue recognized in the fiscal period per the revenue recognition ledger, mapped to the fiscal calendar.",
-                "sdm": "Analytics Revenue SDM",
-                "measure": "Revenue (certified)",
-                "grain": "Fiscal year × Business unit",
+                "definition": "Revenue recognised in the fiscal period. Both models stop at bookings and forecast, and no recognised-revenue measure exists in either — confirmed by the model owner. WON_RENEWALS and ATR are adjacent concepts, not this one.",
+                "sdm": "None — both models stop at bookings and forecast",
+                "measure": "No revenue measure in either model",
+                "grain": "Would be fiscal year × board scope. There is no measure to carry it.",
                 "lineage": [
-                  "Revenue Recognition Ledger",
-                  "Fiscal Calendar"
+                  "No source in this layer"
                 ],
-                "rls": "Analytics BU hierarchy — viewer sees only their branch",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Sep 1, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Five Year Trend",
-                "why": "The FY27 accounting treatment change is carried in the measure as a documented 5pt headwind, so the -5% is read against a stated basis rather than compared naively to prior years."
+                "rls": "n/a — no measure to scope",
+                "certifiedBy": "Nobody — there is no measure to certify",
+                "freshness": "Not refreshed — the figures on this panel are the slide's · board generated Jul 28, 2026",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "The 5pt FY27 treatment headwind is a real fact about the business and not a fact this layer holds — no such note exists in either model's businessPreferences, which is where a documented treatment change would live. Sourcing revenue means a different system, not a better discovery call."
               },
               "directMode": {
                 "tier": "yellow",
@@ -5259,7 +5248,7 @@
                   "$1726M H1",
                   "no note of the 5pt treatment change"
                 ],
-                "missing": "The documented FY27 accounting treatment change attached to the measure",
+                "missing": "The documented FY27 accounting treatment change attached to the measure — and the measure, which neither semantic model carries",
                 "effect": "The -5% reads as pure business decline, with the 5pt treatment headwind invisible",
                 "thesisTag": "T3",
                 "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
