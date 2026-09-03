@@ -198,14 +198,17 @@ export function mount(host, ctx) {
   coreSwatch.style.setProperty("--core-to", `${stubPercent(CORE)}%`);
   axis.appendChild(coreSwatch);
 
-  /* The outer decade pair is drawn in every cell and labelled only where the
-   * column is wide enough to carry the text. Below that the two left-hand
-   * labels overlap, and a collided label is worse than an unlabelled rule the
-   * caption still names. */
+  /* Five labels will not sit on one line at this width at any breakpoint, so
+   * the outer decade pair drops to a second line rather than colliding with
+   * ±100%. The two decades also land exactly on the strip's ends, where a
+   * centred label would hang off the edge, so they are marked as edges and
+   * anchored inside instead. */
   const axisTicks = [-1000, -100, 0, 100, 1000].map((v) => {
     const el = document.createElement("span");
     el.className = "mmx-axis-tick";
     el.dataset.kind = Math.abs(v) >= 1000 ? "outer" : "inner";
+    if (v === -1000) el.dataset.edge = "start";
+    if (v === 1000) el.dataset.edge = "end";
     el.style.setProperty("--tick-x", `${stubPercent(v)}%`);
     el.textContent = v === 0 ? "0" : `${v > 0 ? "+" : "−"}${Math.abs(v)}%`;
     axis.appendChild(el);

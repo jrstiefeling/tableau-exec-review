@@ -9,9 +9,9 @@
  * applying it anyway would be applying a rule for its own sake. The rail
  * states which scale it is on, so the board gets to have two.
  *
- * The bars are DOM, not SVG. `growFrom` already animates DOM elements —
- * mixBar.js grows its `.mix-seg` spans the same way — and keeping the bars in
- * the DOM buys the one property this portlet cannot afford to lose: the width
+ * The bars are DOM, not SVG. `growFrom` animates DOM elements as readily as
+ * marks, and keeping the bars in the DOM buys the one property this portlet
+ * cannot afford to lose: the width
  * is `calc(var(--deal-value) / <scaleMax> * 100%)`, resolved once by the
  * layout engine, so two deals authored at the same value are the same number
  * of pixels by construction rather than by a rounding step that happens to
@@ -47,6 +47,13 @@ export function mount(host, ctx) {
   wrap.style.setProperty("--deal-tint", tint);
   if (rankIsVoid) wrap.dataset.void = "true";
 
+  /* The rail holds far more height than five rows need, so the rows sit as one
+   * centred block inside a taller well. The block is its own element rather
+   * than a centred flex child so the baseline can span the rows it is the zero
+   * of, and stop there instead of ruling through the empty half of the well. */
+  const well = document.createElement("div");
+  well.className = "deals-well";
+
   const rail = document.createElement("div");
   rail.className = "deals-rail";
 
@@ -56,7 +63,7 @@ export function mount(host, ctx) {
    * governs stay in the DOM. preserveAspectRatio is "none" so the rule
    * stretches to whatever height the five rows resolve to, with a non-scaling
    * stroke so it stays a hairline under that scale. */
-  const baseSvg = chartRoot(4, 100, { class: "deals-base", preserveAspectRatio: "none" });
+  const baseSvg = chartRoot(2, 100, { class: "deals-base", preserveAspectRatio: "none" });
   baseSvg.setAttribute("aria-hidden", "true");
   baseSvg.removeAttribute("role");
   const baseline = svgEl("path", {
@@ -128,7 +135,8 @@ export function mount(host, ctx) {
     return { row, rank, name, value, fill, dot, display: deal.display || "" };
   });
 
-  wrap.appendChild(rail);
+  well.appendChild(rail);
+  wrap.appendChild(well);
 
   const foot = document.createElement("div");
   foot.className = "deals-foot";
