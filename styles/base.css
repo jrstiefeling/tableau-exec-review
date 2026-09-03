@@ -198,8 +198,17 @@ body.direct-mode .topbar-mark {
   filter: grayscale(1) brightness(0.7);
 }
 
+/* The eyebrow and the name are two faces stacked with no rule between them,
+   and at `line-height: normal` their line boxes are flush — measured, the
+   eyebrow's descent and the name's caps met at exactly zero clearance. A gap
+   in em of the name keeps the pair separated by the same optical amount at
+   every clamp step, and through a font change. */
 .topbar-titles {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.18em;
+  font-size: clamp(15px, 1.3vw, 18px);
 }
 
 /* Both truncate rather than overflow. They are nowrap and the topbar is a

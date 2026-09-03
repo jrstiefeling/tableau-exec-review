@@ -132,7 +132,9 @@
   font-size: clamp(18px, 1.9vw, 27px);
   font-weight: 600;
   letter-spacing: -0.015em;
-  line-height: 1.15;
+  /* Mixed-case prose, so the floor is the descender one: at 1.15 the tails of
+     the second line reached the kicker beneath it. */
+  line-height: var(--lh-display-text);
 }
 
 .panel-bands {
@@ -162,9 +164,18 @@
    mix band has to fit an alluvial, a legend and a paragraph, and is the row
    that runs out of room first. The two lower bands are a list and a shape,
    and both survive being shorter. */
+/* The hero row carries the tallest fixed composition on the tab — a numeral,
+   a track with a percentage above it and an axis below it, a Y/Y row and a
+   caption, none of which can lose a line — so it takes the four pixels it was
+   short at 1080 from the narrative row. The narrative row is the one place on
+   this tab where losing height costs nothing structural: both portlets in it
+   are rails that already scroll by design. The mix row cannot be the donor
+   even though it looks like the roomiest — the headcount tile shares it, and
+   its unit grid plus a two-line footnote is a taller fixed stack than the
+   alluvial beside it. */
 .panel[data-tab="exec"] .panel-bands {
   grid-template-rows:
-    minmax(0, 0.94fr) minmax(0, 1.2fr) minmax(0, 0.95fr) minmax(0, 0.92fr);
+    minmax(0, 0.98fr) minmax(0, 1.2fr) minmax(0, 0.91fr) minmax(0, 0.92fr);
 }
 
 .band[data-layout="hero"] {

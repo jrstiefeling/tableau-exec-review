@@ -90,6 +90,43 @@
     "Trebuchet MS", sans-serif;
   --font-body: "Salesforce Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Helvetica Neue", sans-serif;
+
+  /* Line-height floors for the display face, measured off the shipping
+     outlines rather than guessed.
+
+     A line box is not the ink. `line-height: 1` gives an element a box exactly
+     one em tall, and this face draws outside that: its content area is 1.28em
+     (ascent 0.99, descent 0.29), so at line-height 1 the half-leading goes
+     negative and the glyphs paint beyond the box the layout reserved. Every
+     neighbour is positioned against the box, so the overhang lands on top of
+     whatever sits above or below.
+
+     Canvas TextMetrics on the loaded outlines gives the ink extent per glyph
+     class, and the half-leading model turns each into the line-height that
+     just contains it:
+
+       digits, $, M, caps, ( ) [ ] /   ink ascent 0.857em   ->  1.014 minimum
+       lowercase with descenders       ink descent 0.226em  ->  1.152 minimum
+
+     The `$` is the surprise: it overshoots the caps by a tenth of an em, which
+     is why a currency numeral needs more than one em while an all-caps label
+     needs only 0.81. That is also why `line-height: 1` looked safe on a board
+     of dollar figures and was not.
+
+     Those ratios are the continuous minima. The tokens sit above them because
+     the browser quantises font metrics to whole pixels, so the true headroom
+     at any given clamp step is the ratio plus or minus half a pixel. Measured
+     across every clamp step these roles actually reach, 1.014 still left the
+     smallest of them a fraction short; the values below clear it at every step
+     with about a pixel in hand.
+
+     These are floors, not targets. A role already above its floor keeps
+     whatever line-height its own composition wants — the token is here so that
+     nothing sits below the ink, and so a future font swap has one pair of
+     numbers to re-measure rather than a dozen tuned values to re-audit. They
+     are properties of the outlines, not of this layout. */
+  --lh-display-num: 1.12;
+  --lh-display-text: 1.22;
 }
 
 /* Digits are equal-width in both brand faces already; naming the features

@@ -361,7 +361,7 @@
   font-size: clamp(17px, 1.7vw, 23px);
   font-weight: 600;
   letter-spacing: -0.01em;
-  line-height: 1.15;
+  line-height: var(--lh-display-text);
 }
 
 .prov-definition {
@@ -655,7 +655,7 @@
    and a fixed gutter takes a third of the track's width at 1024, which is
    exactly where the track can least afford it. */
 .attain-row {
-  grid-area: 1 / 2 / span 2 / span 1;
+  grid-area: 1 / 2;
   align-self: center;
   display: grid;
   grid-template-rows: auto auto auto;
@@ -708,6 +708,10 @@
   top: 0;
   transform: translateX(-50%);
   white-space: nowrap;
+  /* These are uppercased, and caps in this face need only 0.81em to contain
+     their ink — the only role on the board that can safely take a box this
+     tight. At `normal` the strip reported 2px it had no room to show. */
+  line-height: 1;
 }
 
 .attain-axis-zero { left: var(--zero-x, 4%); }
@@ -724,11 +728,18 @@
   }
 }
 
+/* Spans the card rather than sharing the numeral's column. The readout is one
+   short string in governed mode and an authored qualifier in direct mode —
+   "-12% Y/Y (unreproducible)" — and the numeral column is about 87px at 1024,
+   which the stub alone nearly fills. Boxed there, the qualifier ran out of the
+   column and printed across the track's `plan` label. Given the full width it
+   has room for the long form, and the stub keeps its own clamped column so it
+   stays a fixed fraction of the attainment track above it either way. */
 .attain-yoy {
-  grid-area: 2 / 1;
+  grid-area: 2 / 1 / span 1 / span 2;
   align-self: start;
   display: grid;
-  grid-template-columns: minmax(0, clamp(58px, 6.2vw, 96px)) minmax(0, max-content);
+  grid-template-columns: minmax(0, clamp(58px, 6.2vw, 96px)) minmax(0, 1fr);
   align-items: center;
   column-gap: clamp(5px, 0.6vw, 9px);
 }
@@ -739,12 +750,17 @@
   height: auto;
 }
 
+/* Wraps rather than spilling. The reading itself never needs a second line at
+   any width; only the direct-mode qualifier does, and only at 1024, where the
+   caption is already withheld and the row is free. Taking the line is the
+   right trade against printing over the neighbouring label. */
 .attain-yoy-label {
+  min-width: 0;
   font-size: 11.5px;
   font-weight: 700;
+  line-height: 1.25;
   color: var(--delta-tint, var(--ink-soft));
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
   transition: color 0.5s var(--ease);
 }
 
@@ -819,8 +835,15 @@
    is also a row of the expand table, so nothing becomes unreachable. Anything
    else giving way here would mean crushing a chart. Placed after the rule it
    overrides rather than in tabs.css, which loads first and would lose the
-   cascade at equal specificity. */
-@media (max-height: 860px) {
+   cascade at equal specificity.
+
+   960 and not 860: the threshold is the height at which the caption's line
+   actually stops fitting, and measured, a 900-tall viewport gives each card
+   83px of body against the 92px the composition needs. At 860 the caption
+   survived the query and was crushed to nothing instead — present in the
+   accessibility tree, clipped to zero on screen, which is the worst of both.
+   1080 clears it with room, so that is where it comes back. */
+@media (max-height: 960px) {
   .attain-caption {
     display: none;
   }
@@ -877,13 +900,17 @@
 
 /* ----------------------------------- mix ---------------------------------- */
 
+/* The card is a chart that takes the leftover height, a legend, and an
+   insight that gives way — not a centred stack of fixed rows — so there is
+   nothing left for `justify-content: center` to do, and the gap comes down to
+   pay for the two period labels. */
 .mix {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(4px, 0.8vh, 9px);
-  justify-content: safe center;
+  gap: clamp(3px, 0.6vh, 8px);
+  justify-content: flex-start;
 }
 
 /* The mix card carries the most stacked content of any tile on the board, so
@@ -892,63 +919,26 @@
   gap: 5px;
 }
 
-.mix-head {
+/* One baseline-aligned line per motion. The two columns carry both totals
+   and the tooltips carry both segment figures, so the legend is a key plus the
+   one number the geometry does not state. */
+.mix-legend {
+  flex: 0 1 auto;
   display: flex;
   align-items: baseline;
-  gap: 9px;
-}
-
-.mix-total {
-  font-family: var(--font-display);
-  font-size: clamp(19px, 2.1vw, 32px);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.mix-total-label {
-  font-size: 11px;
-  color: var(--ink-dim);
-}
-
-.mix-bar {
-  display: flex;
-  gap: 3px;
-  height: clamp(17px, 2.5vh, 26px);
-  flex: none;
-}
-
-.mix-seg {
-  width: var(--seg-width);
-  border-radius: 5px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--seg-color) 88%, white 12%),
-    var(--seg-color)
-  );
-  transition: background 0.5s var(--ease);
-}
-
-.mix-seg.is-undifferentiated {
-  background: repeating-linear-gradient(
-    -45deg,
-    color-mix(in srgb, var(--seg-color) 34%, transparent) 0 6px,
-    transparent 6px 12px
-  );
-  border: 1px dashed var(--seg-color);
-  box-shadow: none;
-}
-
-.mix-legend {
-  display: flex;
-  gap: clamp(8px, 1.3vw, 22px);
+  gap: clamp(10px, 1.5vw, 26px);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .mix-item {
   position: relative;
-  padding-left: 11px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding-left: 9px;
   min-width: 0;
+  white-space: nowrap;
 }
 
 .mix-item::before {
@@ -970,24 +960,11 @@
 }
 
 .mix-item-detail {
-  margin-left: 6px;
+  /* `.mix-item` supplies the spacing now. */
+  margin-left: 0;
   font-size: 10px;
   font-weight: 400;
   color: var(--ink-dim);
-}
-
-.mix-item-row {
-  margin: 3px 0 0;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.mix-item-value {
-  font-family: var(--font-display);
-  font-size: clamp(14px, 1.2vw, 17px);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
 }
 
 .mix-item-yoy {
@@ -997,8 +974,21 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The single flexible element in the card, the way .attain-caption is on an
+   attainment card. min-height with overflow hidden is what lets it shrink past
+   its content instead of pushing the card open; the line clamp is what makes
+   the shrink land on a whole line rather than half a row of letters. The chart
+   now states three of the four facts this paragraph used to carry, so a lost
+   line costs a restatement rather than a fact — and one line is the floor,
+   because it can give up a line and must not be able to give up the sentence. */
 .mix-insight {
+  flex: 0 1 auto;
   margin: 0;
+  min-height: 1.4em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   font-size: 11.5px;
   line-height: 1.4;
   color: var(--ink-soft);
@@ -1239,7 +1229,9 @@
   font-size: clamp(17px, 1.6vw, 24px);
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1;
+  /* "$549 K" leads with the tallest glyph in the face; at one em its top
+     escaped the box and sat on the panel label above it. */
+  line-height: var(--lh-display-num);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1362,3 +1354,1582 @@
   background: var(--line-strong);
   border-radius: 3px;
 }
+
+/* ---------------------- existing-portlet forms ---------------------- */
+
+/* Styles for the four existing-renderer changes: the trend deviation strip,
+ * the mix alluvial, the AE headcount unit grid and the rules-card diagrams.
+ *
+ * Marks are painted from palette() at render time; nothing here carries a
+ * colour, so the Knowledge Layer toggle still repaints through one path. */
+
+/* --------------------------- trend deviation strip ------------------------ */
+
+/* The strip's own marks never take a pointer: one transparent hit rect per
+   period carries the tooltip, so a 1-unit flat bar and a hollow gap cell have
+   the same comfortable target as a full-height one. */
+.trend-dev,
+.trend-dev-zero,
+.trend-dev-partial {
+  pointer-events: none;
+}
+
+.trend-dev-hit {
+  cursor: pointer;
+}
+
+/* ------------------------------ mix alluvial ------------------------------ */
+
+
+/* flex-basis 0 rather than auto is the whole mechanism, in both directions:
+   the canvas absorbs whatever height nothing else claimed, so the insight sits
+   at a clean number of lines whenever there is slack — and when there is not
+   enough to go round the canvas is already at its floor and has nothing to
+   give back, so the shrink lands on the insight, which is the only element
+   below that can lose a line without losing meaning. */
+.mix-canvas {
+  flex: 1 1 0%;
+  min-height: clamp(56px, 7vh, 120px);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* Sized by height with the width following the viewBox, so the box the labels
+   are positioned inside is exactly the box the marks are drawn in. A plot
+   letterboxed inside a wider element would put every label a few pixels off
+   the column it names, and the offset would grow with the mismatch. */
+.mix-plot {
+  position: relative;
+  height: 100%;
+  max-width: 100%;
+}
+
+.mix-svg {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+}
+
+/* Both labels sit in the band at the foot of the plot and are anchored to its
+   outer edge rather than centred under their column: the prior column starts
+   12 units in from the left and the current column ends 12 units in from the
+   right, so this puts each label flush with the outer edge of the column it
+   names, and neither can be pushed out of the box by its own width. Anchored
+   from the bottom, so a label can never overhang the plot box and hand the
+   card an overflow it cannot see. */
+.mix-col-label {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.mix-col-label.is-prior {
+  left: var(--mix-edge-x, 2.6%);
+}
+
+.mix-col-label.is-current {
+  right: var(--mix-edge-x, 2.6%);
+}
+
+/* These three scale on viewport *height*, not width, which is the one place on
+   the board that is the right choice: the band they sit in is a fraction of
+   the plot box, the plot box is sized by the height flex left it, and a label
+   sized off the width would outgrow its band the moment the card got short and
+   wide. */
+.mix-col-period {
+  font-size: clamp(8px, 1.02vh, 10px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* The current period's total is the hero numeral on this card now that the
+   head row is gone — and it sits on the column whose width it explains, which
+   is where a labelled width belongs. The prior total is the reference and is
+   kept subordinate by size. */
+.mix-col-total {
+  font-family: var(--font-display);
+  font-size: clamp(10px, 1.3vh, 15px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  /* Sits directly under the period label with nothing between them, so the
+     dollar sign's overshoot has nowhere to go but onto it. */
+  line-height: var(--lh-display-num);
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.mix-col-total[data-hero="true"] {
+  font-size: clamp(13px, 1.9vh, 23px);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+/* The legend and the caption share one row, which is the row that pays for the
+   chart: this card has about 130px of body at four of the five breakpoints. */
+/* Wraps. The legend names four things and the caption states two totals and a
+   unit, and below about 1100px the pair does not fit on one line — unwrapped,
+   `space-between` simply let them meet and the caption printed across the
+   second legend entry. Wrapped, the caption drops to a line of its own and
+   keeps its right edge; the insight beneath is line-clamped and flexible, so
+   the line comes out of the one element that can lose it. */
+.mix-foot {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: clamp(10px, 1.4vw, 24px);
+  row-gap: 2px;
+  min-width: 0;
+}
+
+
+
+.mix-item::before {
+  top: 1px;
+  bottom: 1px;
+  width: 2px;
+}
+
+
+/* One line, always: the caption states the two totals and what the width
+   means, and a predictable single line is what lets the canvas above it and
+   the insight below it divide the remaining height between them. */
+.mix-caption {
+  /* Grows to fill whichever line it lands on, so a wrapped caption is a full
+     line rather than a short right-hand fragment. */
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--ink-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.portlet.is-inspected .mix-insight {
+  -webkit-line-clamp: 8;
+}
+
+@media (max-height: 960px) {
+  .mix-insight {
+    -webkit-line-clamp: 2;
+  }
+}
+
+/* ------------------------------- unit grid -------------------------------- */
+
+.stat[data-has-grid="true"] {
+  gap: clamp(3px, 0.45vh, 6px);
+}
+
+/* OVERRIDES .stat-value, on the grid tile only. The grid is now the mark that
+   carries the count, so the numeral does not also have to be the largest thing
+   on the tile — and this is a good part of where the height the grid needs
+   comes from. The three outlook tiles have no grid and keep the full hero
+   size. */
+.stat[data-has-grid="true"] .stat-value {
+  font-size: clamp(26px, 2.1vw, 34px);
+}
+
+/* The movement chip and the unit key on one row. nowrap on the key means it
+   either fits beside the chip or moves to a line of its own whole — a unit
+   statement that ellipsised would be worse than no unit statement. */
+.stat-key {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: clamp(6px, 0.8vw, 12px);
+  row-gap: 1px;
+  min-width: 0;
+}
+
+.stat-unit {
+  font-size: 9.5px;
+  line-height: 1.3;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+/* Sized by height with the width following the viewBox, and left-aligned
+   rather than stretched: a unit grid that filled the tile's width would set
+   its own cell pitch from the breakpoint, and the squares have to stay
+   countable at 1024 as well as at 1920. */
+.stat-waffle {
+  flex: none;
+  align-self: flex-start;
+  display: block;
+  height: clamp(20px, 2.9vh, 38px);
+  width: auto;
+  max-width: 100%;
+}
+
+/* Each square scales in place. Without a fill-box transform box an SVG
+   transform takes the viewBox origin, and forty-five squares would arrive
+   from the top-left corner rather than growing where they sit. */
+.stat-unit-cell {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* The footnote loses whole lines, not parts of them. Line-clamping it and
+   leaving it unshrinkable means the box is always an exact number of line
+   boxes; the grid is the row that absorbs vertical pressure instead, through
+   its vh clamp, because a grid one pixel per square shorter still reads as a
+   count and half a line of 9.5px type reads as a defect. */
+.stat[data-has-grid="true"] .stat-caption {
+  flex: none;
+}
+
+.stat[data-has-grid="true"] .stat-footnote {
+  flex: none;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* One line in the window between the two row sets. Above 960 the tile has
+   room for both lines; at 860 and below the tab switches to its short-viewport
+   row weights, which hand the mix row enough height to keep them. In between —
+   900 tall is the case — the tile is six pixels short, and the footnote losing
+   its second line whole is the valve this composition was given. */
+@media (min-height: 861px) and (max-height: 960px) {
+  .stat[data-has-grid="true"] .stat-footnote {
+    -webkit-line-clamp: 1;
+  }
+}
+
+.portlet.is-inspected .stat-waffle {
+  height: clamp(46px, 7vh, 82px);
+}
+
+.portlet.is-inspected .stat[data-has-grid="true"] .stat-footnote {
+  -webkit-line-clamp: 6;
+}
+
+/* -------------------------- rules-card diagrams --------------------------- */
+
+/* Width-driven rather than height-driven, because the constraint is the card's
+   narrow column: the rules card is the 210px-ish cell of the trend grid, and a
+   pair of thumbnails that stayed a fixed height would be 30px wide there. */
+.rule-diagram {
+  display: block;
+  width: clamp(100px, 42%, 150px);
+  height: auto;
+  margin: 3px 0 2px;
+}
+
+.rule-diagram * {
+  pointer-events: none;
+}
+
+.portlet.is-inspected .rule-diagram {
+  width: clamp(150px, 34%, 270px);
+  margin: 6px 0 4px;
+}
+
+
+/* ----------------------- account movement fan ----------------------- */
+
+/* --------------------------------- the fan -------------------------------- */
+
+/* Concatenated into portlets.css at integration. Every colour that carries
+   meaning is set from palette() in movementFan.js and arrives here as a
+   custom property, so the Knowledge Layer repaint happens through one path. */
+
+.fan {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.5vh, 6px);
+}
+
+/* Headline, note and caption share one row. The distribution band is a share
+   of viewport height and resolves to about 100px of body at 1280x800, so a
+   second full-width text row would come straight out of the plot. */
+/* flex-end rather than baseline. At a 23px display numeral beside 11px body
+   type the two produce the same optical result to within a pixel, and
+   baseline alignment pushes the shorter items' boxes past the bottom of a
+   row this tight — which reports as overflow on a face that hides it. */
+.fan-head {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(6px, 0.9vw, 16px);
+  flex-wrap: wrap;
+}
+
+.fan-headline {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.5vw, 23px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  /* Tall enough to contain the display face's own line box: at 1.08 the glyphs
+     overflow the row and the head reports 2px of scroll it cannot show. */
+  line-height: 1.2;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.fan-share {
+  color: var(--share-tint, var(--ink));
+}
+
+/* pre, so the separator's authored spacing survives instead of collapsing
+   and having to be replaced by a flex gap. */
+.fan-slash {
+  color: var(--ink-dim);
+  font-weight: 400;
+  white-space: pre;
+}
+
+/* Without a conformed identity the headline is not a numeral pair at all — it
+   is a phrase refusing to be one, so it drops out of the display face and
+   into body type rather than being set as though it were a number. */
+.fan-headline[data-contested="true"] {
+  font-family: var(--font-body);
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--tier-color);
+  white-space: normal;
+}
+
+.fan-headnote,
+.fan-caption {
+  margin: 0;
+  font-size: clamp(9px, 0.68vw, 11px);
+  color: var(--ink-dim);
+  line-height: 1.2;
+}
+
+.fan-caption {
+  margin-left: auto;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The plot box is the marks' coordinate space and the labels' containing
+   block at once. preserveAspectRatio is "none" on the SVG, so a user unit
+   maps to a fixed fraction of this box on both axes — which is what lets a
+   percentage-positioned DOM label sit exactly on the mark it names. */
+/* container-type: size because the label set has to thin out with the plot
+   rather than with the viewport — the distribution band is one row of a
+   height-driven grid on one tab, so the same viewport gives it 89px at 1920
+   and the same 1080-tall window would give it something else if the row
+   weights moved. The box is already content-independent (flex:1, min-height:0,
+   both children absolutely positioned), which is what size containment needs. */
+.fan-plot {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+}
+
+.fan-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.fan-labels {
+  position: absolute;
+  inset: 0;
+  /* The marks underneath carry every tooltip, so the label layer must never
+     take the pointer. */
+  pointer-events: none;
+}
+
+.fan-label {
+  position: absolute;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.16;
+  white-space: nowrap;
+}
+
+.fan-label-lead {
+  font-size: clamp(8.5px, 0.62vw, 11px);
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  color: var(--ink);
+}
+
+.fan-label-sub {
+  font-size: clamp(7.5px, 0.55vw, 9.5px);
+  font-weight: 500;
+  color: var(--ink-dim);
+}
+
+/* Right-aligned against the origin tick, so the caption points at the one
+   position on the chart that every line shares. */
+.fan-label[data-kind="origin"] {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.fan-label[data-kind="expanded"] .fan-label-lead,
+.fan-label[data-kind="contracted"] .fan-label-lead {
+  color: var(--label-tint, var(--ink-soft));
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.fan-label[data-kind="reference"] .fan-label-lead,
+.fan-label[data-kind="median"] .fan-label-lead {
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sits on the marks rather than beside them, so it needs the paper back under
+   it — the same treatment the graph overlay's edge labels use. */
+.fan-label[data-kind="median"] {
+  align-items: flex-end;
+  padding: 1px 4px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--surface-solid) 86%, transparent);
+}
+
+.fan-label[data-kind="exclusion"] .fan-label-lead {
+  color: var(--ink-soft);
+}
+
+/* ---- marks ---- */
+
+/* 260 lines and a filled marginal panel are all read as one shape; the two
+   invisible band rects above them are what answers the pointer. */
+.fan-bundle,
+.fan-density,
+.fan-reference,
+.fan-axis,
+.fan-pcts,
+.fan-origin {
+  pointer-events: none;
+}
+
+.fan-band-hit,
+.fan-reference-hit,
+.fan-origin-hit,
+.fan-pct-hit,
+.fan-exclusion {
+  cursor: pointer;
+}
+
+/* ---- vertical pressure ----
+
+   The plot is 46px tall at 1280x800 and 89px at 1920x1080, so the label set
+   is built shortest-first and earns its rows back as the box grows: two group
+   labels, then their second lines, then the reference, then the median. The
+   thresholds are the stacked height of the labels themselves plus a row of
+   clearance, so a label can never be drawn on top of the one beneath it.
+
+   The marks never thin out. A fan is a shape, and a shape survives being
+   short far better than a label survives being illegible. */
+.fan-label[data-kind="reference"],
+.fan-label-sub {
+  display: none;
+}
+
+@container (min-height: 62px) {
+  .fan-label-sub {
+    display: block;
+  }
+}
+
+@container (min-height: 82px) {
+  .fan-label[data-kind="reference"] {
+    display: flex;
+  }
+}
+
+/* ---- vertical pressure, lower bound ----
+
+   The expand overlay reflows the front into a column where the detail wants
+   every pixel it can get, and the plot — flex:1 against it — collapses to 0.
+   The marks collapse with it because they are sized by the box. The labels do
+   not: they are absolutely positioned at percentage offsets, so they keep
+   their intrinsic height and land on top of each other in a single row.
+
+   The thresholds above add labels back as the box grows. This is the same rule
+   read from the other end — below the height of one label row there is no
+   chart left to name, so the layer goes with the marks it annotates.
+   Specificity is deliberately (0,1,0) so the reference and sub-line rules
+   above, which are (0,2,0), keep their own thresholds. */
+.fan-label {
+  display: none;
+}
+
+@container (min-height: 24px) {
+  .fan-label {
+    display: flex;
+  }
+}
+
+
+/* --------------------- growth matrix and spread --------------------- */
+
+/* The growth matrix and the dumbbell spread.
+ *
+ * Every mark's colour is painted from palette() as it draws, so the Knowledge
+ * Layer toggle repaints through one path and nothing here has to be kept in
+ * sync with a second list of literals. What lives in this file is geometry,
+ * type and the tokens both charts share.
+ *
+ * The one structural idea worth stating: the roll-up bar, the column headers,
+ * the matrix and the axis strip are four sibling grids carrying one column
+ * template, which is what puts every cell, every tick label and the roll-up
+ * bar in one vertical register without a measurement pass. Each cell SVG then
+ * fills its column's width exactly, so a rate numeral positioned as a
+ * percentage of its cell lands on the bar tip it names. */
+
+.growth,
+.spread {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.5vh, 7px);
+}
+
+/* ------------------------------ shared tracks ----------------------------- */
+
+.growth {
+  --label-track: clamp(74px, 9vw, 132px);
+}
+
+.growth[data-lane="true"] {
+  --label-track: minmax(112px, max-content);
+}
+
+.growth-rollup,
+.growth-head,
+.growth-body,
+.growth-axis {
+  display: grid;
+  grid-template-columns:
+    [rail] clamp(22px, 2.2vw, 34px)
+    [label] var(--label-track)
+    var(--cell-tracks);
+  column-gap: clamp(4px, 0.55vw, 8px);
+}
+
+/* ------------------------------- roll-up bar ------------------------------ */
+
+/* Fixed height rather than a share of the portlet: the bar is a partition and
+   not a magnitude, so giving it more room says nothing more, where giving the
+   growth lane below it more room says a great deal. */
+.growth-rollup {
+  flex: none;
+  height: clamp(66px, 9.5vh, 124px);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+}
+
+.growth-rollup-head {
+  grid-column: rail / cell;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1px;
+  min-width: 0;
+}
+
+.growth-rollup-total {
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.5vw, 24px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  /* The display face's own ascent and descent exceed the em box, so a line
+     height under this leaves the glyph overflowing its line by a pixel. */
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+
+.growth-rollup-eyebrow {
+  font-size: clamp(7.5px, 0.52vw, 9.5px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-align: right;
+}
+
+.growth-rollup-plot {
+  grid-column: cell / -1;
+  position: relative;
+  height: 100%;
+  min-width: 0;
+}
+
+/* preserveAspectRatio="none": the bar is a partition of one width, so it
+   stretches to whatever width and height the column gives it, and every tie
+   and boundary stays at the fraction of that width the dollars put it at.
+   Hairlines are held at 1px by vector-effect on each path. */
+.growth-rollup-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.growth-block-label {
+  position: absolute;
+  left: var(--at-x);
+  top: var(--at-y);
+  transform: translate(-50%, -50%);
+  font-size: clamp(8px, 0.58vw, 11px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.growth-block,
+.growth-tie-hit,
+.growth-cell-hit,
+.spread-hit,
+.spread-caret-hit {
+  cursor: pointer;
+}
+
+/* ----------------------------- column headers ----------------------------- */
+
+.growth-head {
+  flex: none;
+  align-items: end;
+  min-height: clamp(13px, 1.7vh, 20px);
+}
+
+.growth-colhead {
+  grid-column: var(--col);
+  text-align: center;
+  font-size: clamp(8px, 0.56vw, 10px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+
+/* A reference column is not a fifth peer, so it is tinted rather than merely
+   placed last. */
+.growth-colhead[data-reference="true"] {
+  color: var(--accent);
+}
+
+/* --------------------------------- matrix --------------------------------- */
+
+/* Equal rows and no row gap: the containment rail is one stretched SVG
+   spanning all of them, and any gap between rows would put its ticks off the
+   row centres they point at. */
+.growth-body {
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: var(--row-tracks);
+  row-gap: 0;
+  align-items: center;
+}
+
+.growth-rail {
+  grid-column: rail;
+  grid-row: 1 / -1;
+  position: relative;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.growth-rail-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The severed rail's mark. DOM rather than SVG text: the rail stretches
+   non-uniformly and a glyph inside it would stretch with it. */
+.growth-rail-break,
+.spread-break {
+  position: absolute;
+  left: var(--at-x);
+  top: var(--at-y, 50%);
+  transform: translate(-50%, -50%);
+  font-size: clamp(6.5px, 0.48vw, 9px);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--tier-color, var(--ink-dim));
+  pointer-events: none;
+}
+
+/* The rail does the work; the type reinforces it. */
+.growth-row-label {
+  grid-column: label;
+  grid-row: var(--row);
+  padding-left: calc(2px + var(--level) * 13px);
+  line-height: 1.3;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.growth-row-label[data-level="0"] {
+  font-size: clamp(8.5px, 0.6vw, 11px);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.growth-row-label[data-level="1"] {
+  font-size: clamp(8.5px, 0.6vw, 11px);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.growth-row-label[data-level="2"] {
+  font-size: clamp(8px, 0.56vw, 10.5px);
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.growth-row-value {
+  grid-column: value;
+  grid-row: var(--row);
+  text-align: right;
+  font-size: clamp(8.5px, 0.6vw, 11px);
+  font-weight: 600;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.growth-cell {
+  grid-column: var(--col);
+  grid-row: var(--row);
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Width-driven and aspect-true, capped so a short row can never be overflowed
+   by a cell: the marks scale with the column and the numeral over them keeps
+   its register. */
+.growth-cell-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
+/* Anchored away from zero, so the numeral reads as the bar's tip, and clamped
+   in ch against the cell's own edge so a saturated rate cannot push its
+   numeral out of the column. The chip is what that clamp costs: a saturated
+   rate's numeral is pushed back over its own bar, where tinted type on a
+   filled bar of the same tint would be unreadable. */
+.growth-rate {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 2px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--surface-solid) 72%, transparent);
+  font-size: clamp(8px, 0.58vw, 11px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.growth-rate[data-dir="pos"] {
+  left: min(calc(var(--rate-at) + 3px), calc(100% - var(--rate-w)));
+}
+
+.growth-rate[data-dir="neg"] {
+  right: min(calc(100% - var(--rate-at) + 3px), calc(100% - var(--rate-w)));
+}
+
+/* ------------------------------- axis strip ------------------------------- */
+
+.growth-axis {
+  flex: none;
+  align-items: start;
+}
+
+.growth-ticks {
+  grid-column: var(--col);
+  position: relative;
+  height: clamp(12px, 1.5vh, 17px);
+  min-width: 0;
+}
+
+.growth-tick {
+  position: absolute;
+  left: var(--at-x);
+  top: 0;
+  font-size: clamp(7px, 0.52vw, 10px);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--ink-dim);
+}
+
+.growth-tick[data-anchor="mid"] { transform: translateX(-50%); }
+.growth-tick[data-anchor="end"] { transform: translateX(-100%); }
+
+.growth-allnote {
+  grid-column: 4 / -1;
+  margin: 0;
+  align-self: start;
+  text-align: right;
+  font-size: clamp(8px, 0.55vw, 9.5px);
+  line-height: 1.3;
+  color: var(--ink-dim);
+}
+
+.growth-axisnote,
+.spread-axisnote {
+  flex: none;
+  margin: 0;
+  font-size: clamp(8px, 0.56vw, 10px);
+  line-height: 1.3;
+  color: var(--ink-dim);
+}
+
+.growth-caption,
+.spread-caption {
+  flex: none;
+  margin: 0;
+  font-size: clamp(8.5px, 0.6vw, 10.5px);
+  line-height: 1.35;
+  color: var(--ink-dim);
+}
+
+/* --------------------------- expanded detail ------------------------------ */
+
+.growth-table-caption {
+  margin: 14px 0 5px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-dim);
+}
+
+.growth-table-caption:first-child {
+  margin-top: 0;
+}
+
+/* The taxonomy survives into the table, so a row read as numbers still says
+   which lines sit inside which motion. */
+.trend-table-rowlabel[data-level="1"] { padding-left: 20px; }
+.trend-table-rowlabel[data-level="2"] { padding-left: 34px; }
+
+/* ---------------------------------- spread -------------------------------- */
+
+/* Rows keep their natural height and the slack is shared between them, so a
+   two-row portlet reads as two well-spaced dumbbells rather than as two marks
+   pinned to the top of a tall card. */
+.spread {
+  justify-content: space-between;
+}
+
+.spread-row {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.spread-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 7px;
+  min-width: 0;
+}
+
+.spread-name {
+  font-size: clamp(8.5px, 0.62vw, 11px);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.spread-lines {
+  font-size: clamp(8px, 0.55vw, 9.5px);
+  line-height: 1.3;
+  color: var(--ink-dim);
+}
+
+.spread-span {
+  margin-left: auto;
+  font-size: clamp(8px, 0.55vw, 9.5px);
+  line-height: 1.3;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.spread-plot {
+  position: relative;
+  min-width: 0;
+}
+
+.spread-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Above its own dot and anchored away from it, so a row whose two ends are two
+   points apart still reads as two numerals. The chip is what keeps a numeral
+   legible where it crosses a decade rule. */
+.spread-end {
+  position: absolute;
+  bottom: 53%;
+  padding: 0 2px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--surface-solid) 72%, transparent);
+  font-size: clamp(7.5px, 0.55vw, 10px);
+  font-weight: 600;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.spread-end[data-end="low"] {
+  right: min(calc(100% - var(--at-x) + 2px), calc(100% - var(--end-w)));
+}
+
+.spread-end[data-end="high"] {
+  left: min(calc(var(--at-x) + 2px), calc(100% - var(--end-w)));
+}
+
+.spread-foot {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ------------------------------- responsive ------------------------------- */
+
+/* Seven tick labels want about 330px of column and a matrix column is 273px at
+   1920 and 134px at 1024, so the matrix labels its ends and its zero and lets
+   the axis note carry the rest: the core band is tinted, and the note states
+   the threshold and the one-decade-per-gridline rule in words. The lane's
+   single column is 430px at its narrowest, so it keeps all seven throughout.
+   Hidden rather than never built, so the expand table and the tooltips are not
+   the only place the axis is named. */
+.growth:not([data-lane="true"]) .growth-tick[data-tick="core"],
+.growth:not([data-lane="true"]) .growth-tick[data-tick="decade"] {
+  display: none;
+}
+
+/* The product lines an interval runs between are the first thing a narrow side
+   band cannot hold on one line, and they are one hover and one expand away. */
+@media (max-width: 1150px) {
+  .spread-lines {
+    display: none;
+  }
+}
+
+
+/* ------------------- outlook matrix and deal rail ------------------- */
+
+/* Q3 Outlook — the metric matrix and the top-deal rail.
+ *
+ * Concatenated into portlets.css at integration; it carries no @import and no
+ * <link> of its own. Every colour that means something is painted from
+ * palette() at render time, so the Knowledge Layer toggle repaints through one
+ * path; the rules here only ever reach for tokens, never for a literal. */
+
+/* ------------------------------ metric matrix ----------------------------- */
+
+.mmx {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3px, 0.6vh, 8px);
+  /* The marks are capped independently of their column, and the cap is a
+     share of the viewport *height* rather than its width. Every mark in a cell
+     is a fixed-ratio SVG, so widening it makes it taller — and height is the
+     scarce dimension on this portlet, not width. Left to fill the column, the
+     marks would grow tallest exactly where the band has least room to give.
+     Under the cap they track the row height instead, and the width a wide
+     breakpoint frees up goes to the label gutter and the gaps. */
+  --mmx-mark: clamp(90px, 11vh, 190px);
+}
+
+.mmx-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns:
+    clamp(22px, 2.2vw, 30px)
+    minmax(96px, 168px)
+    repeat(3, minmax(0, 1fr));
+  /* Three authored rows. The row gap is zero on purpose: the containment rail
+     spans the data rows as one stretched SVG, and only contiguous rows let its
+     row centres land exactly rather than approximately. Rows are separated by
+     a hairline and their own padding instead. */
+  grid-template-rows: auto repeat(3, minmax(88px, 1fr)) auto;
+  column-gap: clamp(5px, 0.7vw, 12px);
+  row-gap: 0;
+}
+
+.mmx-rail {
+  grid-column: 1;
+  grid-row: 2 / span var(--mmx-rows, 3);
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mmx-colhead {
+  grid-row: 1;
+  grid-column: var(--mmx-col);
+  margin: 0 0 4px;
+  font-size: clamp(8.5px, 0.65vw, 9.5px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+/* The type hierarchy reinforces the rail; the rail does the work. */
+.mmx-rowlabel {
+  grid-column: 2;
+  grid-row: var(--mmx-row);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding: clamp(3px, 0.5vh, 7px) 0;
+  padding-left: calc(2px + var(--level, 0) * 9px);
+}
+
+.mmx-cell:not([data-row-index="0"]),
+.mmx-rowlabel:not([data-row-index="0"]) {
+  border-top: 1px solid var(--line);
+}
+
+.mmx-rowname {
+  margin: 0;
+  font-size: clamp(9.5px, 0.75vw, 11px);
+  line-height: 1.22;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.mmx-rowlabel[data-level="0"] .mmx-rowname {
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent);
+  transition: color 0.5s var(--ease);
+}
+
+.mmx-rowsub {
+  margin: 0;
+  font-size: clamp(8.5px, 0.62vw, 9.5px);
+  line-height: 1.2;
+  font-weight: 500;
+  color: var(--ink-dim);
+}
+
+.mmx-cell {
+  grid-column: var(--mmx-col);
+  grid-row: var(--mmx-row);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  gap: clamp(1px, 0.3vh, 4px);
+  padding: clamp(3px, 0.5vh, 7px) 0;
+}
+
+/* Rank 1. No graphical channel: three measures at three magnitudes are not
+   commensurable, and any scale shared across them would assert something
+   false. Kept to one line so a scrambling numeral cannot push the cell
+   taller than its row. */
+.mmx-value {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: clamp(17px, 1.5vw, 23px);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.18;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A contested figure is cycling through phrases rather than settling on a
+   numeral, so it drops a step in size to stay legible while it does. */
+.mmx-value[data-contested="true"] {
+  font-size: clamp(13px, 1.15vw, 17px);
+  letter-spacing: -0.01em;
+}
+
+/* Rank 2 — the Y/Y stub and its chip. The first track is the mark's own width
+   rather than a fraction of the column, so the numeral sits beside the mark it
+   reads instead of drifting to the far edge of the cell. */
+.mmx-stub-row {
+  display: grid;
+  grid-template-columns: minmax(0, var(--mmx-mark)) max-content;
+  align-items: center;
+  column-gap: clamp(3px, 0.4vw, 7px);
+}
+
+.mmx-stub {
+  display: block;
+  width: 100%;
+  max-width: var(--mmx-mark);
+  height: auto;
+}
+
+.mmx-chip {
+  font-size: clamp(9px, 0.75vw, 11px);
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--delta-tint, var(--ink-soft));
+  font-variant-numeric: tabular-nums;
+  transition: color 0.5s var(--ease);
+}
+
+/* The second stated basis: a secondary numeral in the same register as the
+   ghost tick it names. No badge and no tone — it is a reading, not a flag. */
+.mmx-alt {
+  margin: 0;
+  font-size: clamp(8.5px, 0.62vw, 9.5px);
+  font-weight: 500;
+  line-height: 1.24;
+  color: var(--ink-dim);
+}
+
+/* Rank 3 — the FinPlan bullet, with its label alongside rather than beneath:
+   the same arrangement `.attain-row` uses on the exec hero cards, and the one
+   that keeps the whole rank to a single line of the cell's height budget. */
+.mmx-plan-row {
+  display: grid;
+  grid-template-columns: minmax(0, var(--mmx-mark)) auto;
+  align-items: center;
+  column-gap: clamp(3px, 0.4vw, 7px);
+  min-width: 0;
+}
+
+.mmx-bullet {
+  display: block;
+  width: 100%;
+  max-width: var(--mmx-mark);
+  height: auto;
+}
+
+.mmx-plan-label {
+  font-size: clamp(8.5px, 0.62vw, 9.5px);
+  font-weight: 600;
+  line-height: 1.22;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* "no plan basis" is words where the others are a percentage, so it takes the
+   register of an absence rather than of a reading. */
+.mmx-plan-label[data-void="true"] {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* Rank 4 — the paired comparisons. Reading and benchmark share one caption
+   line above the mark: the column is too narrow to carry a label, a track and
+   a benchmark side by side, and the mark is what has to stay wide enough to
+   separate two dots that can be a single unit apart. */
+.mmx-pairs {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1px, 0.25vh, 4px);
+}
+
+/* The caption spans the cell; only the mark is capped. Capping the caption to
+   the mark's width would truncate a benchmark that has room to be read. */
+.mmx-pair {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 5px;
+}
+
+.mmx-pair-label {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: clamp(8.5px, 0.62vw, 9.5px);
+  font-weight: 600;
+  line-height: 1.24;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.mmx-pair-hist-label {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: clamp(8.5px, 0.62vw, 9.5px);
+  font-weight: 500;
+  line-height: 1.24;
+  color: var(--ink-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mmx-pair-svg {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: start;
+  display: block;
+  width: 100%;
+  max-width: var(--mmx-mark);
+  height: auto;
+}
+
+/* Rank 5 — the authored week-over-week note, on the two cells that carry one.
+   Bottom-right, so its rarity reads as a footnote rather than as a field the
+   other seven cells are missing. */
+.mmx-note {
+  margin: auto 0 0 auto;
+  padding-top: 2px;
+  font-size: clamp(8px, 0.6vw, 9px);
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: right;
+  color: var(--ink-dim);
+}
+
+/* The axis strip: drawn once, under the leftmost data column, rather than
+   repeated in nine cells. */
+/* The strip is exactly as wide as the marks it labels, so its ticks sit under
+   the gridlines they name. That width will not carry five labels on one line
+   at any breakpoint, so the two decades stagger onto a second line rather than
+   colliding — the standard fix for a dense tick strip, and cheaper in height
+   than the alternative of dropping half the legend. */
+.mmx-axis {
+  grid-column: 3;
+  grid-row: var(--mmx-row);
+  position: relative;
+  max-width: var(--mmx-mark);
+  height: 22px;
+  margin-top: 3px;
+}
+
+.mmx-axis-core {
+  position: absolute;
+  left: var(--core-from);
+  right: calc(100% - var(--core-to));
+  top: 0;
+  height: 3px;
+  border-radius: 1px;
+  background: var(--core-tint);
+  opacity: 0.28;
+}
+
+.mmx-axis-tick {
+  position: absolute;
+  left: var(--tick-x);
+  transform: translateX(-50%);
+  line-height: 1;
+  font-size: 7.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.mmx-axis-tick[data-kind="inner"] { top: 5px; }
+.mmx-axis-tick[data-kind="outer"] { top: 14px; opacity: 0.8; }
+
+/* The decade labels name the strip's own ends, so they are anchored inside it
+   rather than centred on a gridline that has no room either side of it. */
+.mmx-axis-tick[data-edge="start"] { left: 0; transform: none; }
+.mmx-axis-tick[data-edge="end"] { left: auto; right: 0; transform: none; }
+
+.mmx-foot {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mmx-axisnote {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  font-size: clamp(8.5px, 0.65vw, 10px);
+  line-height: 1.3;
+  color: var(--ink-dim);
+}
+
+/* The core band is the same region as the board's one stated colour
+   threshold, so the chip is tinted with the band rather than describing it. */
+.mmx-core-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--core-tint) 34%, transparent);
+  background: color-mix(in srgb, var(--core-tint) 8%, transparent);
+  font-size: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ink-soft);
+}
+
+.mmx-caption {
+  margin: 0;
+  font-size: clamp(9px, 0.7vw, 10.5px);
+  line-height: 1.34;
+  color: var(--ink-dim);
+}
+
+/* -------------------------------- deal rail ------------------------------- */
+
+.deals {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1vh, 13px);
+}
+
+/* The rail has far more height than five rows need — §8.1 budgets 272px into
+   roughly 618 — so the slack is spent on the marks and the leading rather than
+   banked. What is left over stays in the well, above and below: five bars are
+   compared by length, and pushing them apart to fill a column would cost the
+   comparison the portlet exists for. The rows stay centred as one block so the
+   column reads as one list. */
+.deals-well {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+}
+
+.deals-rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(9px, 3.4vh, 44px);
+  padding-left: 3px;
+}
+
+/* The zero of the dollar scale, spanning all five tracks. The only SVG on this
+   portlet: strokeDraw needs a path length to reveal along, and everything it
+   governs stays in the DOM. */
+.deals-base {
+  position: absolute;
+  left: 2px;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  pointer-events: none;
+}
+
+.deal-row {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3px, 0.6vh, 7px);
+  min-width: 0;
+}
+
+.deal-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.deal-rank {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--line-strong);
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+  transition: var(--theme-transition);
+}
+
+.deal-name {
+  flex: 1;
+  min-width: 0;
+  font-size: clamp(10.5px, 0.82vw, 13px);
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deal-value {
+  flex: none;
+  font-size: clamp(10.5px, 0.82vw, 13px);
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.deal-track {
+  position: relative;
+  height: clamp(8px, 1.5vh, 16px);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+/* Two deals authored at the same value resolve to the same number of pixels
+   because the layout engine divides once, from the authored numbers, with no
+   rounding step in between. */
+.deal-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--deal-value) / var(--deal-scale) * 100%);
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--deal-tint) 76%, white 24%),
+    var(--deal-tint)
+  );
+  transition: background 0.5s var(--ease);
+}
+
+.deal-dot {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--deal-value) / var(--deal-scale) * 100%);
+  width: clamp(7px, 1.1vh, 11px);
+  height: clamp(7px, 1.1vh, 11px);
+  margin: calc(clamp(7px, 1.1vh, 11px) / -2) 0 0 calc(clamp(7px, 1.1vh, 11px) / -2);
+  border-radius: 50%;
+  background: var(--deal-tint);
+  transition: background 0.5s var(--ease);
+}
+
+/* Ungoverned but available — the tier that never earns a ✕. Nothing here goes
+   missing: five accounts and five amounts survive and what stops being
+   defensible is the ordering, so the rank chips come off and the tips go
+   dashed. A dashed border is the DOM's stroke-dasharray. */
+.deals[data-void="true"] .deal-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: clamp(12px, 14%, 26px);
+  border-radius: 0 999px 999px 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--surface-solid) 0 2px,
+    transparent 2px 5px
+  );
+}
+
+.deals[data-void="true"] .deal-dot {
+  background: none;
+  border: 1.4px dashed var(--deal-tint);
+}
+
+.deals-foot {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.deals-total {
+  margin: 0;
+  font-size: clamp(10px, 0.75vw, 12px);
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The authored note takes the place of the footer figure without taking its
+   voice: it is a sentence about the list, not a total of it. */
+.deals-total[data-void="true"] {
+  font-size: clamp(9px, 0.68vw, 10.5px);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.deals-caption {
+  margin: 0;
+  font-size: clamp(9px, 0.7vw, 10.5px);
+  line-height: 1.34;
+  color: var(--ink-dim);
+}
+
+/* ------------------------------- short screens ---------------------------- */
+
+/* 1024x768 is the case that matters, since it is what a projector tends to be.
+   The matrix is the only portlet on this tab whose content genuinely runs to
+   the edge of its band there, and the height it needs is spent on marks rather
+   than on type — so the marks give back first. */
+@media (max-height: 860px) {
+  .mmx {
+    gap: 3px;
+  }
+
+  .mmx-grid {
+    grid-template-rows: auto repeat(3, minmax(84px, 1fr)) auto;
+  }
+}
+
