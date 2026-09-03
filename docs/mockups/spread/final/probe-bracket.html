@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>bracket alignment probe</title>
+<!--
+  Checks that each column bracket's two edges land on the same x as the marks
+  they are taken from. The claim the bracket makes is that every rate in the
+  column lies between its hairlines, so the test is against the cells: the
+  fastest leaf's bar tip should sit on the right hairline and the slowest
+  leaf's on the left, to within a pixel of rounding.
+-->
+<style>body{margin:0;font:11px/1.5 monospace}iframe{border:0}pre{padding:10px}</style>
+<pre id="o">probing…</pre>
+<script>
+const f = document.createElement("iframe");
+f.width = 1024; f.height = 580;
+f.src = "/index.html#performance-by-segment";
+document.body.appendChild(f);
+
+f.onload = () => setTimeout(() => {
+  const d = f.contentDocument;
+  const out = [];
+  const art = d.getElementById("portlet-seg-matrix")
+    || [...d.querySelectorAll(".portlet")].find((n) => n.querySelector(".growth-body"));
+  const wraps = [...d.querySelectorAll(".growth-dispwrap")];
+  const heads = [...d.querySelectorAll(".growth-colhead")];
+  out.push(`brackets built: ${wraps.length}, column heads: ${heads.length}`);
+
+  wraps.forEach((w, i) => {
+    const bar = w.querySelector(".growth-disp");
+    const wb = w.getBoundingClientRect();
+    const bb = bar.getBoundingClientRect();
+    const hb = heads[i] ? heads[i].getBoundingClientRect() : null;
+    out.push(
+      `\ncol ${i} (${heads[i] ? heads[i].textContent.trim() : "?"})` +
+      `\n  wrap   left ${wb.left.toFixed(1)}  right ${wb.right.toFixed(1)}  w ${wb.width.toFixed(1)}` +
+      (hb ? `\n  head   left ${hb.left.toFixed(1)}  right ${hb.right.toFixed(1)}  w ${hb.width.toFixed(1)}` : "") +
+      `\n  brkt   left ${bb.left.toFixed(1)}  right ${bb.right.toFixed(1)}` +
+      `\n  vars   --disp-lo ${w.style.getPropertyValue("--disp-lo")}  --disp-hi ${w.style.getPropertyValue("--disp-hi")}` +
+      `\n  wrap in column: ${Math.abs(wb.left - (hb ? hb.left : wb.left)) < 1.5 ? "aligned" : "OFF BY " + (wb.left - hb.left).toFixed(1)}`);
+  });
+
+  // The marks the bracket is a reading of. Each cell svg fills its column, so
+  // a bar's tip in page coordinates is directly comparable to a hairline.
+  const cells = [...d.querySelectorAll(".growth-cell")];
+  out.push(`\ncells: ${cells.length}`);
+  const rowsOf = {};
+  cells.forEach((c) => {
+    const bar = c.querySelector(".growth-bar");
+    if (!bar) return;
+    const col = c.style.getPropertyValue("--col").trim();
+    const rate = c.querySelector(".growth-rate");
+    const r = bar.getBoundingClientRect();
+    (rowsOf[col] = rowsOf[col] || []).push({
+      rate: rate ? rate.textContent.trim() : "?",
+      left: r.left, right: r.right
+    });
+  });
+  Object.entries(rowsOf).forEach(([col, list]) => {
+    const w = wraps[Number(col) - 3];
+    if (!w) return;
+    const bb = w.querySelector(".growth-disp").getBoundingClientRect();
+    const minLeft = Math.min(...list.map((x) => x.left));
+    const maxRight = Math.max(...list.map((x) => x.right));
+    out.push(
+      `\ncol var ${col}: bar extent ${minLeft.toFixed(1)} .. ${maxRight.toFixed(1)}` +
+      `\n  bracket      ${bb.left.toFixed(1)} .. ${bb.right.toFixed(1)}` +
+      `\n  left delta ${(bb.left - minLeft).toFixed(1)}px   right delta ${(bb.right - maxRight).toFixed(1)}px` +
+      `\n  rates: ${list.map((x) => x.rate).join(" ")}`);
+  });
+
+  document.getElementById("o").textContent = out.join("\n");
+}, 1600);
+</script>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>measure</title>
+<!--
+  Measures the real boxes the two panels have to fit, by loading the actual
+  board in an iframe at a given size and reading the portlet bodies off it.
+  Same origin, so the measurement is the browser's own layout rather than my
+  arithmetic over a stack of clamp() values.
+
+  ?w=1024&h=580 — the window size to measure at. The iframe is sized to that,
+  so the vh-based insets and clamps resolve against a box of the right shape
+  even though the outer window may be larger.
+-->
+<style>
+  body { margin: 0; font: 12px/1.5 monospace; }
+  iframe { border: 0; }
+  pre { padding: 12px; }
+</style>
+</head>
+<body>
+<pre id="out">measuring…</pre>
+<script>
+const q = new URLSearchParams(location.search);
+const W = Number(q.get("w") || 1024);
+const H = Number(q.get("h") || 580);
+
+const frame = document.createElement("iframe");
+frame.width = W;
+frame.height = H;
+frame.src = `/index.html`;
+document.body.appendChild(frame);
+
+const TARGETS = [
+  ["performance-by-segment", "seg-spread"],
+  ["analytics-performance", "perf-divergence"],
+  ["performance-by-segment", "seg-matrix"]
+];
+
+const lines = [`window ${W}x${H}`];
+
+function box(el) {
+  if (!el) return "MISSING";
+  const r = el.getBoundingClientRect();
+  return `${Math.round(r.width)} x ${Math.round(r.height)}`;
+}
+
+frame.addEventListener("load", async () => {
+  const doc = frame.contentDocument;
+  const win = frame.contentWindow;
+
+  for (const [tab, pid] of TARGETS) {
+    win.location.hash = `#${tab}`;
+    // Two rAFs plus a beat: the tab switch rebuilds the panel and the
+    // choreographer runs before layout is final.
+    await new Promise((r) => setTimeout(r, 900));
+
+    const panel = doc.querySelector(`.panel[data-tab="${tab}"]`);
+    const art = doc.getElementById(`portlet-${pid}`)
+      || [...doc.querySelectorAll(".portlet")].find(
+        (n) => n.querySelector(".portlet-label")
+          && n.dataset.portlet === pid);
+    const body = art && art.querySelector(".portlet-body");
+    const band = art && art.closest(".band");
+
+    lines.push(
+      `${pid.padEnd(16)} panel ${box(panel)}   band ${box(band)}   ` +
+      `portlet ${box(art)}   BODY ${box(body)}`);
+  }
+
+  // And the head, which is the difference between the two and the part my
+  // preview has to reproduce at the right height.
+  const anyHead = doc.querySelector(".portlet-head");
+  lines.push(`portlet-head    ${box(anyHead)}`);
+
+  document.getElementById("out").textContent = lines.join("\n");
+  document.title = "done";
+});
+</script>
+</body>
+</html>

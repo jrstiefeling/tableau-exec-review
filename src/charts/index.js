@@ -18,7 +18,7 @@ import { mount as driverRail } from "./driverRail.js";
 import { mount as rulesCard } from "./rulesCard.js";
 import { mount as movementFan } from "./movementFan.js";
 import { mount as growthMatrix } from "./growthMatrix.js";
-import { mount as growthSpread } from "./growthSpread.js";
+import { mount as groupMovement } from "./groupMovement.js";
 import { mount as metricMatrix } from "./metricMatrix.js";
 import { mount as benchmarkAxis } from "./benchmarkAxis.js";
 import { mount as dealRail } from "./dealRail.js";
@@ -33,7 +33,7 @@ export const CHARTS = {
   rulesCard,
   movementFan,
   growthMatrix,
-  growthSpread,
+  groupMovement,
   metricMatrix,
   benchmarkAxis,
   dealRail

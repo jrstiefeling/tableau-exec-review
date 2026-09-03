@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>groupMovement — preview against the real modules</title>
+<!--
+  A true-to-production preview of the staged renderer, without writing to src/.
+
+  This page imports docs/mockups/spread/staging/groupMovement.js, which imports
+  ../svg.js, ../palette.js and ../anim.js — so the import map below points
+  those at the real modules in src/. Reading src/ is allowed; nothing here
+  writes to it, and the page cannot be reached by the running board.
+
+  Each box is EXACTLY the portlet body the real board hands the panel, measured
+  off the running board by measure.html rather than derived from the stylesheets
+  by hand. Shot at the real window size, so every vh in the clamp() stack
+  resolves against a viewport of the right height.
+
+    ?at=1024 | 1280 | 1440    which measured pair to lay out
+    ?mode=direct              the degraded path
+
+  What this does not cover: the portlet head, the provenance flip and the
+  expand live outside the measured box and belong to the portlet, not the
+  chart. Layout inside the box is the whole question here.
+-->
+<link rel="stylesheet" href="../../../../styles/fonts.css">
+<link rel="stylesheet" href="../../../../styles/base.css">
+<link rel="stylesheet" href="../../../../styles/portlets.css">
+<link rel="stylesheet" href="../../../../styles/tabs.css">
+<!-- Cache-busted: these two are the files under active edit, and headless
+     Chrome will serve a cached copy for as long as the URL is unchanged. -->
+<script>
+  const V = Date.now();
+  document.write(
+    `<link rel="stylesheet" href="../staging/movement.css?v=${V}">` +
+    `<link rel="stylesheet" href="../staging/tabs-band.css?v=${V}">`);
+</script>
+<style>
+  body { margin: 0; background: #eceef1; font-family: "Salesforce Sans", sans-serif; }
+  .stage { display: flex; flex-direction: column; gap: 5px; padding: 5px 8px; }
+  .slot h4 { margin: 0 0 2px; font: 700 8px/1.2 "Salesforce Sans", sans-serif;
+             letter-spacing: .09em; text-transform: uppercase; color: #6b7280; }
+  .slot h4 b { color: #c0483c; }
+  /* Not clipped, and outlined: an overflow has to be visible in the shot
+     rather than hidden by it. */
+  .box { background: var(--surface-solid, #fff); outline: 1px solid #c9ced6; display: flex; }
+  .card-body { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; }
+  .portlet-detail { display: none; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+
+<!--
+  Keyed on the RESOLVED url, not on the literal specifier. A relative import
+  inside a module is resolved against that module's own url before the map is
+  consulted, so `../svg.js` from staging/groupMovement.js arrives here as
+  /docs/mockups/spread/svg.js and has to be matched under that name.
+-->
+<script type="importmap">
+{
+  "imports": {
+    "/docs/mockups/spread/svg.js": "/src/svg.js",
+    "/docs/mockups/spread/palette.js": "/src/palette.js",
+    "/docs/mockups/spread/anim.js": "/src/anim.js"
+  }
+}
+</script>
+<script type="module">
+const fail = (msg) => {
+  const pre = document.createElement("pre");
+  pre.style.cssText = "color:#c0483c;font:11px/1.4 monospace;padding:8px;white-space:pre-wrap";
+  pre.textContent = msg;
+  document.body.prepend(pre);
+};
+window.addEventListener("error", (e) => fail(`${e.message}\n${e.filename}:${e.lineno}`));
+window.addEventListener("unhandledrejection", (e) => fail(String(e.reason && e.reason.stack || e.reason)));
+
+// Dynamic, so the renderer under edit is re-fetched too. Relative resolution
+// drops the query when it swaps the last path segment, so the three imports
+// inside still land on the import-map keys above.
+const { mount } = await import(`../staging/groupMovement.js?v=${Date.now()}`);
+
+const q = new URLSearchParams(location.search);
+const at = Number(q.get("at") || 1024);
+const isDirect = q.get("mode") === "direct";
+
+const data = await (await fetch(`../movements.json?v=${Date.now()}`)).json();
+const stage = document.getElementById("stage");
+
+/* The boxes each placement actually gets, measured off the running board.
+ * Both already include the ~24px the deleted footer status bar gave back.
+ *
+ * The rules cards are flyovers rather than band members, so each panel has
+ * its band to itself — which is why the segment column is 420px and not the
+ * ~300 a shared band would have left it. The strip is the constraint on this
+ * design, not the column: 83px of body height for two groups, an axis and
+ * whatever has to be explained. */
+const SIZES = {
+  1024: [{ w: 249, h: 420 }, { w: 951, h: 83 }],
+  1280: [{ w: 312, h: 466 }, { w: 1190, h: 88 }],
+  1440: [{ w: 342, h: 531 }, { w: 1334, h: 90 }]
+};
+const [segBox, perfBox] = SIZES[at] || SIZES[1024];
+
+const slots = [
+  { id: "seg-spread", layout: "seg-side", ...segBox, title: `segment column · ${at}` },
+  { id: "perf-divergence", layout: "perf-side", ...perfBox, title: `product strip · ${at}` }
+];
+
+if (isDirect) document.body.classList.add("direct-mode");
+
+const built = [];
+
+for (const slot of slots) {
+  const authored = data[slot.id];
+  // Direct mode merges directMode.metrics over the authored metrics, which is
+  // what semantic.js effectivePortlet() does on the real board.
+  const metrics = isDirect
+    ? { ...authored.metrics, ...(authored.directMode.metrics || {}) }
+    : authored.metrics;
+
+  const outer = document.createElement("div");
+  outer.className = "slot";
+  const h4 = document.createElement("h4");
+  outer.appendChild(h4);
+
+  const box = document.createElement("div");
+  box.className = "box";
+  box.style.width = `${slot.w}px`;
+  box.style.height = `${slot.h}px`;
+
+  // The band carries data-layout, which is what the CSS keys the two
+  // placements off — the same attribute the real panel builder sets.
+  const band = document.createElement("div");
+  band.className = "band";
+  band.dataset.layout = slot.layout;
+  Object.assign(band.style, { display: "flex", flex: "1", minWidth: "0", minHeight: "0" });
+
+  const body = document.createElement("div");
+  body.className = "card-body portlet-body";
+
+  band.appendChild(body);
+  box.appendChild(band);
+  outer.appendChild(box);
+  stage.appendChild(outer);
+
+  const chart = mount(body, {
+    id: slot.id,
+    label: authored.label,
+    sublabel: authored.sublabel,
+    accent: authored.accent,
+    metrics,
+    portlet: authored,
+    mode: isDirect ? "direct" : "governed",
+    isDirect,
+    tier: isDirect ? authored.directMode.tier : "green",
+    tip: () => {},
+    highlight: () => {},
+    labelFor: () => null,
+    note: () => {},
+    reveal: () => {}
+  });
+  // Settled rather than built: a screenshot of a running entrance is a
+  // screenshot of a random frame of it.
+  chart.settle();
+
+  built.push({ slot, h4, box, body, label: authored.label });
+}
+
+// Overflow is the failure this preview exists to catch, so it is measured and
+// printed rather than left to the eye.
+requestAnimationFrame(() => {
+  for (const b of built) {
+    // scrollHeight is no use here: .movement is a flex column with
+    // min-height: 0, so it compresses to its box and overflows by overlapping
+    // its own children rather than by growing. The bottom of the last child
+    // against the bottom of the box is what actually catches that.
+    /* Measuring the laid-out box cannot detect this overflow. .movement is a
+     * flex column with justify-content: space-between, so it always spreads
+     * its children to exactly fill whatever height it is given — the last
+     * child's bottom sits on the box's bottom whether the content needed 70px
+     * or 130px, and past the limit the children simply overlap.
+     *
+     * So the natural height is measured on a clone at the same width with the
+     * height released. The clone sits inside the same band, because half the
+     * geometry here is keyed on data-layout. */
+    const probe = b.box.cloneNode(true);
+    probe.style.height = "auto";
+    probe.style.position = "absolute";
+    probe.style.left = "-4000px";
+    probe.style.top = "0";
+    probe.querySelector(".movement").style.justifyContent = "flex-start";
+    document.body.appendChild(probe);
+    const need = Math.ceil(probe.getBoundingClientRect().height);
+    probe.remove();
+
+    const have = b.box.clientHeight;
+    const over = need - have;
+    const svg = b.body.querySelector(".movement-svg");
+    const bar = svg ? Math.round(svg.getBoundingClientRect().height) : 0;
+    const rows = b.body.querySelectorAll(".movement-row").length;
+
+    b.h4.innerHTML =
+      `${b.slot.title} · body ${b.slot.w}\u00d7${b.slot.h} · ${b.label} · ` +
+      `${rows} rows, bar ${bar}px · ` +
+      (over > 0 ? `<b>OVERFLOW +${over}px</b>` : `fits, ${-over}px spare`);
+  }
+  document.body.dataset.ready = "true";
+});
+</script>
+</body>
+</html>

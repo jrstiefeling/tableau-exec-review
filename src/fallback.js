@@ -3485,74 +3485,141 @@ export const FALLBACK_BOARD = {
           "portlets": [
             {
               "id": "perf-divergence",
-              "kind": "growthSpread",
-              "label": "Within-motion spread",
-              "sublabel": "Slowest to fastest line in each motion",
+              "kind": "groupMovement",
+              "label": "Within-motion movement",
+              "sublabel": "What moved each motion's dollars, Q2 FY26 to Q2 FY27",
               "accent": "#12806A",
               "metrics": {
+                "unit": "$M",
                 "goodDirection": "up",
+                "priorPeriodLabel": "Q2 FY26",
+                "domain": [
+                  -42,
+                  12
+                ],
+                "axisTicks": [
+                  -40,
+                  -30,
+                  -20,
+                  -10,
+                  0,
+                  10
+                ],
+                "lossKey": "dollars removed",
+                "gainKey": "dollars added",
+                "orderNote": "largest line nearest the rule",
+                "axisNote": "One linear dollar scale, both motions. Prior period derived: ACV ÷ (1 + Y/Y).",
+                "caption": "The platform gave up $39.8M. Tableau Next added $10.5M — the largest gain anywhere on this board, off a $2.5M base.",
+                "detailNote": "Prior period derived from the authored current-quarter dollars and Y/Y. Each net is the net of the lines shown, not a motion total. Every figure is shown to $0.1M and each net is rounded from the exact sum, so two rounded lines need not add to their rounded net.",
                 "rows": [
                   {
-                    "id": "platform-spread",
+                    "id": "platform-move",
                     "label": "Agentic Analytics Platform",
-                    "parentYoy": -40,
-                    "parentYoyDisplay": "-40%",
-                    "low": -41,
-                    "lowDisplay": "-41%",
-                    "lowLabel": "Tableau Cloud",
-                    "high": -39,
-                    "highDisplay": "-39%",
-                    "highLabel": "Tableau Server",
-                    "spreadDisplay": "2 points apart"
+                    "fullLabel": "Agentic Analytics Platform",
+                    "net": -39.84,
+                    "netDisplay": "−$39.8M",
+                    "lossWing": 39.84,
+                    "gainWing": 0,
+                    "parts": [
+                      {
+                        "id": "cloud",
+                        "label": "Tableau Cloud",
+                        "short": "Cloud",
+                        "value": 38,
+                        "valueDisplay": "$38M",
+                        "yoy": -41,
+                        "yoyDisplay": "−41%",
+                        "priorValue": 64.41,
+                        "priorDisplay": "$64.4M",
+                        "delta": -26.41,
+                        "deltaDisplay": "−$26.4M"
+                      },
+                      {
+                        "id": "server",
+                        "label": "Tableau Server",
+                        "short": "Server",
+                        "value": 21,
+                        "valueDisplay": "$21M",
+                        "yoy": -39,
+                        "yoyDisplay": "−39%",
+                        "priorValue": 34.43,
+                        "priorDisplay": "$34.4M",
+                        "delta": -13.43,
+                        "deltaDisplay": "−$13.4M"
+                      }
+                    ]
                   },
                   {
-                    "id": "embedded-spread",
+                    "id": "embedded-move",
                     "label": "Embedded Agentic Analytics",
-                    "parentYoy": 57,
-                    "parentYoyDisplay": "+57%",
-                    "low": -15,
-                    "lowDisplay": "-15%",
-                    "lowLabel": "CRMA",
-                    "high": 414,
-                    "highDisplay": "+414%",
-                    "highLabel": "Tableau Next",
-                    "spreadDisplay": "429 points apart"
+                    "fullLabel": "Embedded Agentic Analytics",
+                    "net": 8.53,
+                    "netDisplay": "+$8.5M",
+                    "lossWing": 1.94,
+                    "gainWing": 10.47,
+                    "parts": [
+                      {
+                        "id": "next",
+                        "label": "Tableau Next",
+                        "short": "Next",
+                        "value": 13,
+                        "valueDisplay": "$13M",
+                        "yoy": 414,
+                        "yoyDisplay": "+414%",
+                        "priorValue": 2.53,
+                        "priorDisplay": "$2.5M",
+                        "delta": 10.47,
+                        "deltaDisplay": "+$10.5M"
+                      },
+                      {
+                        "id": "crma",
+                        "label": "CRMA",
+                        "short": "CRMA",
+                        "value": 11,
+                        "valueDisplay": "$11M",
+                        "yoy": -15,
+                        "yoyDisplay": "−15%",
+                        "priorValue": 12.94,
+                        "priorDisplay": "$12.9M",
+                        "delta": -1.94,
+                        "deltaDisplay": "−$1.9M"
+                      }
+                    ]
                   }
-                ],
-                "axisNote": "Same growth axis as the panel beside it",
-                "caption": "One motion moves together; the other does not"
+                ]
               },
               "semantic": {
-                "metricName": "Within-Motion Growth Dispersion",
-                "definition": "The interval between the slowest and fastest ACV_clc Y/Y among the APM L2 lines inside one motion, at fiscal-quarter grain.",
-                "sdm": "Sls_Forecasting_Metrics_Expanded",
                 "measure": "ACV_clc",
-                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × motion, from the same APM_L218 pull as the panel beside it.",
-                "lineage": [
-                  "Org62 Opportunity",
-                  "Tableau Extract (.tdsx)",
-                  "ACV_HISTORICALS",
-                  "APM product hierarchy (L1/L2/L3)"
-                ],
                 "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
                 "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
                 "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
                 "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
-                "why": "Both ends are the same measure at the same grain, which is what makes the interval a comparison rather than two numbers set beside each other. Taking the min and max is a selection over governed values, so it is safe client-side — the rates themselves are not, because a Y/Y is non-additive and has to come from the layer rather than from dividing two fetched totals."
+                "why": "A dollar movement is one measure differenced at two periods, which is why the pieces of a wing can be laid end to end: ACV_clc is certified additive across the APM product hierarchy, and that guarantee is what makes a decomposition legal rather than a coincidence that holds this quarter. The panel that stood here did the opposite — it cited this model's own rule that a Y/Y is non-additive, and then printed the arithmetic difference of two Y/Y figures as its largest numeral, two rates off bases three orders of magnitude apart. This panel subtracts dollars and never rates. It also claims nothing it cannot close: the net is the net of the lines drawn rather than a group total, which is why there is no bridge and no cross-group sum on it.",
+                "metricName": "Within-Motion ACV Movement",
+                "definition": "The change in ACV_clc between Q2 FY26 and Q2 FY27 for each APM L2 line inside one motion, drawn as two wings off a common zero. Prior-period dollars come from the 'PY' rows of the same grouped pull as the panel above it, not from a separate point-in-time snapshot.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × motion, from the same APM_L218 pull as the panel above it, at two periods of the same measure.",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Tableau Extract (.tdsx)",
+                  "ACV_HISTORICALS",
+                  "Close_Date_Relative_Year_clc — 'CY' and 'PY'",
+                  "APM product hierarchy (L1/L2/L3)"
+                ]
               },
               "directMode": {
                 "tier": "red",
                 "candidates": [
-                  "four rates with nothing to group them"
+                  "four movements with nothing to group them"
                 ],
-                "missing": "The motion-to-line parentage — without it there is no inside-each-motion for a range to be taken within",
-                "effect": "Four product-line growth rates survive and the two intervals do not, so the fact that one motion moves together and the other splits has nowhere to be seen",
+                "missing": "The motion-to-line parentage — without it there is no inside-each-motion for a decomposition to be taken within",
+                "effect": "Four line movements survive and the two decompositions do not, so the fact that one motion's dollars all left and the other's mostly arrived has nowhere to be seen",
                 "thesisTag": "T4",
                 "thesis": "Business vocabulary is an asset that has to live somewhere shared — otherwise every analysis rebuilds the same grouping by hand, slightly differently.",
                 "risk": "Treat Embedded as one growing thing and fund both of its lines on the strength of one",
                 "trustCost": "A grouping that only exists in the deck cannot be reviewed against next quarter's deck",
                 "metrics": {
-                  "caption": "No motion parentage — no interval to take"
+                  "caption": "No motion parentage — no decomposition to take"
                 }
               }
             },
@@ -3939,113 +4006,318 @@ export const FALLBACK_BOARD = {
           "portlets": [
             {
               "id": "seg-spread",
-              "kind": "growthSpread",
-              "label": "Within-segment spread",
-              "sublabel": "Slowest to fastest product line in each segment",
+              "kind": "groupMovement",
+              "label": "Within-segment movement",
+              "sublabel": "What moved each segment's dollars, Q2 FY26 to Q2 FY27",
               "accent": "#6B4FBF",
               "metrics": {
+                "unit": "$M",
                 "goodDirection": "up",
+                "priorPeriodLabel": "Q2 FY26",
+                "domain": [
+                  -28,
+                  8
+                ],
+                "axisTicks": [
+                  -25,
+                  -15,
+                  -5,
+                  0,
+                  5
+                ],
+                "lossKey": "dollars removed",
+                "gainKey": "dollars added",
+                "orderNote": "largest line nearest the rule",
+                "axisNote": "Change in ACV_clc, Q2 FY26 to Q2 FY27, on one linear dollar scale shared by all four segments. Prior period derived: ACV ÷ (1 + Y/Y).",
+                "caption": "Every segment gave up platform dollars. Tableau Next put $6.4M back into Enterprise — the largest gain on the panel.",
+                "detailNote": "Prior period derived from the authored current-quarter dollars and Y/Y. Each net is the net of the four lines shown, not a segment total. Every figure is shown to $0.1M and each net is rounded from the exact sum, so two rounded lines need not add to their rounded net.",
                 "rows": [
                   {
-                    "id": "all-spread",
-                    "label": "All Segments",
-                    "parentYoy": -27,
-                    "parentYoyDisplay": "-27%",
-                    "low": -41,
-                    "lowDisplay": "-41%",
-                    "lowLabel": "Tableau Cloud",
-                    "high": 414,
-                    "highDisplay": "+414%",
-                    "highLabel": "Tableau Next",
-                    "spreadDisplay": "455 points"
-                  },
-                  {
-                    "id": "entr-spread",
+                    "id": "entr-move",
                     "label": "ENTR",
-                    "parentYoy": -35,
-                    "parentYoyDisplay": "-35%",
-                    "low": -48,
-                    "lowDisplay": "-48%",
-                    "lowLabel": "Cloud & Server",
-                    "high": 402,
-                    "highDisplay": "+402%",
-                    "highLabel": "Tableau Next",
-                    "spreadDisplay": "450 points"
+                    "fullLabel": "Enterprise",
+                    "net": -20.53,
+                    "netDisplay": "−$20.5M",
+                    "lossWing": 26.94,
+                    "gainWing": 6.41,
+                    "parts": [
+                      {
+                        "id": "cloud",
+                        "label": "Tableau Cloud",
+                        "short": "Cloud",
+                        "value": 16,
+                        "valueDisplay": "$16M",
+                        "yoy": -48,
+                        "yoyDisplay": "−48%",
+                        "priorValue": 30.77,
+                        "priorDisplay": "$30.8M",
+                        "delta": -14.77,
+                        "deltaDisplay": "−$14.8M"
+                      },
+                      {
+                        "id": "server",
+                        "label": "Tableau Server",
+                        "short": "Server",
+                        "value": 10,
+                        "valueDisplay": "$10M",
+                        "yoy": -48,
+                        "yoyDisplay": "−48%",
+                        "priorValue": 19.23,
+                        "priorDisplay": "$19.2M",
+                        "delta": -9.23,
+                        "deltaDisplay": "−$9.2M"
+                      },
+                      {
+                        "id": "next",
+                        "label": "Tableau Next",
+                        "short": "Next",
+                        "value": 8,
+                        "valueDisplay": "$8M",
+                        "yoy": 402,
+                        "yoyDisplay": "+402%",
+                        "priorValue": 1.59,
+                        "priorDisplay": "$1.6M",
+                        "delta": 6.41,
+                        "deltaDisplay": "+$6.4M"
+                      },
+                      {
+                        "id": "crma",
+                        "label": "CRMA",
+                        "short": "CRMA",
+                        "value": 5,
+                        "valueDisplay": "$5M",
+                        "yoy": -37,
+                        "yoyDisplay": "−37%",
+                        "priorValue": 7.94,
+                        "priorDisplay": "$7.9M",
+                        "delta": -2.94,
+                        "deltaDisplay": "−$2.9M"
+                      }
+                    ]
                   },
                   {
-                    "id": "cmrcl-spread",
+                    "id": "cmrcl-move",
                     "label": "CMRCL",
-                    "parentYoy": -31,
-                    "parentYoyDisplay": "-31%",
-                    "low": -42,
-                    "lowDisplay": "-42%",
-                    "lowLabel": "Tableau Cloud",
-                    "high": 236,
-                    "highDisplay": "+236%",
-                    "highLabel": "Tableau Next",
-                    "spreadDisplay": "278 points"
+                    "fullLabel": "Commercial",
+                    "net": -8.02,
+                    "netDisplay": "−$8.0M",
+                    "lossWing": 10.13,
+                    "gainWing": 2.11,
+                    "parts": [
+                      {
+                        "id": "cloud",
+                        "label": "Tableau Cloud",
+                        "short": "Cloud",
+                        "value": 10,
+                        "valueDisplay": "$10M",
+                        "yoy": -42,
+                        "yoyDisplay": "−42%",
+                        "priorValue": 17.24,
+                        "priorDisplay": "$17.2M",
+                        "delta": -7.24,
+                        "deltaDisplay": "−$7.2M"
+                      },
+                      {
+                        "id": "server",
+                        "label": "Tableau Server",
+                        "short": "Server",
+                        "value": 4,
+                        "valueDisplay": "$4M",
+                        "yoy": -38,
+                        "yoyDisplay": "−38%",
+                        "priorValue": 6.45,
+                        "priorDisplay": "$6.5M",
+                        "delta": -2.45,
+                        "deltaDisplay": "−$2.5M"
+                      },
+                      {
+                        "id": "next",
+                        "label": "Tableau Next",
+                        "short": "Next",
+                        "value": 3,
+                        "valueDisplay": "$3M",
+                        "yoy": 236,
+                        "yoyDisplay": "+236%",
+                        "priorValue": 0.89,
+                        "priorDisplay": "$0.9M",
+                        "delta": 2.11,
+                        "deltaDisplay": "+$2.1M"
+                      },
+                      {
+                        "id": "crma",
+                        "label": "CRMA",
+                        "short": "CRMA",
+                        "value": 2,
+                        "valueDisplay": "$2M",
+                        "yoy": -18,
+                        "yoyDisplay": "−18%",
+                        "priorValue": 2.44,
+                        "priorDisplay": "$2.4M",
+                        "delta": -0.44,
+                        "deltaDisplay": "−$0.4M"
+                      }
+                    ]
                   },
                   {
-                    "id": "smb-spread",
+                    "id": "smb-move",
                     "label": "SMB",
-                    "parentYoy": -23,
-                    "parentYoyDisplay": "-23%",
-                    "low": -45,
-                    "lowDisplay": "-45%",
-                    "lowLabel": "Tableau Server",
-                    "high": 727,
-                    "highDisplay": "+727%",
-                    "highLabel": "Tableau Next",
-                    "spreadDisplay": "772 points"
+                    "fullLabel": "Small & Medium Business",
+                    "net": -3.94,
+                    "netDisplay": "−$3.9M",
+                    "lossWing": 5.07,
+                    "gainWing": 1.13,
+                    "parts": [
+                      {
+                        "id": "cloud",
+                        "label": "Tableau Cloud",
+                        "short": "Cloud",
+                        "value": 8,
+                        "valueDisplay": "$8M",
+                        "yoy": -30,
+                        "yoyDisplay": "−30%",
+                        "priorValue": 11.43,
+                        "priorDisplay": "$11.4M",
+                        "delta": -3.43,
+                        "deltaDisplay": "−$3.4M"
+                      },
+                      {
+                        "id": "server",
+                        "label": "Tableau Server",
+                        "short": "Server",
+                        "value": 2,
+                        "valueDisplay": "$2M",
+                        "yoy": -45,
+                        "yoyDisplay": "−45%",
+                        "priorValue": 3.64,
+                        "priorDisplay": "$3.6M",
+                        "delta": -1.64,
+                        "deltaDisplay": "−$1.6M"
+                      },
+                      {
+                        "id": "next",
+                        "label": "Tableau Next",
+                        "short": "Next",
+                        "value": 1,
+                        "valueDisplay": "$1M",
+                        "yoy": 727,
+                        "yoyDisplay": "+727%",
+                        "priorValue": 0.12,
+                        "priorDisplay": "$0.1M",
+                        "delta": 0.88,
+                        "deltaDisplay": "+$0.9M"
+                      },
+                      {
+                        "id": "crma",
+                        "label": "CRMA",
+                        "short": "CRMA",
+                        "value": 1,
+                        "valueDisplay": "$1M",
+                        "yoy": 33,
+                        "yoyDisplay": "+33%",
+                        "priorValue": 0.75,
+                        "priorDisplay": "$0.8M",
+                        "delta": 0.25,
+                        "deltaDisplay": "+$0.2M"
+                      }
+                    ]
                   },
                   {
-                    "id": "pubsec-spread",
+                    "id": "pubsec-move",
                     "label": "PubSec",
-                    "parentYoy": 14,
-                    "parentYoyDisplay": "+14%",
-                    "low": -16,
-                    "lowDisplay": "-16%",
-                    "lowLabel": "Tableau Cloud",
-                    "high": 1060,
-                    "highDisplay": "+1060%",
-                    "highLabel": "Tableau Next",
-                    "spreadDisplay": "1076 points"
+                    "fullLabel": "Public Sector",
+                    "net": 1.77,
+                    "netDisplay": "+$1.8M",
+                    "lossWing": 1.28,
+                    "gainWing": 3.05,
+                    "parts": [
+                      {
+                        "id": "cloud",
+                        "label": "Tableau Cloud",
+                        "short": "Cloud",
+                        "value": 4,
+                        "valueDisplay": "$4M",
+                        "yoy": -16,
+                        "yoyDisplay": "−16%",
+                        "priorValue": 4.76,
+                        "priorDisplay": "$4.8M",
+                        "delta": -0.76,
+                        "deltaDisplay": "−$0.8M"
+                      },
+                      {
+                        "id": "server",
+                        "label": "Tableau Server",
+                        "short": "Server",
+                        "value": 6,
+                        "valueDisplay": "$6M",
+                        "yoy": -8,
+                        "yoyDisplay": "−8%",
+                        "priorValue": 6.52,
+                        "priorDisplay": "$6.5M",
+                        "delta": -0.52,
+                        "deltaDisplay": "−$0.5M"
+                      },
+                      {
+                        "id": "next",
+                        "label": "Tableau Next",
+                        "short": "Next",
+                        "value": 2,
+                        "valueDisplay": "$2M",
+                        "yoy": 1060,
+                        "yoyDisplay": "+1060%",
+                        "priorValue": 0.17,
+                        "priorDisplay": "$0.2M",
+                        "delta": 1.83,
+                        "deltaDisplay": "+$1.8M"
+                      },
+                      {
+                        "id": "crma",
+                        "label": "CRMA",
+                        "short": "CRMA",
+                        "value": 3,
+                        "valueDisplay": "$3M",
+                        "yoy": 69,
+                        "yoyDisplay": "+69%",
+                        "priorValue": 1.78,
+                        "priorDisplay": "$1.8M",
+                        "delta": 1.22,
+                        "deltaDisplay": "+$1.2M"
+                      }
+                    ]
                   }
-                ],
-                "axisNote": "Same growth axis as the matrix beside it",
-                "caption": "Every segment holds a declining line and a growing one · the caret is the segment's own rate"
+                ]
               },
               "semantic": {
-                "metricName": "Within-Segment Growth Dispersion",
-                "definition": "The interval between the slowest and fastest ACV_clc Y/Y among the product lines inside one segment, taken from the same grouped pull as the matrix beside it.",
-                "sdm": "Sls_Forecasting_Metrics_Expanded — the segment derivation decides the model for both portlets",
                 "measure": "ACV_clc",
-                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × the derived segment.",
-                "lineage": [
-                  "Org62 Opportunity",
-                  "Tableau Extract (.tdsx)",
-                  "ACV_HISTORICALS",
-                  "Segment10 + <TBD: OU field>"
-                ],
                 "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
                 "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
                 "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
                 "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
-                "why": "Each interval is one measure read at two product lines inside one segment, so its width is a fact about the segment rather than an artifact of two definitions. The endpoints are a selection over governed values; the rates behind them are non-additive and come from the layer, never from dividing two fetched totals."
+                "why": "A dollar movement is one measure differenced at two periods, which is why the pieces of a wing can be laid end to end: ACV_clc is certified additive across the APM product hierarchy inside one segment, and that guarantee is what makes a decomposition legal rather than a coincidence that holds this quarter. The panel that stood here did the opposite — it cited this model's own rule that a Y/Y is non-additive, and then printed the arithmetic difference of two Y/Y figures as its largest numeral, two rates off bases three orders of magnitude apart. This panel subtracts dollars and never rates. It also claims nothing it cannot close: the net is the net of the lines drawn rather than a group total, which is why there is no bridge and no cross-group sum on it.",
+                "metricName": "Within-Segment ACV Movement",
+                "definition": "The change in ACV_clc between Q2 FY26 and Q2 FY27 for each product line inside one segment, drawn as two wings off a common zero. Prior-period dollars come from the 'PY' rows of the same grouped pull as the matrix beside it, not from a separate point-in-time snapshot.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded — the segment derivation decides the model for both portlets",
+                "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × APM_L218 × the derived segment, at two periods of the same measure.",
+                "lineage": [
+                  "Org62 Opportunity",
+                  "Tableau Extract (.tdsx)",
+                  "ACV_HISTORICALS",
+                  "Close_Date_Relative_Year_clc — 'CY' and 'PY'",
+                  "Segment10 + <TBD: OU field>"
+                ]
               },
               "directMode": {
                 "tier": "red",
                 "candidates": [
-                  "seven rates per segment, three candidate segments"
+                  "sixteen movements, three candidate segments"
                 ],
-                "missing": "The certified segment dimension the interval is taken within, and the product parentage that says which lines belong in the range",
-                "effect": "The intervals still draw and each one is taken over a different population, so a segment looks volatile or stable depending on which segment source the query author used",
+                "missing": "The certified segment dimension the decomposition is taken within, and the as-of rule that says which segment a reclassified account moved in",
+                "effect": "The wings still draw and each is taken over a different population, so an account that moved up-market in April is a loss in one segment and a gain in another across two readings of the same quarter",
                 "thesisTag": "T1",
                 "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
-                "risk": "Call one segment the volatile one when the volatility is in the segment assignment",
-                "trustCost": "A range over an unstable population measures the population, not the range",
+                "risk": "Fund a recovery in the segment that only recovered because accounts were reclassified into it",
+                "trustCost": "A decomposition over an unstable population decomposes the population",
                 "metrics": {
-                  "caption": "Five intervals, five different populations"
+                  "caption": "Four decompositions, four different populations"
                 }
               }
             },

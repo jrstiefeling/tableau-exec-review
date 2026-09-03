@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alternative C - Panel deleted - Segment tab</title>
+    <!-- Standalone mockup. Imports nothing from ../../../src/ and is imported
+         by nothing there, so it cannot affect the running board.
+         Dispersion folded into the matrix as a column band; the slot returns to the matrix. -->
+    <link rel="stylesheet" href="./kit.css" />
+  </head>
+  <body>
+    <script type="module">
+      import { render } from "./kit.js";
+      render("c", "segment");
+      document.documentElement.dataset.ready = "true";
+    </script>
+  </body>
+</html>

@@ -1131,7 +1131,7 @@
       "status": "partial",
       "model": "Sls_Forecasting_Metrics_Expanded",
       "measures": {
-        "primary": "ACV_clc — both ends of each interval are the same measure at the same grain"
+        "primary": "ACV_clc — differenced between the 'CY' and 'PY' rows of one grouped pull"
       },
       "dimensions": [
         "APM_L218",
@@ -1139,7 +1139,7 @@
         "Close_Date_Fiscal_Quarter_Datepart_clc"
       ],
       "rowGrain": "one row per metric per opportunity per user in the reporting hierarchy",
-      "presentationGrain": "fiscal quarter x product motion (2 rows) — each row is the min and max Y/Y across that motion's APM_L218 children",
+      "presentationGrain": "fiscal quarter x motion x APM_L218 at two periods — one decomposition row per motion, two product-line movements inside each",
       "dateAnchor": "Close_Date17",
       "requiredFilters": [
         "exactly one dedup filter",
@@ -1148,25 +1148,28 @@
         "Is_QTD_ACV_1_clc = TRUE on the Y/Y",
         "Close_Date_Relative_Year_clc IN ('CY','PY')"
       ],
-      "utteranceShape": "Return ACV (ACV_clc) grouped by APM_L218 and by Close_Date_Relative_Year_clc for <scope filter>, filtered to Close_Date_Fiscal_Quarter_Datepart_clc = <resolved>, Is_QTD_ACV_1_clc = TRUE, and Close_Date_Relative_Year_clc IN ('CY','PY'). Exclude APM_L120 = 'Other'. Filter out null dimension values. Then compute each motion's low and high Y/Y client-side from the mapping.",
+      "utteranceShape": "Return ACV (ACV_clc) grouped by APM_L218 and by Close_Date_Relative_Year_clc for <scope filter>, filtered to Close_Date_Fiscal_Quarter_Datepart_clc = <resolved>, Is_QTD_ACV_1_clc = TRUE, and Close_Date_Relative_Year_clc IN ('CY','PY'). Exclude APM_L120 = 'Other'. Filter out null dimension values. Then difference each line's 'CY' against its 'PY' and group by the motion mapping.",
       "needs": [
-        "rows[2].low",
-        "rows[2].high",
-        "rows[2].parentYoy"
+        "rows[].parts[].value",
+        "rows[].parts[].priorValue",
+        "rows[].parts[].delta",
+        "rows[].net"
       ],
       "cannotSource": [
         "the motion grouping that defines 'inside each motion' — no motion dimension exists",
-        "the parent's own rate as a governed measure — it is the mapping's rolled-up ACV_clc Y/Y, computed from the mapping this board defines"
+        "a motion total the pieces close on — the panel does not draw one"
       ],
-      "wouldRequireToSourceFully": "The same APM-L2-to-motion mapping. The intervals themselves are sourceable once the grouping exists.",
-      "clientSideDerivationIsAcceptableHere": "The low and high of an interval are a SELECTION over governed values, not a new formula, so taking min and max client-side does not create an ungoverned measure. The Y/Y values themselves must come from the layer, not from dividing two fetched dollar figures.",
+      "wouldRequireToSourceFully": "The same APM-L2-to-motion mapping. The movements themselves are sourceable once the grouping exists — and unlike the intervals they replace, they need no client-side selection at all.",
       "lineage": [
         "Org62 Opportunity",
         "Tableau Extract (.tdsx)",
         "ACV_HISTORICALS",
         "APM product hierarchy (L1/L2/L3)",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "priorYearSourcing": "Prior-year dollars are the 'PY' rows of the SAME grouped pull, not a separate point-in-time snapshot and not a second query: Close_Date_Relative_Year_clc IN ('CY','PY') is already in requiredFilters because the Y/Y needs it, so the prior-period ACV_clc rows are already in the result set. The panel that stood here discarded them and kept two rates; this one keeps the dollars and computes nothing from the rates. Same reasoning as portlets['acv-account-fan'].oneGroupedQueryNotTwoPulls.",
+      "whyThisIsBetterSourcedThanWhatItReplaces": "The dispersion panel needed a client-side min and max over governed rates — legal, but a selection this board had to justify. This panel needs two dollar figures per line, both governed rows of the same pull, and does its one subtraction on a measure the model certifies as additive. Fewer client-side steps on a stronger guarantee.",
+      "authoringRule": "The 20 movements are AUTHORED in board.json, not computed at render time, per docs/visualization-research.md. A live implementation reads the 'PY' rows directly and does not reproduce the board's derivation."
     },
     "perf-rules": {
       "tab": "analytics-performance",
@@ -1268,10 +1271,10 @@
     },
     "seg-spread": {
       "tab": "performance-by-segment",
-      "status": "partial",
+      "status": "sourceable",
       "model": "Sls_Forecasting_Metrics_Expanded — inherited from seg-matrix, where the model choice is now settled by the segment derivation. See portlets['seg-matrix'].derivedSegmentDimension.theDerivationDecidesTheModel.",
       "measures": {
-        "primary": "ACV_clc — both ends of each interval are the same measure at the same grain"
+        "primary": "ACV_clc — differenced between the 'CY' and 'PY' rows of one grouped pull"
       },
       "dimensions": [
         "the derived segment dimension (see portlets['seg-matrix'].derivedSegmentDimension) — built from Segment10 and <TBD: the OU field>",
@@ -1279,35 +1282,36 @@
         "Close_Date_Relative_Year_clc"
       ],
       "rowGrain": "as seg-matrix",
-      "presentationGrain": "fiscal quarter x segment — one interval row per segment, from that segment's slowest to fastest product line",
+      "presentationGrain": "fiscal quarter x segment x APM_L218 at two periods — one decomposition row per segment, four product-line movements inside each",
       "dateAnchor": "Close_Date17 / Opportunity_Close_Date_clc",
       "requiredFilters": [
         "as seg-matrix"
       ],
-      "utteranceShape": "Derived from the same grouped pull as seg-matrix. No separate query: take each segment's min and max Y/Y across its APM L2 children client-side, which is a selection over governed values rather than a new formula.",
+      "utteranceShape": "Derived from the same grouped pull as seg-matrix, with Close_Date_Relative_Year_clc IN ('CY','PY') retained. No separate query: each product line's movement is the 'CY' ACV_clc less the 'PY' ACV_clc at the same segment and APM_L218.",
       "needs": [
-        "rows[].low",
-        "rows[].high",
-        "rows[].parentYoy",
-        "rows[].lowLabel",
-        "rows[].highLabel"
+        "rows[].parts[].value",
+        "rows[].parts[].priorValue",
+        "rows[].parts[].delta",
+        "rows[].net"
       ],
-      "rowCountUncertainty": "docs/new-tabs-spec.md §12.2 authors FIVE rows: all-spread, entr-spread, cmrcl-spread, smb-spread, pubsec-spread. Per the user's decision to drop the All-Segments column and any All-Segments field the spec assumed on this tab, all-spread should be dropped, leaving four. FLAGGED AS UNCERTAIN: the decision was stated for the matrix COLUMN, and this is a spread ROW. If the row survives, it is sourceable from the same pull with the segment grouping removed. The other four row ids are reliable.",
       "cannotSource": [
-        "the labels 'Tableau Cloud' / 'Tableau Server' / 'Tableau Next' as low/high endpoint names — these are APM L2 values and must be enumerated live rather than assumed present in every segment",
-        "an ESMB row, if the derivation's ESMB residual is rendered rather than folded — see portlets['seg-matrix'].cannotSource"
+        "the labels 'Tableau Cloud' / 'Tableau Server' / 'Tableau Next' as piece names — these are APM L2 values and must be enumerated live rather than assumed present in every segment",
+        "an ESMB row, if the derivation's ESMB residual is rendered rather than folded — see portlets['seg-matrix'].cannotSource",
+        "a group total the four pieces close on — the panel does not draw one, and the authored dollars would not support it"
       ],
       "canSource": [
         "one interval row per segment, on the same four segments seg-matrix now sources via the derived dimension. The previous entry here — 'the four-segment vocabulary, for the same reason as seg-matrix' — was wrong for the same reason seg-matrix's was, and is removed on the model owner's authority."
       ],
-      "authoredTie": "ENTR's low end is authored as 'Cloud & Server', both at -48%. A live pull may not tie. The tie is authored, not resolved, and a live implementation must decide whether to render a tie or the true min.",
       "lineage": [
         "Org62 Opportunity",
         "Tableau Extract (.tdsx)",
         "ACV_HISTORICALS",
         "APM product hierarchy (L1/L2/L3)",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "priorYearSourcing": "Prior-year dollars are the 'PY' rows of the SAME grouped pull, not a separate point-in-time snapshot and not a second query: Close_Date_Relative_Year_clc IN ('CY','PY') is already in requiredFilters because the Y/Y needs it, so the prior-period ACV_clc rows are already in the result set. The panel that stood here discarded them and kept two rates; this one keeps the dollars and computes nothing from the rates. Same reasoning as portlets['acv-account-fan'].oneGroupedQueryNotTwoPulls.",
+      "whyThisIsBetterSourcedThanWhatItReplaces": "The dispersion panel needed a client-side min and max over governed rates — legal, but a selection this board had to justify. This panel needs two dollar figures per line, both governed rows of the same pull, and does its one subtraction on a measure the model certifies as additive. Fewer client-side steps on a stronger guarantee.",
+      "authoringRule": "The 20 movements are AUTHORED in board.json, not computed at render time, per docs/visualization-research.md. A live implementation reads the 'PY' rows directly and does not reproduce the board's derivation."
     },
     "seg-rules": {
       "tab": "performance-by-segment",

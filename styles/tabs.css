@@ -449,15 +449,19 @@
  *
  * So the tab stacks instead. The matrix takes the full width — 990px at 1024,
  * up from 700 — which is 40% more length on every bar and enough room for all
- * seven axis ticks instead of the five it was reduced to. The spread becomes a
- * short wide strip beneath it, and the trade is a good one twice over: two
- * plots at 470px wide instead of 250, and a hero that dominates the tab
+ * seven axis ticks instead of the five it was reduced to. The movement panel
+ * becomes a short wide strip beneath it, and the trade is a good one twice
+ * over: a plot at 780px wide instead of 250, and a hero that dominates the tab
  * instead of sharing it.
  *
- * 0.38fr for the strip. Two intervals side by side plus their notes need
- * about 132px at 1024, and the matrix has seven rows that were sitting on 45px
- * of pitch and only need 30 — so the strip's height comes out of the hero's
- * slack rather than out of the hero. */
+ * 0.38fr for the strip. Two stacked decompositions over one shared dollar axis
+ * need about 83px of body at 1024, and the matrix has seven rows that were
+ * sitting on 45px of pitch and only need 30 — so the strip's height comes out
+ * of the hero's slack rather than out of the hero.
+ *
+ * The strip's own layout is not here; it is with the panel's other band rules
+ * at the foot of this file, so the two placements can be read against each
+ * other rather than a hundred lines apart. */
 .panel[data-tab="analytics-performance"] .panel-bands {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) minmax(0, 0.38fr);
@@ -469,67 +473,6 @@
 
 .band[data-layout="perf-side"] {
   grid-template-rows: minmax(0, 1fr);
-}
-
-/* The turn itself, at both levels.
- *
- * `flex: 1 1 0` rather than `1 1 auto` on the rows: the two carry labels of
- * very different lengths ("Agentic Analytics Platform" against "Embedded
- * Agentic Analytics"), and content-based flex bases would hand them unequal
- * plots — which would put their two zero rules at different offsets and break
- * the one property this panel shares with the matrix above it.
- *
- * And the row turns as well as the list, which is a height decision. The plot
- * keeps its aspect ratio, so its height is set by its width: given the whole
- * 471px of a half-strip it draws 85px tall and the strip has 66px of body.
- * Putting the label beside the plot rather than above it spends 150px of that
- * width on type that was going to be drawn anyway, and the 309px left brings
- * the plot to 56px — which fits, and puts the row in the same label-then-mark
- * shape as every row of the matrix it sits under. */
-.band[data-layout="perf-side"] .spread-rows {
-  flex-direction: row;
-  align-items: center;
-  gap: clamp(16px, 2.4vw, 44px);
-}
-
-.band[data-layout="perf-side"] .spread-row {
-  flex: 1 1 0;
-  flex-direction: row;
-  align-items: center;
-  gap: clamp(8px, 1vw, 14px);
-}
-
-.band[data-layout="perf-side"] .spread-head {
-  flex: 0 0 clamp(118px, 13vw, 190px);
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
-}
-
-.band[data-layout="perf-side"] .spread-span {
-  margin-left: 0;
-}
-
-/* Capped, because the plot's height is its width and the two do not grow
-   together here. Going 1024 -> 1440 the strip gets 40% wider while its height
-   only gains 9% — the band is a fraction of the panel and the panel gains what
-   the viewport gains, which is not much between two laptop sizes. Uncapped,
-   the plot outgrows its own band somewhere around 1200. 360px holds it at
-   65px tall, which fits the shortest band any of these sizes produces; the
-   slack goes to the right of each half, which is where the row already ends. */
-.band[data-layout="perf-side"] .spread-plot {
-  flex: 0 1 auto;
-  width: 100%;
-  max-width: 360px;
-}
-
-/* And the notes go side by side too, for 12px. Two 10px lines stacked under a
-   966px strip is a column of type in a room built for a row. */
-.band[data-layout="perf-side"] .spread-foot {
-  flex-direction: row;
-  flex-wrap: wrap;
-  column-gap: clamp(14px, 2vw, 34px);
-  row-gap: 1px;
 }
 
 /* -------------------------- segment tab grid (3) -------------------------- */
@@ -864,4 +807,104 @@
   .band[data-layout="distribution"] {
     grid-auto-rows: minmax(260px, auto);
   }
+}
+
+/* ---------------------- movement panel, the two bands --------------------- */
+
+/* The two placements draw the same mark on the same kind of scale, and both
+   stack their groups over one shared axis. That much they have to share: the
+   comparison between groups is the panel's first job — Enterprise gave up five
+   times what SMB did, the Platform motion eleven times what Embedded's losing
+   line did — and that read needs one centre rule at one offset with one
+   labelled ruler under it. Everything below is a height decision, because the
+   two boxes are nothing alike:
+
+     1024x580   segment column  249 x 420      product strip   951 x 83
+     1280x620   segment column  312 x 466      product strip  1190 x 88
+     1440x720   segment column  342 x 531      product strip  1334 x 90
+
+   Measured off the running board, not derived from these stylesheets by hand.
+   The strip is the constraint on the whole design. It is eleven times wider
+   than it is tall and gains 7px of height between 1024 and 1440, so anything
+   that costs a line there costs it at every size. */
+
+/* --------------------------- the segment column --------------------------- */
+
+/* 420px for four groups, an axis and three notes, which is about 100px a group
+   more than the marks need. It goes into the bars: a 20px bar under a 37px gap
+   reads as a panel of mostly air, and the three segments that are not
+   Enterprise are already small on a shared dollar scale — which is the honest
+   result and the argument for the scale, but it does mean their marks want
+   every pixel of height they can be given. */
+.band[data-layout="seg-side"] .movement {
+  --bar-h: clamp(40px, 7.8vh, 56px);
+}
+
+/* ---------------------------- the product strip --------------------------- */
+
+/* 83px of body height, and the stacked form needs 72 of it. Where it comes
+   from, in order of how much it buys:
+
+   The group name moves beside its bar rather than above it. The two names are
+   "Agentic Analytics Platform" and "Embedded Agentic Analytics" — type that
+   was going to be drawn anyway — and moving it into a gutter turns two
+   three-line rows into two one-line rows. That is 26px, and it puts the row
+   in the same label-then-mark shape as every row of the matrix above it.
+
+   The axis is padded by the same gutter, so it still starts where the plots
+   start. One custom property used in both places, so the two cannot drift. */
+.band[data-layout="perf-side"] .movement {
+  --name-track: clamp(158px, 17vw, 240px);
+  --bar-h: clamp(20px, 3.4vh, 28px);
+}
+
+/* A grid rather than a flex row, so the gutter can hold two stacked lines
+   beside one bar that spans them both. The name and net go on the first,
+   the exact figures on the second, and the plot is centred across the pair.
+   
+   That second line is why: at 951px the narrower piece of the Embedded
+   motion is 25px long, which will not hold "CRMA" on the bar, and the strip
+   has no room for a figures line of its own under the plot. In the gutter it
+   costs 5px a row instead of 12. */
+.band[data-layout="perf-side"] .movement-row {
+  display: grid;
+  grid-template-columns: var(--name-track) minmax(0, 1fr);
+  grid-template-areas:
+    "head  plot"
+    "parts plot";
+  column-gap: clamp(8px, 1vw, 14px);
+  align-items: center;
+}
+
+.band[data-layout="perf-side"] .movement-head { grid-area: head; min-width: 0; }
+.band[data-layout="perf-side"] .movement-plot { grid-area: plot; min-width: 0; }
+.band[data-layout="perf-side"] .movement-parts { grid-area: parts; margin-top: 0; }
+
+.band[data-layout="perf-side"] .movement-axis {
+  padding-left: calc(var(--name-track) + clamp(8px, 1vw, 14px));
+}
+
+/* And the key goes, which is the last 14px.
+   
+   Not to save the space — because there is nothing here for it to explain.
+   The key carries two things: which side is which, and that the pieces run
+   largest-first outward from the rule. The first is on the axis in this
+   placement, in signed dollars from -$40M to +$10M under the marks
+   themselves. The second is a statement about ordering, and a wing of two
+   pieces that both carry their own name has no ordering a reader could get
+   wrong. Four pieces a side in a 249px column is where that stops being true,
+   which is exactly where the key survives. */
+.band[data-layout="perf-side"] .movement-key {
+  display: none;
+}
+
+
+/* And the notes go side by side, for the 13px of the second line. Two 9px
+   lines stacked under a 951px strip is a column of type in a room built for
+   a row. */
+.band[data-layout="perf-side"] .movement-foot {
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: clamp(16px, 2.2vw, 40px);
+  row-gap: 1px;
 }

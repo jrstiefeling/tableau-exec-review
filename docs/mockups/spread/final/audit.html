@@ -1,0 +1,164 @@
+<!doctype html>
+<!-- Clipping and identity sweep over the two tabs this build touches.
+     Loads the real index.html in an iframe at each size, navigates, ASSERTS the
+     tab that rendered is the tab asked for, then measures every portlet body
+     and every text block for overflow — in both Governed and Direct.
+
+     The assertion is the point. #/perf and #/seg are not tab ids and the router
+     falls back to exec without erroring, so a sweep that trusts the hash
+     measures the exec tab and passes. -->
+<meta charset="utf-8">
+<title>movement panel — clipping audit</title>
+<style>
+  html, body { margin: 0; background: #111; color: #eee;
+               font: 12px/1.5 ui-monospace, monospace; }
+  #out { padding: 12px; white-space: pre-wrap; }
+  iframe { position: fixed; left: -9999px; top: 0; border: 0; }
+  .ok { color: #6ee7a8; } .bad { color: #ff8f8f; } .hd { color: #8ecbff; font-weight: 700; }
+</style>
+<div id="out">running…</div>
+<iframe id="f"></iframe>
+<script type="module">
+const out = document.getElementById("out");
+const f = document.getElementById("f");
+const log = (s, cls = "") => {
+  const d = document.createElement("div");
+  if (cls) d.className = cls;
+  d.textContent = s;
+  out.appendChild(d);
+};
+out.textContent = "";
+
+const SIZES = [[1024, 580], [1280, 620], [1440, 720]];
+const TABS = ["performance-by-segment", "analytics-performance"];
+const PANELS = { "performance-by-segment": "seg-spread", "analytics-performance": "perf-divergence" };
+
+const load = (w, h, tab) => new Promise((res) => {
+  f.style.width = w + "px";
+  f.style.height = h + "px";
+  f.onload = () => setTimeout(() => res(f.contentWindow), 1400);
+  f.src = `/index.html?v=${Date.now()}-${Math.random()}#${tab}`;
+});
+
+let fails = 0;
+
+/* Overflow, measured on the marks themselves.
+
+   Two measures that both looked reasonable are wrong here. clientHeight vs
+   scrollHeight misses a flex column that compresses its items instead of
+   overflowing. And cloning the subtree at height:auto to read its natural
+   height reports fiction: the clone has to be appended somewhere, and appended
+   to document.body it is outside .panel/.band, so it loses --bar-h, the tab
+   grid and the band overrides and lays out at sizes the real box never uses.
+   That probe called all six frames clipped while the screenshots were clean.
+
+   So: ask the descendants where they actually are. Any element whose painted
+   box escapes its portlet body is clipped, whatever mechanism put it there —
+   and the rows that matter carry flex: none, so they cannot silently shrink
+   instead. */
+function overflows(win, el) {
+  const box = el.getBoundingClientRect();
+  const cs = win.getComputedStyle(el);
+  const padB = parseFloat(cs.paddingBottom) || 0;
+  let worst = 0, who = null;
+  for (const d of el.querySelectorAll("*")) {
+    const r = d.getBoundingClientRect();
+    if (r.width === 0 && r.height === 0) continue;
+    if (win.getComputedStyle(d).position === "fixed") continue;
+    const over = r.bottom - (box.bottom - padB);
+    if (over > worst) { worst = over; who = d; }
+  }
+  return {
+    scroll: el.scrollHeight - el.clientHeight,
+    avail: el.clientHeight,
+    short: worst,
+    who: who ? (who.className || who.tagName) : "-"
+  };
+}
+
+for (const [w, h] of SIZES) {
+  for (const tab of TABS) {
+    const win = await load(w, h, tab);
+    const doc = win.document;
+
+    for (const mode of ["governed", "direct"]) {
+      if (mode === "direct") {
+        doc.getElementById("layer-toggle").click();
+        await new Promise((r) => setTimeout(r, 1200));
+      }
+
+      // --- identity, before a single measurement is trusted ---
+      const live = doc.querySelector(".panel.is-active");
+      const gotTab = live && live.dataset.tab;
+      // Scoped to the live panel. An unscoped h2 selector returns the FIRST
+      // panel-headline in the document — every tab's panel is in the DOM, so
+      // that is always the exec tab's, whichever tab is showing. Which is the
+      // hash trap again, one layer down: a check that always reads the same
+      // string cannot tell you which tab you are on.
+      const headline = (live.querySelector(".panel-headline") || {}).textContent || "";
+      if (gotTab !== tab) {
+        log(`FAIL ${w}x${h} ${mode}: asked for '${tab}', rendered '${gotTab}'`, "bad");
+        fails++;
+        continue;
+      }
+      const pid = PANELS[tab];
+      const panel = doc.getElementById(`portlet-${pid}`)
+        || doc.querySelector(`[data-portlet="${pid}"]`)
+        || [...doc.querySelectorAll(".portlet")].find((p) => (p.id || "").includes(pid));
+      if (!panel) {
+        log(`FAIL ${w}x${h} ${mode}: portlet ${pid} not in the DOM of ${gotTab}`, "bad");
+        fails++;
+        continue;
+      }
+      const mv = panel.querySelector(".movement");
+      if (!mv) {
+        log(`FAIL ${w}x${h} ${mode}: ${pid} has no .movement — renderer did not mount`, "bad");
+        fails++;
+        continue;
+      }
+
+      log(`${w}x${h}  ${tab}  ${mode}   [tab+portlet+renderer asserted]`, "hd");
+      log(`   headline: ${headline.trim().slice(0, 62)}`);
+
+      // --- clipping, every body on the tab, not just mine ---
+      let bad = 0;
+      for (const body of doc.querySelectorAll(".panel.is-active .portlet-body")) {
+        const o = overflows(win, body);
+        const owner = body.closest("[id]") ? body.closest("[id]").id : "?";
+        if (o.scroll > 1 || o.short > 1) {
+          log(`   CLIP ${owner}: ${o.short.toFixed(1)}px past the body bottom`
+            + ` (scroll ${o.scroll}) — ${String(o.who).slice(0, 46)}`, "bad");
+          bad++; fails++;
+        }
+      }
+
+      // --- the panel's own marks: is anything drawn outside its plot? ---
+      const plotBox = mv.getBoundingClientRect();
+      for (const t of mv.querySelectorAll(".movement-tick, .movement-tag, .movement-part")) {
+        const r = t.getBoundingClientRect();
+        if (r.width === 0) continue;
+        if (r.left < plotBox.left - 1.5 || r.right > plotBox.right + 1.5) {
+          log(`   OUT  "${t.textContent.trim()}" ${r.left.toFixed(0)}..${r.right.toFixed(0)}`
+            + ` vs panel ${plotBox.left.toFixed(0)}..${plotBox.right.toFixed(0)}`, "bad");
+          bad++; fails++;
+        }
+      }
+      // Everything the veil hides must have been revealed by now.
+      const stuck = [...mv.querySelectorAll(".movement-piece, .movement-tag, .movement-tick,"
+        + " .movement-net, .movement-name, .movement-part, .movement-axis-rule")]
+        .filter((el) => Number(win.getComputedStyle(el).opacity) < 0.9);
+      if (stuck.length) {
+        log(`   VEIL ${stuck.length} marks still hidden after settle`
+          + ` (first: ${stuck[0].className})`, "bad");
+        bad++; fails++;
+      }
+      if (!bad) log(`   clean: ${mv.querySelectorAll(".movement-piece").length} pieces,`
+        + ` ${mv.querySelectorAll(".movement-tick").length} ticks, no clipping, veil lifted`, "ok");
+    }
+  }
+}
+
+log("");
+log(fails ? `${fails} FAILURES` : "ALL CLEAN", fails ? "bad" : "ok");
+document.title = fails ? `FAIL ${fails}` : "CLEAN";
+</script>

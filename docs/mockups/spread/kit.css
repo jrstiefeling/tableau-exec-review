@@ -1,0 +1,818 @@
+/* Standalone mockup stylesheet for docs/mockups/spread/*.html.
+ *
+ * A condensed transcription of the board's real idiom — tokens from
+ * styles/base.css, chrome from styles/tabs.css, card and matrix from
+ * styles/portlets.css — so the mockups can be judged against the running
+ * board without importing anything from src/ or styles/. Nothing here is
+ * loaded by the board; editing this file cannot affect it.
+ *
+ * Kept deliberately close to the originals in the parts a reviewer will
+ * compare: card surface and top-edge gradient, portlet head, the growth
+ * matrix grid tracks, and the type ramp. */
+
+@font-face {
+  font-family: "Avant Garde For Salesforce";
+  src: url("../../../fonts/AvantGardeForSalesforceW05-Dm.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Salesforce Sans";
+  src: url("../../../fonts/SalesforceSans-Regular.woff2") format("woff2");
+  font-weight: 100 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Salesforce Sans";
+  src: url("../../../fonts/SalesforceSans-Semibold.woff2") format("woff2");
+  font-weight: 500 600;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Salesforce Sans";
+  src: url("../../../fonts/SalesforceSans-Bold.woff2") format("woff2");
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  --ink-hero: #0d0f13;
+  --ink: #14161a;
+  --ink-soft: #4d525c;
+  --ink-dim: #6b7280;
+
+  --surface: #f4f2ed;
+  --surface-raised: rgba(255, 255, 255, 0.9);
+  --surface-high: #ffffff;
+
+  --line: rgba(20, 22, 26, 0.13);
+  --line-strong: rgba(20, 22, 26, 0.22);
+
+  --accent: #1c6e8c;
+  --tab-accent: var(--accent);
+
+  --pos: #0f7a5e;
+  --pos-lift: rgba(15, 122, 94, 0.16);
+  --pos-wash: rgba(15, 122, 94, 0.062);
+  --warn: #a06b05;
+  --warn-lift: rgba(160, 107, 5, 0.16);
+  --neg: #c0392b;
+  --neg-lift: rgba(192, 57, 43, 0.15);
+
+  --tier-green: #12806a;
+  --tier-red: #c0483c;
+
+  --shadow-card: 0 1px 2px rgba(23, 24, 28, 0.04), 0 6px 18px rgba(23, 24, 28, 0.06);
+
+  --font-display: "Avant Garde For Salesforce", "Century Gothic", sans-serif;
+  --font-body: "Salesforce Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --radius: 14px;
+  --gap: clamp(8px, 1.1vw, 16px);
+
+  /* Line-height floors, properties of the outlines (styles/fonts.css). */
+  --lh-display-num: 1.12;
+  --lh-display-text: 1.22;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 12% -10%, rgba(28, 110, 140, 0.07), transparent 70%),
+    radial-gradient(ellipse 70% 50% at 100% 0%, rgba(18, 128, 106, 0.05), transparent 70%);
+}
+
+.app {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------- topbar --------------------------------- */
+
+.topbar {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 7px clamp(14px, 2.2vw, 30px);
+  height: 58px;
+}
+
+.topbar::after {
+  content: "";
+  position: absolute;
+  left: clamp(14px, 2.2vw, 30px);
+  right: clamp(14px, 2.2vw, 30px);
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--tab-accent), rgba(20, 22, 26, 0.08) 42%, transparent);
+  opacity: 0.5;
+}
+
+.topbar-id { display: flex; align-items: center; gap: 9px; flex: none; }
+.topbar-mark { width: 22px; height: 22px; flex: none; }
+.topbar-mark .mark-core { fill: #e8762d; }
+.topbar-mark .mark-axis { fill: #576eb2; }
+.topbar-mark .mark-side { fill: #4e79a7; }
+.topbar-mark .mark-corner { fill: #63a5b9; }
+
+.topbar-eyebrow {
+  margin: 0;
+  font-size: 8px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  font-weight: 600;
+}
+.topbar-name {
+  margin: 1px 0 0;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: var(--lh-display-text);
+  color: var(--ink-hero);
+}
+
+.tabnav {
+  position: relative;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+}
+.tabnav-btn {
+  position: relative;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink-dim);
+  padding: 5px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tabnav-btn.is-active {
+  color: var(--ink-hero);
+  background: color-mix(in srgb, var(--tab-accent) 12%, #fff);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tab-accent) 26%, transparent);
+}
+
+.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; flex: none; }
+.mode-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 4px 3px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.mode-switch-state { color: var(--ink); }
+.trust-legend-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--tier-green);
+  box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--tier-green) 18%, transparent);
+}
+.mode-switch-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-dim);
+  background: rgba(20, 22, 26, 0.05);
+  cursor: pointer;
+}
+
+/* --------------------------------- panel ---------------------------------- */
+
+.stage { position: relative; flex: 1; min-height: 0; }
+
+.panel {
+  position: absolute;
+  inset: clamp(10px, 1.6vh, 20px) clamp(14px, 2.2vw, 30px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.3vh, 16px);
+}
+
+.panel-head {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex: none;
+}
+
+.panel-kicker {
+  position: relative;
+  margin: 0;
+  padding-left: 13px;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--tab-accent) 82%, var(--ink));
+  font-weight: 700;
+}
+.panel-kicker::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.18em; bottom: 0.18em;
+  width: 3px; border-radius: 2px;
+  background: var(--tab-accent);
+}
+
+.panel-headline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(18px, 1.9vw, 27px);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ink-hero);
+  line-height: var(--lh-display-text);
+}
+
+.panel-info {
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9.5px; font-weight: 700; font-style: italic;
+  color: var(--ink-soft);
+  font-family: var(--font-display);
+  align-self: center;
+}
+
+.panel-bands { flex: 1; min-height: 0; display: grid; gap: var(--gap); }
+.band { display: grid; gap: var(--gap); min-height: 0; }
+
+/* Segment tab: matrix left, side column right. */
+.panel[data-tab="performance-by-segment"] .panel-bands {
+  grid-template-columns: minmax(0, 2.62fr) minmax(226px, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+/* Alternative C removes the side column entirely. */
+.panel[data-tab="performance-by-segment"][data-full="true"] .panel-bands {
+  grid-template-columns: minmax(0, 1fr);
+}
+.band[data-layout="seg-main"], .band[data-layout="seg-side"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* Product tab: matrix over a short wide strip. */
+.panel[data-tab="analytics-performance"] .panel-bands {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 0.38fr);
+}
+.panel[data-tab="analytics-performance"][data-full="true"] .panel-bands {
+  grid-template-rows: minmax(0, 1fr);
+}
+.band[data-layout="perf-main"], .band[data-layout="perf-side"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* --------------------------------- portlet -------------------------------- */
+
+.portlet { position: relative; min-width: 0; min-height: 0; }
+
+.portlet-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: clamp(10px, 1.1vw, 16px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(168deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 64%),
+    var(--surface-raised);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.portlet-face::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 22%, transparent) 58%,
+    transparent
+  );
+}
+
+.portlet-head { display: flex; align-items: flex-start; gap: 8px; flex: none; }
+.portlet-titles { min-width: 0; }
+
+.portlet-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent) 76%, var(--ink));
+}
+.portlet-sublabel {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--ink-dim);
+  line-height: 1.3;
+}
+.portlet-tools { margin-left: auto; display: flex; align-items: center; gap: 6px; flex: none; }
+
+.portlet-expand {
+  width: 17px; height: 17px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ink-dim);
+  font-size: 9px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.trust-dot {
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  border: 2.5px solid var(--tier-green);
+  background: color-mix(in srgb, var(--tier-green) 22%, #fff);
+}
+
+.portlet-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+/* --------------------------------- matrix --------------------------------- */
+
+.growth {
+  --label-track: clamp(74px, 9vw, 132px);
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.5vh, 7px);
+}
+
+.growth-rollup, .growth-head, .growth-body, .growth-axis {
+  display: grid;
+  grid-template-columns:
+    [rail] clamp(22px, 2.2vw, 34px)
+    [label] var(--label-track)
+    var(--cell-tracks);
+  column-gap: clamp(4px, 0.55vw, 8px);
+}
+
+.growth-rollup {
+  flex: none;
+  height: clamp(66px, 9.5vh, 124px);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+}
+.growth-rollup-head {
+  grid-column: rail / cell;
+  display: flex; flex-direction: column; align-items: flex-end; justify-content: center;
+  gap: 1px; min-width: 0;
+}
+.growth-rollup-total {
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.5vw, 24px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+.growth-rollup-eyebrow {
+  font-size: clamp(7.5px, 0.52vw, 9.5px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-align: right;
+}
+.growth-rollup-plot { grid-column: cell / -1; position: relative; height: 100%; min-width: 0; }
+.growth-rollup-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.growth-block-label {
+  position: absolute;
+  left: var(--at-x); top: var(--at-y);
+  transform: translate(-50%, -50%);
+  font-size: clamp(8px, 0.58vw, 11px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.growth-head { flex: none; align-items: end; min-height: clamp(13px, 1.7vh, 20px); }
+.growth-colhead {
+  grid-column: var(--col);
+  text-align: center;
+  font-size: clamp(8px, 0.56vw, 10px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  color: var(--ink-dim);
+}
+.growth-colhead[data-reference="true"] { color: var(--accent); }
+
+.growth-body {
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: var(--row-tracks);
+  row-gap: 0;
+  align-items: center;
+  position: relative;
+}
+
+.growth-rail { grid-column: rail; grid-row: 1 / -1; position: relative; align-self: stretch; min-width: 0; }
+.growth-rail-svg { display: block; width: 100%; height: 100%; }
+
+.growth-row-label {
+  grid-column: label;
+  grid-row: var(--row);
+  padding-left: calc(2px + var(--level) * 13px);
+  line-height: 1.3;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.growth-row-label[data-level="0"] {
+  font-size: clamp(8.5px, 0.6vw, 11px);
+  font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--accent);
+}
+.growth-row-label[data-level="1"] {
+  font-size: clamp(8.5px, 0.6vw, 11px);
+  font-weight: 600; color: var(--ink);
+}
+.growth-row-label[data-level="2"] {
+  font-size: clamp(8px, 0.56vw, 10.5px);
+  font-weight: 500; color: var(--ink-soft);
+}
+
+.growth-row-value {
+  grid-column: value;
+  grid-row: var(--row);
+  text-align: right;
+  font-size: clamp(8.5px, 0.6vw, 11px);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.growth-cell {
+  grid-column: var(--col);
+  grid-row: var(--row);
+  position: relative;
+  font-size: clamp(8px, 0.55vw, 9.5px);
+  line-height: 1.3;
+  color: var(--ink-dim);
+}
+.growth-cell svg { display: block; width: 100%; height: auto; }
+
+.growth-rate {
+  position: absolute;
+  bottom: 52%;
+  left: var(--rate-at);
+  width: var(--rate-w);
+  margin-left: calc(var(--rate-w) * -1);
+  text-align: right;
+  padding-right: 3px;
+  font-size: clamp(7.5px, 0.53vw, 9.5px);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.growth-rate[data-dir="pos"] {
+  margin-left: 0;
+  text-align: left;
+  padding-right: 0;
+  padding-left: 3px;
+}
+
+/* Alternative C: the interval, folded into the matrix. Two hairlines down the
+   column at the slowest and fastest leaf rate over the faintest wash — the
+   dumbbell's geometry at the cost of no slot at all. */
+.growth-dispwrap {
+  position: relative;
+  align-self: stretch;
+  min-width: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.growth-disp {
+  position: absolute;
+  top: 0; bottom: 0;
+  border-left: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+/* Capped top and bottom, so the pair reads as one interval rather than as two
+   more gridlines in a chart that already has four. */
+.growth-disp::before,
+.growth-disp::after {
+  content: "";
+  position: absolute;
+  left: -1px; right: -1px;
+  height: 1px;
+  background: color-mix(in srgb, var(--accent) 42%, transparent);
+}
+.growth-disp::before { top: 0; }
+.growth-disp::after { bottom: 0; }
+
+/* The interval, stated where a heading is already being read. */
+.growth-colspan {
+  display: block;
+  margin-top: 1px;
+  font-size: clamp(6.5px, 0.47vw, 8.5px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: color-mix(in srgb, var(--accent) 70%, var(--ink-dim));
+  white-space: nowrap;
+}
+.growth-rowspan {
+  display: block;
+  margin-top: 1px;
+  font-size: clamp(6.5px, 0.47vw, 8.5px);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: color-mix(in srgb, var(--accent) 70%, var(--ink-dim));
+  white-space: nowrap;
+}
+.growth-body > .growth-cell, .growth-body > .growth-row-label, .growth-body > .growth-rail {
+  position: relative;
+  z-index: 1;
+}
+
+.growth-axis { flex: none; }
+.growth-ticks { grid-column: var(--col) / -1; position: relative; height: 11px; }
+.growth-tick {
+  position: absolute;
+  left: var(--at-x);
+  transform: translateX(-50%);
+  font-size: clamp(7px, 0.5vw, 8.5px);
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+.growth-axisnote, .spread-axisnote {
+  flex: none; margin: 0;
+  font-size: clamp(8px, 0.56vw, 10px);
+  line-height: 1.3;
+  color: var(--ink-dim);
+}
+.growth-caption, .spread-caption {
+  flex: none; margin: 0;
+  font-size: clamp(8.5px, 0.6vw, 10.5px);
+  line-height: 1.35;
+  color: var(--ink-dim);
+}
+
+/* ============================ ALTERNATIVE A ================================
+   Contribution — dollar movement per product line, losses left of the rule
+   and gains right of it, on one shared dollar axis. */
+
+.contrib {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  gap: clamp(2px, 0.5vh, 7px);
+  justify-content: space-between;
+}
+
+.contrib-rows {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  gap: clamp(3px, 0.9vh, 12px);
+  min-width: 0;
+}
+
+/* Every row takes an equal share of whatever height the placement gives it,
+   and the plot inside it stretches. That is what lets one grammar serve a
+   460px side column and a 120px strip without a second set of numbers. */
+.contrib-row { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.contrib-head { display: flex; align-items: baseline; gap: 2px 7px; min-width: 0; flex: none; }
+.contrib-name {
+  font-size: clamp(8.5px, 0.62vw, 11px);
+  font-weight: 600; line-height: 1.3; color: var(--ink);
+}
+.contrib-net {
+  margin-left: auto;
+  font-size: clamp(8.5px, 0.6vw, 11px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Capped: past about 40px a stacked bar stops reading as a quantity and
+   starts reading as a block. The slack above and below is what keeps four
+   rows in a tall column from looking like a stack of slabs. */
+.contrib-plot {
+  position: relative;
+  flex: 1; min-height: 0; min-width: 0;
+  max-height: 44px;
+  align-self: center;
+  width: 100%;
+}
+.contrib-plot svg { display: block; width: 100%; height: 100%; }
+.band[data-layout="perf-side"] .contrib-plot { max-height: 34px; }
+
+.contrib-axis { position: relative; height: 11px; flex: none; }
+.contrib-tick {
+  position: absolute;
+  left: var(--at-x);
+  transform: translateX(-50%);
+  font-size: clamp(7px, 0.5vw, 8.5px);
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+.contrib-tag {
+  position: absolute;
+  left: var(--at-x);
+  top: var(--at-y, 50%);
+  transform: translate(-50%, -50%);
+  font-size: clamp(7px, 0.5vw, 9px);
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  pointer-events: none;
+  color: #fff;
+}
+
+/* The legend of product-line colours, once per panel. */
+.contrib-key {
+  flex: none;
+  display: flex; flex-wrap: wrap;
+  gap: 2px clamp(8px, 1.1vw, 16px);
+  align-items: center;
+}
+.contrib-key-item {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: clamp(7.5px, 0.53vw, 9.5px);
+  color: var(--ink-dim);
+  line-height: 1.3;
+}
+.contrib-key-swatch { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+
+.contrib-foot { flex: none; display: flex; flex-direction: column; gap: 1px; }
+
+/* Stacked, the rows share one vertical ruler, so only the bottom row prints
+   the axis labels. */
+.contrib-row:not(:last-child) .contrib-axis { visibility: hidden; height: 0; }
+
+/* The Product tab turns the list into a row, matching the perf-side idiom the
+   dumbbell already uses. Each strip regains its own axis because the two no
+   longer sit on one. */
+.band[data-layout="perf-side"] .contrib-rows {
+  flex-direction: row;
+  align-items: stretch;
+  gap: clamp(16px, 2.4vw, 44px);
+}
+.band[data-layout="perf-side"] .contrib-row { flex: 1 1 0; }
+.band[data-layout="perf-side"] .contrib-row:not(:last-child) .contrib-axis {
+  visibility: visible; height: 11px;
+}
+.band[data-layout="perf-side"] .contrib-foot {
+  flex-direction: row; flex-wrap: wrap;
+  column-gap: clamp(14px, 2vw, 34px); row-gap: 1px;
+}
+.band[data-layout="perf-side"] .contrib-key { display: none; }
+
+/* ============================ ALTERNATIVE B ================================
+   Two-period levels — last year's dollars to this year's, on one shared
+   dollar axis, per product line. */
+
+.levels {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  gap: clamp(2px, 0.5vh, 7px);
+  justify-content: space-between;
+}
+.levels-groups {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(3px, 0.8vh, 10px);
+  min-width: 0;
+}
+.levels-group { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.levels-group:not(:last-child) .levels-axis-line { display: none; }
+.band[data-layout="perf-side"] .levels-group:not(:last-child) .levels-axis-line { display: grid; }
+.levels-gname {
+  flex: none;
+  font-size: clamp(8.5px, 0.62vw, 11px);
+  font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  line-height: 1.3;
+  color: color-mix(in srgb, var(--accent) 76%, var(--ink));
+}
+.levels-line {
+  display: grid;
+  grid-template-columns: clamp(38px, 4.4vw, 62px) minmax(0, 1fr);
+  align-items: center;
+  column-gap: clamp(4px, 0.6vw, 9px);
+  flex: 1 1 0;
+  min-height: 0;
+}
+.levels-axis-line { flex: none; }
+.levels-lname {
+  font-size: clamp(7.5px, 0.55vw, 10px);
+  line-height: 1.25;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.levels-plot { position: relative; min-width: 0; height: 100%; }
+.levels-plot svg { display: block; width: 100%; height: 100%; }
+.levels-tag {
+  position: absolute;
+  left: var(--at-x);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(6.5px, 0.48vw, 8.5px);
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  padding: 0 2px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--surface-high) 82%, transparent);
+}
+.levels-axis { position: relative; height: 11px; flex: none; }
+.levels-tick {
+  position: absolute;
+  left: var(--at-x);
+  transform: translateX(-50%);
+  font-size: clamp(7px, 0.5vw, 8.5px);
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+/* The strip turns the list into a row, and the motion name turns with it —
+   beside its two lines rather than above them, which is the same move the
+   dumbbell's own perf-side rule makes, and buys back the 13px a heading row
+   costs in a band that only has about 45px to give. */
+.band[data-layout="perf-side"] .levels-groups {
+  flex-direction: row;
+  align-items: stretch;
+  gap: clamp(16px, 2.4vw, 44px);
+}
+.band[data-layout="perf-side"] .levels-group {
+  flex: 1 1 0;
+  display: grid;
+  grid-template-columns: clamp(84px, 9.5vw, 132px) minmax(0, 1fr);
+  align-items: center;
+  column-gap: clamp(8px, 1vw, 14px);
+  row-gap: 1px;
+}
+.band[data-layout="perf-side"] .levels-gname {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  white-space: normal;
+  align-self: center;
+}
+.band[data-layout="perf-side"] .levels-group > .levels-line { grid-column: 2; }
+
+/* ------------------------------- derived tag ------------------------------ */
+
+/* Derived arithmetic is labelled wherever it is drawn, per the board's rule
+   that a derived number is only as governed as its inputs. */
+.derived-note { color: var(--ink-dim); }
+.derived-note b { font-weight: 700; color: var(--ink-soft); }

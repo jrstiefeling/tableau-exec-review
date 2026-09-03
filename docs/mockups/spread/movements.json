@@ -1,0 +1,519 @@
+{
+  "_README": "Staging file for the groupMovement panels — paste-ready. Replace the seg-spread and perf-divergence portlets in data/board.json with the two blocks below (dropping the leading underscore keys), then run node scripts/sync-fallback.mjs. Regenerate with python3 docs/mockups/spread/derive-movements.py",
+  "_derivation": {
+    "rule": "prior = current / (1 + Y/Y); delta = current - prior",
+    "inputs": "seg-matrix.metrics.rows[].values/.yoy and perf-hierarchy.metrics.rows[].value/.yoy, both authored",
+    "exactness": "Exact arithmetic over authored figures. The result inherits the rounding of its inputs, which are authored to whole $M and whole per cent; value fields carry two decimals, display strings one.",
+    "authoring": "These are authored into board.json rather than computed in the renderer, per docs/visualization-research.md 'author the prior period, do not derive it'.",
+    "liveSource": "Prior year is the 'PY' rows of the same grouped pull — Close_Date_Relative_Year_clc = 'PY' on ACV_HISTORICALS, Sls_Forecasting_Metrics_Expanded. Not a separate point-in-time snapshot."
+  },
+  "_checks": [
+    {
+      "check": "twenty movements authored",
+      "pass": true,
+      "detail": "20 parts"
+    },
+    {
+      "check": "delta == value - priorValue",
+      "pass": true,
+      "detail": "max residual 0.0000"
+    },
+    {
+      "check": "net == sum(parts)",
+      "pass": true,
+      "detail": "max residual 0.0000"
+    },
+    {
+      "check": "segment domain covers its wings",
+      "pass": true,
+      "detail": "max loss wing 26.94, max gain wing 6.41, domain [-28, 8]"
+    },
+    {
+      "check": "product domain covers its wings",
+      "pass": true,
+      "detail": "max loss wing 39.84, max gain wing 10.47, domain [-42, 12]"
+    },
+    {
+      "check": "routed: CMRCL does not close (no bridge drawn)",
+      "pass": true,
+      "detail": "authored total 18 vs children 17 — panel draws parts only, never a closing total"
+    },
+    {
+      "check": "routed: leaf residual against the authored total row",
+      "pass": true,
+      "detail": "ENTR leaves -20.53 vs total row -21.00 — the panel's net is labelled as the net of the four lines shown"
+    },
+    {
+      "check": "routed: no cross-segment sum is published",
+      "pass": true,
+      "detail": "segment columns sum to 84 vs the Product tab's authored 83 — no All Segments row exists on the segment panel"
+    },
+    {
+      "check": "Tableau Next is the largest positive movement",
+      "pass": true,
+      "detail": "Next +10.47M"
+    },
+    {
+      "check": "display rounding disclosed where parts do not foot",
+      "pass": true,
+      "detail": "PubSec (1.7 vs 1.8) and Embedded (8.6 vs 8.5) — exact residual 0.00; precision stated in detailNote, no figure altered"
+    }
+  ],
+  "seg-spread": {
+    "id": "seg-spread",
+    "kind": "groupMovement",
+    "label": "Within-segment movement",
+    "sublabel": "What moved each segment's dollars, Q2 FY26 to Q2 FY27",
+    "accent": "#6B4FBF",
+    "semantic": {
+      "measure": "ACV_clc",
+      "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+      "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+      "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+      "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+      "why": "A dollar movement is one measure differenced at two periods, which is why the pieces of a wing can be laid end to end: ACV_clc is certified additive across the APM product hierarchy inside one segment, and that guarantee is what makes a decomposition legal rather than a coincidence that holds this quarter. The panel that stood here did the opposite — it cited this model's own rule that a Y/Y is non-additive, and then printed the arithmetic difference of two Y/Y figures as its largest numeral, two rates off bases three orders of magnitude apart. This panel subtracts dollars and never rates. It also claims nothing it cannot close: the net is the net of the lines drawn rather than a group total, which is why there is no bridge and no cross-group sum on it.",
+      "metricName": "Within-Segment ACV Movement",
+      "definition": "The change in ACV_clc between Q2 FY26 and Q2 FY27 for each product line inside one segment, drawn as two wings off a common zero. Prior-period dollars come from the 'PY' rows of the same grouped pull as the matrix beside it, not from a separate point-in-time snapshot.",
+      "sdm": "Sls_Forecasting_Metrics_Expanded — the segment derivation decides the model for both portlets",
+      "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × APM_L218 × the derived segment, at two periods of the same measure.",
+      "lineage": [
+        "Org62 Opportunity",
+        "Tableau Extract (.tdsx)",
+        "ACV_HISTORICALS",
+        "Close_Date_Relative_Year_clc — 'CY' and 'PY'",
+        "Segment10 + <TBD: OU field>"
+      ]
+    },
+    "directMode": {
+      "tier": "red",
+      "candidates": [
+        "sixteen movements, three candidate segments"
+      ],
+      "missing": "The certified segment dimension the decomposition is taken within, and the as-of rule that says which segment a reclassified account moved in",
+      "effect": "The wings still draw and each is taken over a different population, so an account that moved up-market in April is a loss in one segment and a gain in another across two readings of the same quarter",
+      "thesisTag": "T1",
+      "thesis": "Metric definitions live in the analysis layer, not in raw data — a CRM can host competing candidate fields but cannot rule between them.",
+      "risk": "Fund a recovery in the segment that only recovered because accounts were reclassified into it",
+      "trustCost": "A decomposition over an unstable population decomposes the population",
+      "metrics": {
+        "caption": "Four decompositions, four different populations"
+      }
+    },
+    "metrics": {
+      "unit": "$M",
+      "goodDirection": "up",
+      "priorPeriodLabel": "Q2 FY26",
+      "domain": [
+        -28,
+        8
+      ],
+      "axisTicks": [
+        -25,
+        -15,
+        -5,
+        0,
+        5
+      ],
+      "lossKey": "dollars removed",
+      "gainKey": "dollars added",
+      "orderNote": "largest line nearest the rule",
+      "axisNote": "Change in ACV_clc, Q2 FY26 to Q2 FY27, on one linear dollar scale shared by all four segments. Prior period derived: ACV ÷ (1 + Y/Y).",
+      "caption": "Every segment gave up platform dollars. Tableau Next put $6.4M back into Enterprise — the largest gain on the panel.",
+      "detailNote": "Prior period derived from the authored current-quarter dollars and Y/Y. Each net is the net of the four lines shown, not a segment total. Every figure is shown to $0.1M and each net is rounded from the exact sum, so two rounded lines need not add to their rounded net.",
+      "rows": [
+        {
+          "id": "entr-move",
+          "label": "ENTR",
+          "fullLabel": "Enterprise",
+          "net": -20.53,
+          "netDisplay": "−$20.5M",
+          "lossWing": 26.94,
+          "gainWing": 6.41,
+          "parts": [
+            {
+              "id": "cloud",
+              "label": "Tableau Cloud",
+              "short": "Cloud",
+              "value": 16,
+              "valueDisplay": "$16M",
+              "yoy": -48,
+              "yoyDisplay": "−48%",
+              "priorValue": 30.77,
+              "priorDisplay": "$30.8M",
+              "delta": -14.77,
+              "deltaDisplay": "−$14.8M"
+            },
+            {
+              "id": "server",
+              "label": "Tableau Server",
+              "short": "Server",
+              "value": 10,
+              "valueDisplay": "$10M",
+              "yoy": -48,
+              "yoyDisplay": "−48%",
+              "priorValue": 19.23,
+              "priorDisplay": "$19.2M",
+              "delta": -9.23,
+              "deltaDisplay": "−$9.2M"
+            },
+            {
+              "id": "next",
+              "label": "Tableau Next",
+              "short": "Next",
+              "value": 8,
+              "valueDisplay": "$8M",
+              "yoy": 402,
+              "yoyDisplay": "+402%",
+              "priorValue": 1.59,
+              "priorDisplay": "$1.6M",
+              "delta": 6.41,
+              "deltaDisplay": "+$6.4M"
+            },
+            {
+              "id": "crma",
+              "label": "CRMA",
+              "short": "CRMA",
+              "value": 5,
+              "valueDisplay": "$5M",
+              "yoy": -37,
+              "yoyDisplay": "−37%",
+              "priorValue": 7.94,
+              "priorDisplay": "$7.9M",
+              "delta": -2.94,
+              "deltaDisplay": "−$2.9M"
+            }
+          ]
+        },
+        {
+          "id": "cmrcl-move",
+          "label": "CMRCL",
+          "fullLabel": "Commercial",
+          "net": -8.02,
+          "netDisplay": "−$8.0M",
+          "lossWing": 10.13,
+          "gainWing": 2.11,
+          "parts": [
+            {
+              "id": "cloud",
+              "label": "Tableau Cloud",
+              "short": "Cloud",
+              "value": 10,
+              "valueDisplay": "$10M",
+              "yoy": -42,
+              "yoyDisplay": "−42%",
+              "priorValue": 17.24,
+              "priorDisplay": "$17.2M",
+              "delta": -7.24,
+              "deltaDisplay": "−$7.2M"
+            },
+            {
+              "id": "server",
+              "label": "Tableau Server",
+              "short": "Server",
+              "value": 4,
+              "valueDisplay": "$4M",
+              "yoy": -38,
+              "yoyDisplay": "−38%",
+              "priorValue": 6.45,
+              "priorDisplay": "$6.5M",
+              "delta": -2.45,
+              "deltaDisplay": "−$2.5M"
+            },
+            {
+              "id": "next",
+              "label": "Tableau Next",
+              "short": "Next",
+              "value": 3,
+              "valueDisplay": "$3M",
+              "yoy": 236,
+              "yoyDisplay": "+236%",
+              "priorValue": 0.89,
+              "priorDisplay": "$0.9M",
+              "delta": 2.11,
+              "deltaDisplay": "+$2.1M"
+            },
+            {
+              "id": "crma",
+              "label": "CRMA",
+              "short": "CRMA",
+              "value": 2,
+              "valueDisplay": "$2M",
+              "yoy": -18,
+              "yoyDisplay": "−18%",
+              "priorValue": 2.44,
+              "priorDisplay": "$2.4M",
+              "delta": -0.44,
+              "deltaDisplay": "−$0.4M"
+            }
+          ]
+        },
+        {
+          "id": "smb-move",
+          "label": "SMB",
+          "fullLabel": "Small & Medium Business",
+          "net": -3.94,
+          "netDisplay": "−$3.9M",
+          "lossWing": 5.07,
+          "gainWing": 1.13,
+          "parts": [
+            {
+              "id": "cloud",
+              "label": "Tableau Cloud",
+              "short": "Cloud",
+              "value": 8,
+              "valueDisplay": "$8M",
+              "yoy": -30,
+              "yoyDisplay": "−30%",
+              "priorValue": 11.43,
+              "priorDisplay": "$11.4M",
+              "delta": -3.43,
+              "deltaDisplay": "−$3.4M"
+            },
+            {
+              "id": "server",
+              "label": "Tableau Server",
+              "short": "Server",
+              "value": 2,
+              "valueDisplay": "$2M",
+              "yoy": -45,
+              "yoyDisplay": "−45%",
+              "priorValue": 3.64,
+              "priorDisplay": "$3.6M",
+              "delta": -1.64,
+              "deltaDisplay": "−$1.6M"
+            },
+            {
+              "id": "next",
+              "label": "Tableau Next",
+              "short": "Next",
+              "value": 1,
+              "valueDisplay": "$1M",
+              "yoy": 727,
+              "yoyDisplay": "+727%",
+              "priorValue": 0.12,
+              "priorDisplay": "$0.1M",
+              "delta": 0.88,
+              "deltaDisplay": "+$0.9M"
+            },
+            {
+              "id": "crma",
+              "label": "CRMA",
+              "short": "CRMA",
+              "value": 1,
+              "valueDisplay": "$1M",
+              "yoy": 33,
+              "yoyDisplay": "+33%",
+              "priorValue": 0.75,
+              "priorDisplay": "$0.8M",
+              "delta": 0.25,
+              "deltaDisplay": "+$0.2M"
+            }
+          ]
+        },
+        {
+          "id": "pubsec-move",
+          "label": "PubSec",
+          "fullLabel": "Public Sector",
+          "net": 1.77,
+          "netDisplay": "+$1.8M",
+          "lossWing": 1.28,
+          "gainWing": 3.05,
+          "parts": [
+            {
+              "id": "cloud",
+              "label": "Tableau Cloud",
+              "short": "Cloud",
+              "value": 4,
+              "valueDisplay": "$4M",
+              "yoy": -16,
+              "yoyDisplay": "−16%",
+              "priorValue": 4.76,
+              "priorDisplay": "$4.8M",
+              "delta": -0.76,
+              "deltaDisplay": "−$0.8M"
+            },
+            {
+              "id": "server",
+              "label": "Tableau Server",
+              "short": "Server",
+              "value": 6,
+              "valueDisplay": "$6M",
+              "yoy": -8,
+              "yoyDisplay": "−8%",
+              "priorValue": 6.52,
+              "priorDisplay": "$6.5M",
+              "delta": -0.52,
+              "deltaDisplay": "−$0.5M"
+            },
+            {
+              "id": "next",
+              "label": "Tableau Next",
+              "short": "Next",
+              "value": 2,
+              "valueDisplay": "$2M",
+              "yoy": 1060,
+              "yoyDisplay": "+1060%",
+              "priorValue": 0.17,
+              "priorDisplay": "$0.2M",
+              "delta": 1.83,
+              "deltaDisplay": "+$1.8M"
+            },
+            {
+              "id": "crma",
+              "label": "CRMA",
+              "short": "CRMA",
+              "value": 3,
+              "valueDisplay": "$3M",
+              "yoy": 69,
+              "yoyDisplay": "+69%",
+              "priorValue": 1.78,
+              "priorDisplay": "$1.8M",
+              "delta": 1.22,
+              "deltaDisplay": "+$1.2M"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "perf-divergence": {
+    "id": "perf-divergence",
+    "kind": "groupMovement",
+    "label": "Within-motion movement",
+    "sublabel": "What moved each motion's dollars, Q2 FY26 to Q2 FY27",
+    "accent": "#12806A",
+    "semantic": {
+      "measure": "ACV_clc",
+      "rls": "The caller's entitled hierarchy, not a business unit — filter-driven here, so a wrong scope returns a plausible number, not an error.",
+      "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+      "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+      "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+      "why": "A dollar movement is one measure differenced at two periods, which is why the pieces of a wing can be laid end to end: ACV_clc is certified additive across the APM product hierarchy, and that guarantee is what makes a decomposition legal rather than a coincidence that holds this quarter. The panel that stood here did the opposite — it cited this model's own rule that a Y/Y is non-additive, and then printed the arithmetic difference of two Y/Y figures as its largest numeral, two rates off bases three orders of magnitude apart. This panel subtracts dollars and never rates. It also claims nothing it cannot close: the net is the net of the lines drawn rather than a group total, which is why there is no bridge and no cross-group sum on it.",
+      "metricName": "Within-Motion ACV Movement",
+      "definition": "The change in ACV_clc between Q2 FY26 and Q2 FY27 for each APM L2 line inside one motion, drawn as two wings off a common zero. Prior-period dollars come from the 'PY' rows of the same grouped pull as the panel above it, not from a separate point-in-time snapshot.",
+      "sdm": "Sls_Forecasting_Metrics_Expanded",
+      "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × motion, from the same APM_L218 pull as the panel above it, at two periods of the same measure.",
+      "lineage": [
+        "Org62 Opportunity",
+        "Tableau Extract (.tdsx)",
+        "ACV_HISTORICALS",
+        "Close_Date_Relative_Year_clc — 'CY' and 'PY'",
+        "APM product hierarchy (L1/L2/L3)"
+      ]
+    },
+    "directMode": {
+      "tier": "red",
+      "candidates": [
+        "four movements with nothing to group them"
+      ],
+      "missing": "The motion-to-line parentage — without it there is no inside-each-motion for a decomposition to be taken within",
+      "effect": "Four line movements survive and the two decompositions do not, so the fact that one motion's dollars all left and the other's mostly arrived has nowhere to be seen",
+      "thesisTag": "T4",
+      "thesis": "Business vocabulary is an asset that has to live somewhere shared — otherwise every analysis rebuilds the same grouping by hand, slightly differently.",
+      "risk": "Treat Embedded as one growing thing and fund both of its lines on the strength of one",
+      "trustCost": "A grouping that only exists in the deck cannot be reviewed against next quarter's deck",
+      "metrics": {
+        "caption": "No motion parentage — no decomposition to take"
+      }
+    },
+    "metrics": {
+      "unit": "$M",
+      "goodDirection": "up",
+      "priorPeriodLabel": "Q2 FY26",
+      "domain": [
+        -42,
+        12
+      ],
+      "axisTicks": [
+        -40,
+        -30,
+        -20,
+        -10,
+        0,
+        10
+      ],
+      "lossKey": "dollars removed",
+      "gainKey": "dollars added",
+      "orderNote": "largest line nearest the rule",
+      "axisNote": "One linear dollar scale, both motions. Prior period derived: ACV ÷ (1 + Y/Y).",
+      "caption": "The platform gave up $39.8M. Tableau Next added $10.5M — the largest gain anywhere on this board, off a $2.5M base.",
+      "detailNote": "Prior period derived from the authored current-quarter dollars and Y/Y. Each net is the net of the lines shown, not a motion total. Every figure is shown to $0.1M and each net is rounded from the exact sum, so two rounded lines need not add to their rounded net.",
+      "rows": [
+        {
+          "id": "platform-move",
+          "label": "Agentic Analytics Platform",
+          "fullLabel": "Agentic Analytics Platform",
+          "net": -39.84,
+          "netDisplay": "−$39.8M",
+          "lossWing": 39.84,
+          "gainWing": 0.0,
+          "parts": [
+            {
+              "id": "cloud",
+              "label": "Tableau Cloud",
+              "short": "Cloud",
+              "value": 38,
+              "valueDisplay": "$38M",
+              "yoy": -41,
+              "yoyDisplay": "−41%",
+              "priorValue": 64.41,
+              "priorDisplay": "$64.4M",
+              "delta": -26.41,
+              "deltaDisplay": "−$26.4M"
+            },
+            {
+              "id": "server",
+              "label": "Tableau Server",
+              "short": "Server",
+              "value": 21,
+              "valueDisplay": "$21M",
+              "yoy": -39,
+              "yoyDisplay": "−39%",
+              "priorValue": 34.43,
+              "priorDisplay": "$34.4M",
+              "delta": -13.43,
+              "deltaDisplay": "−$13.4M"
+            }
+          ]
+        },
+        {
+          "id": "embedded-move",
+          "label": "Embedded Agentic Analytics",
+          "fullLabel": "Embedded Agentic Analytics",
+          "net": 8.53,
+          "netDisplay": "+$8.5M",
+          "lossWing": 1.94,
+          "gainWing": 10.47,
+          "parts": [
+            {
+              "id": "next",
+              "label": "Tableau Next",
+              "short": "Next",
+              "value": 13,
+              "valueDisplay": "$13M",
+              "yoy": 414,
+              "yoyDisplay": "+414%",
+              "priorValue": 2.53,
+              "priorDisplay": "$2.5M",
+              "delta": 10.47,
+              "deltaDisplay": "+$10.5M"
+            },
+            {
+              "id": "crma",
+              "label": "CRMA",
+              "short": "CRMA",
+              "value": 11,
+              "valueDisplay": "$11M",
+              "yoy": -15,
+              "yoyDisplay": "−15%",
+              "priorValue": 12.94,
+              "priorDisplay": "$12.9M",
+              "delta": -1.94,
+              "deltaDisplay": "−$1.9M"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

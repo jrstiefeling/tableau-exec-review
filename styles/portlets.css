@@ -2342,9 +2342,9 @@
 }
 
 
-/* --------------------- growth matrix and spread --------------------- */
+/* --------------------- growth matrix and movement --------------------- */
 
-/* The growth matrix and the dumbbell spread.
+/* The growth matrix, and the movement panel that stands beside it.
  *
  * Every mark's colour is painted from palette() as it draws, so the Knowledge
  * Layer toggle repaints through one path and nothing here has to be kept in
@@ -2358,8 +2358,10 @@
  * fills its column's width exactly, so a rate numeral positioned as a
  * percentage of its cell lands on the bar tip it names. */
 
-.growth,
-.spread {
+/* Stated for the matrix alone. The dumbbell that used to share this rule is
+   gone, and the panel that replaced it states its own container instead — a
+   two-selector list is not where a third chart's layout should live. */
+.growth {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -2523,9 +2525,7 @@
 
 .growth-block,
 .growth-tie-hit,
-.growth-cell-hit,
-.spread-hit,
-.spread-caret-hit {
+.growth-cell-hit {
   cursor: pointer;
 }
 
@@ -2584,8 +2584,7 @@
 
 /* The severed rail's mark. DOM rather than SVG text: the rail stretches
    non-uniformly and a glyph inside it would stretch with it. */
-.growth-rail-break,
-.spread-break {
+.growth-rail-break {
   position: absolute;
   left: var(--at-x);
   top: var(--at-y, 50%);
@@ -2726,8 +2725,7 @@
   color: var(--ink-dim);
 }
 
-.growth-axisnote,
-.spread-axisnote {
+.growth-axisnote {
   flex: none;
   margin: 0;
   font-size: clamp(8px, 0.56vw, 10px);
@@ -2735,8 +2733,7 @@
   color: var(--ink-dim);
 }
 
-.growth-caption,
-.spread-caption {
+.growth-caption {
   flex: none;
   margin: 0;
   font-size: clamp(8.5px, 0.6vw, 10.5px);
@@ -2764,29 +2761,47 @@
 .trend-table-rowlabel[data-level="1"] { padding-left: 20px; }
 .trend-table-rowlabel[data-level="2"] { padding-left: 34px; }
 
-/* ---------------------------------- spread -------------------------------- */
+/* --------------------------------- movement -------------------------------- */
 
-/* Rows keep their natural height and the slack is shared between them, so a
-   two-row portlet reads as two well-spaced dumbbells rather than as two marks
-   pinned to the top of a tall card. */
-.spread {
-  justify-content: space-between;
-}
-
-/* Stacked by default, which is the tall side column on the Segment tab.
-   The Product tab turns this row and the two intervals go side by side —
-   see the perf-side rule in tabs.css. */
-.spread-rows {
+/* The container, stated in full rather than joined to the .growth rule above.
+   The dumbbell shared that rule, and sharing it is what made a two-line
+   selector list the place a third chart's layout lived. Rows keep their
+   natural height and the slack is shared between them, so a two-row portlet
+   reads as two well-spaced decompositions rather than as two bars pinned to
+   the top of a tall card. */
+.movement {
+  --bar-h: clamp(18px, 3vh, 26px);
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: clamp(2px, 0.5vh, 7px);
+}
+
+/* Stacked in both placements, which is the one thing this panel does not
+   inherit from the dumbbell it replaces.
+   
+   That panel turned its rows into a row on the Product strip, and could: its
+   plots were drawn on the shared symlog scale from growth.js, which is
+   scale-free, so two intervals side by side were comparable whatever width
+   they landed at. This panel's scale is a dollar domain authored per portlet,
+   and its first job is the comparison between groups — the Platform motion
+   removed $39.8M against Embedded's $1.9M, and the Enterprise segment removed
+   five times what SMB did. That read wants one centre rule at one offset with
+   one labelled axis under it, which is a stack. Side by side would buy two
+   wider plots and spend the comparison to get them. */
+.movement-rows {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(2px, 0.6vh, 8px);
   min-width: 0;
 }
 
-.spread-row {
+.movement-row {
   flex: none;
   display: flex;
   flex-direction: column;
@@ -2794,76 +2809,228 @@
   min-width: 0;
 }
 
-.spread-head {
+.movement-head {
   display: flex;
   align-items: baseline;
-  flex-wrap: wrap;
-  gap: 2px 7px;
+  gap: 2px 8px;
   min-width: 0;
 }
 
-.spread-name {
+.movement-name {
   font-size: clamp(8.5px, 0.62vw, 11px);
   font-weight: 600;
   line-height: 1.3;
   color: var(--ink);
+  cursor: pointer;
 }
 
-.spread-lines {
-  font-size: clamp(8px, 0.55vw, 9.5px);
-  line-height: 1.3;
-  color: var(--ink-dim);
-}
-
-.spread-span {
+/* The net, right-aligned over the end of the plot. Toned from the palette in
+   the renderer, like every other sentiment-carrying glyph on the board — the
+   colour is not keyed in CSS anywhere here, so the direct-mode drain arrives
+   through one path instead of two lists kept in sync by hand. */
+.movement-net {
   margin-left: auto;
-  font-size: clamp(8px, 0.55vw, 9.5px);
+  font-size: clamp(8.5px, 0.62vw, 11px);
+  font-weight: 700;
   line-height: 1.3;
-  color: var(--ink-dim);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
-.spread-plot {
+.movement-plot {
   position: relative;
   min-width: 0;
 }
 
-.spread-svg {
+/* Height in CSS rather than from the viewBox, because the chart root is
+   preserveAspectRatio="none": the box stretches to whatever column it lands
+   in, and letting its height follow its width would draw a 966px strip 71px
+   tall and a 226px column 17px tall from the same authored geometry. Fixed
+   here, the pieces are a length encoding on x and nothing else. */
+.movement-svg {
   display: block;
   width: 100%;
-  height: auto;
+  height: var(--bar-h);
 }
 
-/* Above its own dot and anchored away from it, so a row whose two ends are two
-   points apart still reads as two numerals. The chip is what keeps a numeral
-   legible where it crosses a decade rule. */
-.spread-end {
+/* Named in place, centred on the piece it names, in the surface colour —
+   these sit on a saturated fill, and the renderer only builds a tag for a
+   piece wide enough to hold one. The rest are one hover and one expand away. */
+.movement-tag {
   position: absolute;
-  bottom: 53%;
-  padding: 0 2px;
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--surface-solid) 72%, transparent);
-  font-size: clamp(7.5px, 0.55vw, 10px);
-  font-weight: 600;
-  line-height: 1.3;
-  font-variant-numeric: tabular-nums;
+  left: var(--at-x);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(7.5px, 0.54vw, 9.5px);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
   white-space: nowrap;
+  color: var(--surface-solid);
   pointer-events: none;
 }
 
-.spread-end[data-end="low"] {
-  right: min(calc(100% - var(--at-x) + 2px), calc(100% - var(--end-w)));
+/* Direct mode drains the fills to a tier wash, and white type on a wash is
+   not type. */
+.movement[data-degraded="true"] .movement-tag {
+  color: var(--ink);
 }
 
-.spread-end[data-end="high"] {
-  left: min(calc(var(--at-x) + 2px), calc(100% - var(--end-w)));
+/* The decomposition in figures, under the bar it decomposes. Wrapping rather
+   than a grid: four items of "Cloud −$14.8M" shape fit a 249px column on two
+   lines, and a fixed two-by-two would leave a hole in the rows where a piece
+   rounds to nothing. */
+.movement-parts {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: clamp(5px, 0.7vw, 10px);
+  row-gap: 0;
+  margin-top: 1px;
+  min-width: 0;
 }
 
-.spread-foot {
+.movement-part {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  font-size: clamp(7px, 0.52vw, 9.5px);
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+/* The name recedes and the figure carries the sentiment: a reader scanning
+   this line is scanning for the numbers. */
+.movement-part i {
+  font-style: normal;
+  color: var(--ink-dim);
+}
+
+.movement-part b {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The axis sits under the last row and spans the same box every plot does —
+   which is the whole box, because the rows are stacked and the head is above
+   the plot rather than beside it. Nothing to align to but the card. */
+.movement-axis {
+  flex: none;
+  position: relative;
+  min-width: 0;
+  margin-top: 1px;
+}
+
+/* Its own element rather than a border on the strip below, so the veil can
+   take it and the tick labels on separate beats. Painted from palette().axis
+   in the renderer. */
+.movement-axis-rule {
+  height: 1px;
+  min-width: 0;
+}
+
+.movement-ticks {
+  position: relative;
+  height: clamp(11px, 1.5vh, 16px);
+  min-width: 0;
+}
+
+.movement-tick {
+  position: absolute;
+  left: var(--at-x);
+  top: 1px;
+  font-size: clamp(7px, 0.52vw, 9.5px);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--ink-dim);
+}
+
+/* Centred on their offset, except at the two ends, where they anchor to their
+   own edge so the strip cannot run out of the column it belongs to. */
+.movement-tick[data-anchor="mid"] { transform: translateX(-50%); }
+.movement-tick[data-anchor="end"] { transform: translateX(-100%); }
+.movement-tick[data-anchor="start"] { transform: none; }
+
+.movement-tick[data-tick="zero"] {
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+/* The two things the reader has to be told, told in the panel.
+   
+   The panel this replaced explained neither of the marks that needed it: its
+   caret went unnamed in the Product caption, and its tinted core band was
+   described only in a neighbouring portlet's axis note. Both of those marks
+   are gone here — there is no soft band on a dollar scale and no caret — and
+   what is left to explain is which side is which and what fixes the order of
+   the pieces. Which is two chips and six words, above the axis, where the
+   reader already is. */
+.movement-key {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: clamp(7px, 0.9vw, 13px);
+  row-gap: 1px;
+  margin-top: 2px;
+}
+
+.movement-keyitem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: clamp(7px, 0.52vw, 9.5px);
+  line-height: 1.3;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+.movement-swatch {
+  width: 7px;
+  height: 7px;
+  border-radius: 1.5px;
+  flex: none;
+}
+
+.movement-keynote {
+  font-size: clamp(7px, 0.52vw, 9.5px);
+  line-height: 1.3;
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
+.movement-foot {
   flex: none;
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.movement-axisnote {
+  margin: 0;
+  font-size: clamp(7px, 0.52vw, 9.5px);
+  line-height: 1.35;
+  color: var(--ink-dim);
+}
+
+.movement-caption {
+  margin: 0;
+  font-size: clamp(7.5px, 0.56vw, 10px);
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+/* A wing is several product lines end to end, and the hairline of surface
+   between them is what says so. Drawn as a stroke rather than as a gap in the
+   geometry so the pieces still tile exactly on the dollar scale. */
+.movement-piece {
+  stroke: var(--surface-solid);
+  stroke-width: 0.5;
+  vector-effect: non-scaling-stroke;
+  cursor: pointer;
 }
 
 /* ------------------------------- responsive ------------------------------- */
@@ -2878,14 +3045,6 @@
 .growth:not([data-lane="true"]) .growth-tick[data-tick="core"],
 .growth:not([data-lane="true"]) .growth-tick[data-tick="decade"] {
   display: none;
-}
-
-/* The product lines an interval runs between are the first thing a narrow side
-   band cannot hold on one line, and they are one hover and one expand away. */
-@media (max-width: 1150px) {
-  .spread-lines {
-    display: none;
-  }
 }
 
 

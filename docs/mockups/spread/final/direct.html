@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- Full-bleed harness for screenshotting Direct mode, which has no url of its
+     own: the mode lives in main.js state and is reached by clicking the switch.
+     The iframe fills the viewport exactly, so a screenshot of this page is a
+     screenshot of the board.
+
+       ?tab=<real tab id>   — asserted below, not trusted
+       ?mode=direct         — clicks the switch once
+
+     Real ids: exec, analytics-performance, performance-by-segment, q3-outlook,
+     trend. Anything else silently renders exec, so the assertion paints the
+     frame red rather than letting a wrong tab pass as a clean one. -->
+<meta charset="utf-8">
+<title>direct harness</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #fff; }
+  iframe { display: block; width: 100vw; height: 100vh; border: 0; }
+  /* Loud on purpose: a silent wrong tab is the failure this whole file exists
+     to prevent, so it must be impossible to miss in a screenshot. */
+  #bad { position: fixed; inset: 0; display: none; z-index: 99;
+         background: #b00020; color: #fff; font: 700 24px/1.4 ui-monospace, monospace;
+         padding: 40px; }
+</style>
+<iframe id="f"></iframe>
+<div id="bad"></div>
+<script type="module">
+const q = new URLSearchParams(location.search);
+const tab = q.get("tab") || "exec";
+const direct = q.get("mode") === "direct";
+const f = document.getElementById("f");
+
+f.src = `/index.html?v=${Date.now()}#${tab}`;
+f.onload = () => setTimeout(() => {
+  const doc = f.contentDocument;
+  if (direct) doc.getElementById("layer-toggle").click();
+  setTimeout(() => {
+    const live = doc.querySelector(".panel.is-active");
+    const got = live && live.dataset.tab;
+    const head = live && live.querySelector(".panel-headline");
+    if (got !== tab) {
+      const bad = document.getElementById("bad");
+      bad.style.display = "block";
+      bad.textContent = `TAB MISMATCH — asked for "${tab}", rendered "${got}". `
+        + `The router falls back to exec for ids it does not know.`;
+    }
+    document.title = `${got} · ${direct ? "direct" : "governed"} · `
+      + `${head ? head.textContent.slice(0, 40) : "no headline"}`;
+  }, 1200);
+}, 1400);
+</script>
