@@ -130,14 +130,48 @@ await send("Page.navigate", { url }, sessionId);
 await new Promise((r) => setTimeout(r, 1400));
 
 if (direct) {
-  await send("Runtime.evaluate", {
-    expression: `(() => {
-      const btn = document.querySelector('[data-mode-btn], .mode-switch-btn, #mode-toggle');
-      if (btn) { btn.click(); return 'clicked ' + btn.className; }
-      return 'no button';
+  /* Wait for the app to have BOOTED, then click, then confirm it took.
+   *
+   * The old version clicked once, 1400ms after navigate, and reported success
+   * if it found a button. #layer-toggle is static markup in index.html, but
+   * its click listener is attached by main.js only after board.json has been
+   * fetched and the board built — so a click in that window lands on a real
+   * button, does nothing at all, and reports 'clicked mode-switch-btn'. The
+   * frame then comes back governed while the log says direct. Reproduced
+   * directly: an exec sweep where every portlet had no audit attribute
+   * because the toggle had never actually fired.
+   *
+   * So: poll for a mounted portlet, click, poll for direct-mode, and retry
+   * the click a couple of times before giving up. The assertion further down
+   * is the backstop; this is what stops it firing in the first place. */
+  const r = await send("Runtime.evaluate", {
+    expression: `(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const booted = async () => {
+        for (let i = 0; i < 60; i += 1) {
+          if (document.querySelector('.panel.is-active .portlet')) return true;
+          await sleep(100);
+        }
+        return false;
+      };
+      if (!await booted()) return 'never booted';
+      for (let attempt = 1; attempt <= 3; attempt += 1) {
+        const btn = document.getElementById('layer-toggle')
+          || document.querySelector('.mode-switch-btn');
+        if (!btn) return 'no button';
+        btn.click();
+        for (let i = 0; i < 20; i += 1) {
+          if (document.body.classList.contains('direct-mode')) {
+            return 'direct after ' + attempt + ' click(s)';
+          }
+          await sleep(50);
+        }
+      }
+      return 'CLICKED BUT STILL GOVERNED';
     })()`,
     awaitPromise: true, returnByValue: true
-  }, sessionId).then((r) => console.log("  direct:", r.result.value));
+  }, sessionId);
+  console.log("  direct:", r.result.value);
 }
 
 await new Promise((r) => setTimeout(r, at == null ? 4200 : at));
@@ -353,6 +387,14 @@ const audit = await send("Runtime.evaluate", {
     const navOn = document.querySelector('.tabnav-btn.is-active');
     out.navTab = navOn ? (navOn.dataset.tab || null) : null;
     out.hash = location.hash;
+    /* Which MODE actually rendered. --direct clicks a button, and a click that
+     * lands before main.js has booted does nothing at all — which silently
+     * turns a direct frame into a governed one. Same class of failure as the
+     * tab fallback, and just as invisible in a log, so it is asserted the same
+     * way. Observed once: an exec sweep where every portlet came back with no
+     * audit attribute because the toggle had never been pressed. */
+    out.direct = document.body.classList.contains('direct-mode');
+    out.auditing = document.body.classList.contains('auditing');
     out.invisible = Array.from(document.querySelectorAll('.panel.is-active *'))
       .filter((el) => el.style.opacity === '0')
       .map((el) => (el.getAttribute('class') || el.tagName) + (hidden(el) ? ' [offscreen]' : ' [ON PAGE]'));
@@ -387,7 +429,15 @@ if (a.active !== 1) {
   console.log(`  ACTIVE PANELS: ${a.active} (${a.activeTabs.join(", ")}) — expected exactly 1`);
   routing += 1;
 }
-if (!routing) console.log(`  tab ok: ${a.tab}`);
+if (direct && !a.direct) {
+  console.log("  MODE MISMATCH: --direct was asked for, but the board rendered governed");
+  routing += 1;
+}
+if (!direct && a.direct) {
+  console.log("  MODE MISMATCH: governed was asked for, but the board rendered direct");
+  routing += 1;
+}
+if (!routing) console.log(`  tab ok: ${a.tab} · ${a.direct ? "direct" : "governed"}${a.auditing ? " · auditing" : ""}`);
 
 console.log("  stage", a.stage, "bands", a.bands, "| scrollers", a.scrollers.length,
   "| stage-overflow", a.overflow.length, "| clipped", a.clipped.length,
