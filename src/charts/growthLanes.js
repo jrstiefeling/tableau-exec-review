@@ -443,9 +443,13 @@ export function mount(host, ctx) {
       rollLab = document.createElement("span");
       rollLab.className = "gln-rolllab";
       rollLab.dataset.side = rx > 50 ? "l" : "r";
+      /* The rate and the level are each wrapped, because each is a figure that
+         moves between modes and the audit pass strikes figures by selector.
+         A numeral the pass silently skips is worse than one it visibly does
+         not cover. */
       rollLab.innerHTML =
         `${esc(rollup.label)} <b style="--mark-tint:${toneColor(toneOf(rollCell.yoy, good))}">` +
-        `${esc(rollCell.yoyDisplay || "")}</b> · ${esc(rollCell.display || "")}`;
+        `${esc(rollCell.yoyDisplay || "")}</b> · <span>${esc(rollCell.display || "")}</span>`;
       rollPin.appendChild(rollLab);
 
       ctx.tip(rollPin, `${rollup.label} · ${column.label} ${rollCell.yoyDisplay} on ${rollCell.display}`);

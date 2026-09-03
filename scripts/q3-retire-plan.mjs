@@ -11,7 +11,13 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 
-const PATH = new URL("../data/tableau-source-catalog.json", import.meta.url);
+/* Takes a path so it can be pointed at a copy. Several agents work this tree
+   at once and this file is contended; running the transform against a clean
+   checkout of it is how this change gets staged on its own rather than on top
+   of whatever else is uncommitted. */
+const PATH = process.argv[2]
+  ? new URL(process.argv[2], `file://${process.cwd()}/`)
+  : new URL("../data/tableau-source-catalog.json", import.meta.url);
 const catalog = JSON.parse(await readFile(PATH, "utf8"));
 
 const gap = catalog.gaps.planAttainment;
