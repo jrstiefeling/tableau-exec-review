@@ -17,8 +17,16 @@
  * this board already has:
  *
  *   hover or focus  -> the shared tooltip, carrying title and body in full;
- *   click, or Enter -> the inspector expand, where all five render as cards
- *                      at reading size.
+ *   click the row, the expand caret, or Enter on the card -> the inspector
+ *                      expand, where all five render as cards at reading size
+ *                      with every tag rather than only the first.
+ *
+ * The row taking the click is new, and it is here because the row is now the
+ * only element on the board that hides its own content: everywhere else the
+ * caret opens a table of exact figures the reader can already see rounded, and
+ * here it opens a sentence they cannot see at all. It routes through the same
+ * caret it sits beside rather than calling the inspector directly, so there is
+ * one path in and one thing to keep working.
  *
  * What stays on the face is one row per item: the numeral, the title on a
  * single line, and the tag. Five rows always fit, nothing scrolls, and the
@@ -95,6 +103,11 @@ export function mount(host, ctx) {
      * did not fit. Reading half a claim from the face and half from a hover
      * would be worse than reading all of it from one place. */
     ctx.tip(li, `${plain(entry.title)} — ${plain(entry.body)}`);
+
+    li.addEventListener("click", () => {
+      const caret = card && card.querySelector(".portlet-expand");
+      if (caret) caret.click();
+    });
 
     /* On the face the tag is a mark, not a name.
      *

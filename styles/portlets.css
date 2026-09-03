@@ -1150,8 +1150,14 @@
   padding: 1px 4px 1px 0;
   border-radius: 6px;
   opacity: 0;
-  cursor: default;
+  cursor: pointer;
   transition: background-color 0.2s var(--ease);
+}
+
+/* Not on the expanded cards: there they are already the full read, and a
+   pointer on them would promise a third level that does not exist. */
+.rail-card {
+  cursor: default;
 }
 
 .rail-row:hover {
@@ -1264,6 +1270,15 @@
   max-width: none;
   font-size: 9.5px;
   padding: 2px 8px;
+}
+
+/* The compact rows stand down when the expand is open. Everywhere else on the
+   board a face and its detail are two different views of the same data — a
+   chart and a table of its exact figures — and both are worth having on
+   screen at once. Here the detail is the same five titles with their bodies
+   restored, so leaving the rows above it printed every title twice. */
+.portlet.is-inspected .rail {
+  display: none;
 }
 
 .rail-tag:hover {
