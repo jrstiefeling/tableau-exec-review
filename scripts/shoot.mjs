@@ -176,6 +176,44 @@ if (direct) {
 
 await new Promise((r) => setTimeout(r, at == null ? 4200 : at));
 
+/* Wait for the choreography to have actually finished before measuring it.
+ *
+ * The fixed 4200ms is a guess, and on the Five Year tab at 1024 — eight
+ * portlets, the longest sweep on the board — it is sometimes not enough. That
+ * produced a frame reporting 184 marks stuck invisible on page against a
+ * screenshot in which every mark was painted: the audit had caught the sweep
+ * mid-flight, and the capture, one round trip later, got the settled board.
+ *
+ * A false "marks stuck invisible" is worse than none, because that is one of
+ * the things this pass exists to check. So: poll until nothing on the page is
+ * still veiled, and stop early if it stays put. Skipped entirely when --at
+ * asks for a deliberately early frame, since being mid-sweep is the point. */
+if (at == null) {
+  const settled = await send("Runtime.evaluate", {
+    expression: `(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const veiled = () => Array.from(
+        document.querySelectorAll('.panel.is-active *')
+      ).filter((el) => el.style.opacity === '0'
+        && !el.closest('.portlet-back, .prov, .portlet-detail, .panel-notes, [hidden], [aria-hidden="true"]')
+      ).length;
+      let last = -1;
+      for (let i = 0; i < 60; i += 1) {
+        const n = veiled();
+        if (n === 0) return 'settled after ' + (i * 100) + 'ms';
+        if (n === last && i > 12) return 'stalled at ' + n + ' after ' + (i * 100) + 'ms';
+        last = n;
+        await sleep(100);
+      }
+      return 'still veiled: ' + veiled();
+    })()`,
+    awaitPromise: true, returnByValue: true
+  }, sessionId);
+  if (!/^settled after 0ms$/.test(settled.result.value)) {
+    console.log("  settle:", settled.result.value);
+  }
+}
+
 /* The probe runs BEFORE the layout audit, and the order is load-bearing.
  *
  * It used to run after. Every audit-pass frame in every sweep reaches the
