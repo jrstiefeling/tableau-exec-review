@@ -37,32 +37,51 @@
  * the only green bar on a tab running red without anyone recolouring a cell. */
 
 import {
-  chartRoot, svgEl, group, text, linePath, smoothPath, linearScale, roundedRectPath, padHit
+  chartRoot, svgEl, group, text, linePath, smoothPath, linearScale, roundedRectPath, padHit,
+  verticalGradient
 } from "../svg.js";
 import { palette, toneOf, toneColor, tierMeta } from "../palette.js";
 import {
   countUp, strokeDraw, dashDraw, fadeIn, fadeTo, growFrom, stagger, wait, veil, reducedMotion
 } from "../anim.js";
 
-/* The viewBox is kept close to the aspect ratio of the grid cell it lands in.
- * preserveAspectRatio letterboxes anything that does not match, and a panel
- * that letterboxes wastes the vertical room the trajectory needs most.
+/* The viewBox has to match the aspect ratio of the grid cell, and this is
+ * where the "40px faint wisp" came from.
  *
- * The strip is given its own 22-unit band rather than overlaid on the plot,
- * which is what the extra 24 units of height and the matching 24 units of
- * PAD.bottom buy: the baseline still lands at H - PAD.bottom = 188, so the
- * trajectory's geometry is byte-for-byte what it was before the strip
- * existed. `.trend-svg` is `flex: 1; min-height: 0`, so the taller viewBox
- * letterboxes inside the same box rather than making the panel taller. */
-const W = 300;
-const H = 264;
-const PAD = { top: 26, right: 14, bottom: 76, left: 26 };
+ * `preserveAspectRatio: xMidYMid meet` fits by the limiting dimension and
+ * gives away the mismatch as letterboxing. The viewBox was 300x264 — 1.14:1 —
+ * and at 1024x580 the cell resolved to a box of about 200x75, which is 2.7:1.
+ * So the chart drew at 85x75 inside a 200x75 box: 57% of the width thrown
+ * away, and the trajectory reduced to a quarter of the area the layout had
+ * actually given it. It was not a small chart. It was a chart drawn at 24% of
+ * its allocation.
+ *
+ * Two changes fix it, and they compound. The tab's grid now gives each panel
+ * a cell of roughly 165x110 rather than 200x75 (four columns and two rows,
+ * with the rules card gone and the 3x3 fallback with it), and the viewBox is
+ * re-proportioned to 300x198 — 1.52:1 — to sit inside that. The result draws
+ * at essentially the full width of its box.
+ *
+ * WIDE is the hero's viewBox. ACV spans two columns on the tab, so its cell is
+ * about 2.4:1, and a 1.52:1 viewBox in it would letterbox a third of the width
+ * back off again — the same mistake one level up.
+ *
+ * The strip keeps its own band under the baseline rather than being overlaid
+ * on the plot: the plot is 124 units deep and the strip 22, and both grew
+ * in absolute terms because the cell did. */
+const H = 198;
+const W_NARROW = 300;
+const W_WIDE = 470;
+const PAD = { top: 18, right: 14, bottom: 56, left: 26 };
 
-const DEV = { top: 196, h: 22 };
+const DEV = { top: 148, h: 22 };
 const DEV_ZERO = DEV.top + DEV.h / 2;
-const DEV_REACH = 10;
-const LABEL_DY = 44;
-const NOTE_DY = 58;
+/* 12, from 10. The strip is what carries thirty-five authored Y/Y figures
+ * that appear nowhere else on the tab, and the reviewer could not see it at
+ * all — so it takes the extra reach as well as the extra scale. */
+const DEV_REACH = 12;
+const LABEL_DY = 36;
+const NOTE_DY = 48;
 
 /* One bound for all seven panels, stated rather than derived per panel.
  * The authored magnitudes run 0% to 33% with a single outlier — NNAOV's -74%
@@ -99,6 +118,11 @@ export function mount(host, ctx) {
   const p = palette();
   const meta = tierMeta(tier);
   const accent = isDirect ? meta.color : ctx.accent;
+
+  // Authored on the spec, not inferred from the DOM: the panel that spans two
+  // columns is an editorial decision about which measure this tab is about,
+  // and it is stated in the data file beside the measure it applies to.
+  const W = (ctx.portlet || {}).span === 2 ? W_WIDE : W_NARROW;
 
   const periods = tab.periods || [];
   const partialFrom = tab.partialFrom ?? periods.length;
@@ -143,7 +167,7 @@ export function mount(host, ctx) {
   const baseline = svgEl("path", {
     d: `M ${PAD.left} ${H - PAD.bottom} H ${W - PAD.right}`,
     stroke: p.axis,
-    "stroke-width": 1,
+    "stroke-width": 1.3,
     fill: "none",
     class: "trend-baseline"
   });
@@ -176,9 +200,24 @@ export function mount(host, ctx) {
     marks.appendChild(breakRule);
   }
 
+  /* A gradient rather than a flat 10% wash. The fill's job is to hold weight
+   * at the trajectory and release the baseline, so that the line reads as the
+   * top edge of a body of ink rather than as a stroke sitting on a tinted
+   * rectangle — which is most of the difference between a chart that looks
+   * finished and one that looks like a wireframe. The stops are the measure's
+   * own accent, or its tier colour in direct mode, so nothing here needs its
+   * own mode branch.
+   *
+   * fadeTo() drives element opacity and the stops carry the paint, which keeps
+   * the two channels independent: the build can fade the area to 0.1 and
+   * settle() can restore it without either of them flooding the panel. */
   const area = svgEl("path", {
     d: `${smoothPath(joined)} L ${joined[joined.length - 1].x} ${H - PAD.bottom} L ${joined[0].x} ${H - PAD.bottom} Z`,
-    fill: accent,
+    fill: verticalGradient(svg, [
+      ["0%", accent, 0.9],
+      ["58%", accent, 0.34],
+      ["100%", accent, 0.04]
+    ]),
     opacity: 0,
     class: "trend-area"
   });
@@ -188,7 +227,7 @@ export function mount(host, ctx) {
     d: smoothPath(joined),
     fill: "none",
     stroke: accent,
-    "stroke-width": 2.4,
+    "stroke-width": 2.9,
     "stroke-linecap": "round",
     "stroke-linejoin": "round",
     class: "trend-line"
@@ -205,18 +244,18 @@ export function mount(host, ctx) {
     ghostLink = svgEl("path", {
       d: `M ${gx} ${y(series[series.length - 1])} V ${gy}`,
       stroke: p.ghost,
-      "stroke-width": 1.2,
-      "stroke-dasharray": "2 4",
+      "stroke-width": 1.5,
+      "stroke-dasharray": "2.4 4",
       fill: "none",
       class: "trend-ghost-link"
     });
     ghost = svgEl("circle", {
       cx: gx,
       cy: gy,
-      r: 3.6,
+      r: 4.4,
       fill: "none",
       stroke: p.ghost,
-      "stroke-width": 1.4,
+      "stroke-width": 1.6,
       "stroke-dasharray": "2.5 2.5",
       class: "trend-ghost"
     });
@@ -247,15 +286,15 @@ export function mount(host, ctx) {
     const dot = svgEl("circle", {
       cx: pt.x,
       cy: pt.y,
-      r: detached ? 4.6 : 3.6,
+      r: detached ? 5.4 : 4.2,
       fill: detached ? "none" : accent,
       stroke: detached ? accent : "none",
-      "stroke-width": detached ? 2 : 0,
+      "stroke-width": detached ? 2.3 : 0,
       class: `trend-dot${partial ? " is-partial" : ""}`
     });
     padHit(dot, 14);
     if (detached) {
-      const core = svgEl("circle", { cx: pt.x, cy: pt.y, r: 1.5, fill: accent, class: "trend-dot-core" });
+      const core = svgEl("circle", { cx: pt.x, cy: pt.y, r: 1.8, fill: accent, class: "trend-dot-core" });
       marks.appendChild(core);
       dotCores.push(core);
     }
@@ -281,7 +320,7 @@ export function mount(host, ctx) {
   const devZero = svgEl("path", {
     d: `M ${PAD.left} ${DEV_ZERO} H ${W - PAD.right}`,
     stroke: p.axis,
-    "stroke-width": 0.8,
+    "stroke-width": 1.1,
     fill: "none",
     class: "trend-dev-zero"
   });
@@ -291,9 +330,11 @@ export function mount(host, ctx) {
   if (isDirect) devZero.setAttribute("stroke-dasharray", "3 4");
   marks.appendChild(devZero);
 
+  // 0.82 of the column pitch rather than 0.72: at the previous scale the bars
+  // were about 4px wide on screen and the strip read as speckle.
   const cellW = Math.max(
     5,
-    ((x(Math.max(1, series.length - 1)) - x(0)) / Math.max(1, periods.length)) * 0.72
+    ((x(Math.max(1, series.length - 1)) - x(0)) / Math.max(1, periods.length)) * 0.82
   );
   const devScale = linearScale([0, DEV_BOUND], [0, DEV_REACH]);
 
@@ -330,10 +371,10 @@ export function mount(host, ctx) {
 
     if (!measured) {
       const gap = svgEl("path", {
-        d: roundedRectPath(x0, DEV_ZERO - 3.6, cellW, 7.2, 1.6),
+        d: roundedRectPath(x0, DEV_ZERO - 4.2, cellW, 8.4, 1.8),
         fill: "none",
         stroke: p.axis,
-        "stroke-width": 0.9,
+        "stroke-width": 1.1,
         "stroke-dasharray": "2 2",
         class: `trend-dev is-gap${i >= partialFrom ? " is-partial" : ""}`
       });
@@ -345,7 +386,7 @@ export function mount(host, ctx) {
       const clamped = magnitude > DEV_BOUND;
       // Guarded to a visible minimum: an exactly flat movement is a real
       // reading and has to be seen sitting on the rule, not vanish into it.
-      const h = Math.max(1.1, Math.min(devScale(magnitude), DEV_REACH));
+      const h = Math.max(1.4, Math.min(devScale(magnitude), DEV_REACH));
       const bar = svgEl("path", {
         d: clamped
           ? notchedBarPath(x0, cellW, DEV_ZERO, h, dir)

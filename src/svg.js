@@ -41,6 +41,55 @@ export function group(attrs = {}) {
   return svgEl("g", attrs);
 }
 
+/* --------------------------------- paint --------------------------------- */
+
+/* A monotonic id source.
+ *
+ * Nothing in this app used <defs> for a long time, and the reason was sound:
+ * an id has to be unique in the document, the Knowledge Layer toggle
+ * re-renders every portlet from scratch, and a gradient id derived from a
+ * portlet id would collide with the copy that had not been torn down yet —
+ * at which case a fill silently resolves to the wrong gradient or to none.
+ * A counter closes that: every gradient minted in the lifetime of the page
+ * gets its own id, and a discarded one is garbage collected with its <svg>. */
+let seq = 0;
+
+export function uid(prefix = "u") {
+  seq += 1;
+  return `${prefix}-${seq}`;
+}
+
+/* Mints a vertical linear gradient inside the given chart root and returns a
+ * `url(#...)` ready to hand to a fill. Vertical because every use of it here
+ * is an area fill under a trajectory, where the gradient's job is to hold
+ * weight at the line and release the baseline. */
+export function verticalGradient(svg, stops) {
+  const id = uid("grad");
+  let defs = svg.querySelector("defs");
+  if (!defs) {
+    defs = svgEl("defs");
+    svg.insertBefore(defs, svg.firstChild);
+  }
+  const gradient = svgEl("linearGradient", {
+    id,
+    x1: "0",
+    y1: "0",
+    x2: "0",
+    y2: "1"
+  });
+  stops.forEach(([offset, color, opacity]) => {
+    gradient.appendChild(
+      svgEl("stop", {
+        offset,
+        "stop-color": color,
+        "stop-opacity": opacity
+      })
+    );
+  });
+  defs.appendChild(gradient);
+  return `url(#${id})`;
+}
+
 /* --------------------------------- paths --------------------------------- */
 
 function polar(cx, cy, r, deg) {
