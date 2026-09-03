@@ -142,6 +142,32 @@ if (direct) {
 
 await new Promise((r) => setTimeout(r, at == null ? 4200 : at));
 
+/* The probe runs BEFORE the layout audit, and the order is load-bearing.
+ *
+ * It used to run after. Every audit-pass frame in every sweep reaches the
+ * audit pass by way of a probe that adds body.auditing — so with the audit
+ * measured first, all fifteen audit-state frames were measured in the plain
+ * direct state, and the audit pass itself has never been mechanically checked
+ * by this harness at all. Its footnote overlay sits at opacity 0 until the
+ * class lands, so it was skipped as invisible every time.
+ *
+ * Anything a probe opens — the rules flyover, an expanded portlet, the audit
+ * pass — is now part of what gets measured, which is the whole point of being
+ * able to open it. */
+if (probe) {
+  const r = await send("Runtime.evaluate", {
+    /* awaitPromise, so a probe can open something and wait for it to settle
+     * before the shot is taken. Returning a promise from the expression is the
+     * only way to put a delay between a probe's side effect and the capture,
+     * and several things worth photographing — the rules flyover, an expanded
+     * portlet — animate in. */
+    expression: `(async () => { try { return JSON.stringify(await (${probe})); } catch (e) { return 'PROBE ERROR: ' + e.message; } })()`,
+    awaitPromise: true,
+    returnByValue: true
+  }, sessionId);
+  console.log("  probe:", r.result.value);
+}
+
 /* Layout audit, run in the page: anything that scrolls inside its own box,
  * anything that overflows the stage, anything clipped. */
 const audit = await send("Runtime.evaluate", {
@@ -149,9 +175,17 @@ const audit = await send("Runtime.evaluate", {
     const out = { scrollers: [], overflow: [], clipped: [] };
     const stage = document.querySelector('.stage');
     const sb = stage ? stage.getBoundingClientRect() : null;
-    // The provenance back face and the expand detail are laid out off-screen
-    // by design, so they are not overflow.
-    const hidden = (el) => el.closest('.portlet-back, .prov, .portlet-detail, .rules-flyover, [aria-hidden="true"]');
+    /* The provenance back face and the expand detail are laid out off-screen
+     * by design, so they are not overflow.
+     *
+     * .rules-flyover named a class that does not exist any more: the reading
+     * notes moved into the panel head as .panel-notes, whose sheet carries the
+     * hidden attribute when closed. So its four veiled <li class="rule">
+     * elements were being reported as marks stuck invisible ON PAGE on every
+     * tab that states rules — four false positives per frame, which is exactly
+     * the noise that hides a real one. [hidden] covers the sheet whether or
+     * not it keeps that class name. */
+    const hidden = (el) => el.closest('.portlet-back, .prov, .portlet-detail, .panel-notes, [hidden], [aria-hidden="true"]');
     document.querySelectorAll('.panel.is-active *').forEach((el) => {
       if (hidden(el)) return;
       if (el.scrollHeight - el.clientHeight > 1 && el.clientHeight > 0) {
@@ -170,6 +204,62 @@ const audit = await send("Runtime.evaluate", {
         out.clipped.push((el.className || el.tagName) + ' :: ' + el.textContent.trim().slice(0, 40));
       }
     });
+
+    /* Text-on-text collisions.
+     *
+     * Nothing was checking for these, and they are neither overflow nor
+     * clipping: an absolutely-positioned overlay sitting across a line of
+     * flowed prose leaves every box inside its parent and every scrollHeight
+     * equal to its clientHeight. The audit pass's footnote is exactly this
+     * shape, and so is anything else that earns a z-index.
+     *
+     * Only leaf text boxes are compared, and only pairs where neither is an
+     * ancestor of the other — a parent overlapping its own child is layout,
+     * not collision. An overlap has to eat more than a third of the shorter
+     * box's height to count, which is what separates a bisected line from
+     * adjacent lines whose boxes touch at the descenders. */
+    out.collide = [];
+    /* Per-LINE boxes, taken from Ranges over text nodes rather than from
+     * elements. An element-based check misses the case that matters here: a
+     * caption reading "<strong>Cloud Migration…</strong> – $22.5M to $7.9M…"
+     * puts its prose in a bare text node with no element of its own, so the
+     * <p> is not a leaf and the text is invisible to any querySelectorAll.
+     * Range.getClientRects() also returns one rect PER RENDERED LINE, which
+     * is exactly the granularity a bisected line has to be caught at. */
+    const lines = [];
+    const walk = document.createTreeWalker(
+      document.querySelector('.panel.is-active') || document.body,
+      NodeFilter.SHOW_TEXT
+    );
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      if (!n.nodeValue.trim()) continue;
+      const owner = n.parentElement;
+      if (!owner || hidden(owner)) continue;
+      const s = getComputedStyle(owner);
+      if (s.visibility === 'hidden' || s.opacity === '0') continue;
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      Array.from(range.getClientRects()).forEach((r) => {
+        if (r.width > 2 && r.height > 2) {
+          lines.push({ r, owner, text: n.nodeValue.trim().slice(0, 26) });
+        }
+      });
+    }
+    for (let i = 0; i < lines.length; i += 1) {
+      for (let j = i + 1; j < lines.length; j += 1) {
+        const A = lines[i]; const B = lines[j];
+        if (A.owner === B.owner) continue;
+        if (A.owner.contains(B.owner) || B.owner.contains(A.owner)) continue;
+        const ox = Math.min(A.r.right, B.r.right) - Math.max(A.r.left, B.r.left);
+        const oy = Math.min(A.r.bottom, B.r.bottom) - Math.max(A.r.top, B.r.top);
+        if (ox <= 1 || oy <= 1) continue;
+        // A third of the shorter line's height: enough to separate a line
+        // painted THROUGH another from two lines whose descenders touch.
+        if (oy < Math.min(A.r.height, B.r.height) / 3) continue;
+        out.collide.push(Math.round(ox) + 'x' + Math.round(oy) + 'px  "'
+          + A.text + '" over "' + B.text + '"');
+      }
+    }
 
     /* Painted-box clipping, asked of the descendants rather than of a clone.
      *
@@ -243,20 +333,6 @@ const audit = await send("Runtime.evaluate", {
   returnByValue: true
 }, sessionId);
 
-if (probe) {
-  const r = await send("Runtime.evaluate", {
-    /* awaitPromise, so a probe can open something and wait for it to settle
-     * before the shot is taken. Returning a promise from the expression is the
-     * only way to put a delay between a probe's side effect and the capture,
-     * and several things worth photographing — the rules flyover, an expanded
-     * portlet — animate in. */
-    expression: `(async () => { try { return JSON.stringify(await (${probe})); } catch (e) { return 'PROBE ERROR: ' + e.message; } })()`,
-    awaitPromise: true,
-    returnByValue: true
-  }, sessionId);
-  console.log("  probe:", r.result.value);
-}
-
 const { data } = await send("Page.captureScreenshot", { format: "png" }, sessionId);
 writeFileSync(`shots/${name}.png`, Buffer.from(data, "base64"));
 
@@ -287,7 +363,9 @@ if (!routing) console.log(`  tab ok: ${a.tab}`);
 
 console.log("  stage", a.stage, "bands", a.bands, "| scrollers", a.scrollers.length,
   "| stage-overflow", a.overflow.length, "| clipped", a.clipped.length,
-  "| paint-clip", (a.paintClip || []).length, "| still-hidden", a.invisible.length);
+  "| paint-clip", (a.paintClip || []).length, "| collide", (a.collide || []).length,
+  "| still-hidden", a.invisible.length);
+(a.collide || []).slice(0, 8).forEach((s) => console.log("    COLLIDE", s));
 a.invisible.forEach((s) => console.log("    HIDDEN", s));
 a.scrollers.slice(0, 6).forEach((s) => console.log("    SCROLL", s));
 a.overflow.slice(0, 8).forEach((s) => console.log("    OVER  ", s));
