@@ -68,7 +68,10 @@ export const FALLBACK_BOARD = {
                 "why": "The measure is a commit and the tile reads it as a booking — the class of error this board exists to argue against, found in the board. The nearest governed net-new concept, New_Logo_Eligible4, is a dimension flag rather than a measure, and no NNAOV target exists at all, so 15% of plan has no denominator in this layer."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "NNAOV_Commit_clc certified; plan basis in no model (§5.4)",
                 "candidates": [
                   "$6.0M",
                   "$11.2M",
@@ -124,7 +127,10 @@ export const FALLBACK_BOARD = {
                 "why": "The same ACV_clc the Five Year Trend tab resolves against, which is why the two tabs reconcile rather than merely agree. The row grain is the thing to know: one row per metric per opportunity per user, so a $500K deal is counted again for every leader above its owner and the tile reads 3x to 10x high without the dedup filter. 70% of plan is the part with no source — attainment exists here only for pipegen and Day-1 open pipe."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "ACV_clc certified; plan basis in no model (§5.4)",
                 "candidates": [
                   "$82M",
                   "$96M",
@@ -181,7 +187,10 @@ export const FALLBACK_BOARD = {
                 "polarityNote": "The source slide colours this by hand, cell by cell. The board states the direction once instead — which is the honest version of the claim, because the layer publishes an additivity classification and period-to-date flags and nothing at all about which way is good."
               },
               "directMode": {
-                "tier": "grey",
+                "provenance": "supplemented",
+                "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "Attrition_clc certified; plan basis in no model (§5.4)",
                 "candidates": [
                   "requires manual reconstruction"
                 ],
@@ -235,7 +244,10 @@ export const FALLBACK_BOARD = {
                 "why": "The date anchor is the whole measure, and unlike a never-recount rule it is checkable: anchored on close date instead, pipegen lands in the wrong quarter and the wrong year with no error anywhere. This is also the only tile on the board with a governed target and attainment pair — Target_Pipe_Gen_by_Product_clc — so 79% of plan is the one percentage here whose denominator exists in the layer."
               },
               "directMode": {
-                "tier": "yellow",
+                "provenance": "certified",
+                "tier": "red",
+                "detectability": "catchable",
+                "groundedIn": "Pipe_Gen_clc + pipegen attainment both certified (§3.2, §5.4)",
                 "candidates": [
                   "$789M",
                   "$0.9B+ if stage re-entries recount"
@@ -321,7 +333,10 @@ export const FALLBACK_BOARD = {
                 "why": "The split adds to the same certified $82M as the tile above because both resolve to one measure. The grouping is the part that does not exist yet — the layer publishes APM L1/L2, not Embedded versus Agentic — so this mapping is one the board defines and has to version. That is the argument the board is making, arriving as a gap in the board itself."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "ACV_clc certified; no product-motion dimension exists (§5.4, §5.6)",
                 "candidates": [
                   "no product-motion grouping exists"
                 ],
@@ -372,7 +387,10 @@ export const FALLBACK_BOARD = {
                 "why": "COUNT(DISTINCT User_Name10) where User_Role2 = 'AE' and User_Is_Active1 would return a number, and it would be today's number wearing a period label. That is the whole finding: the roster has no as-of grain, so a headcount for a closed quarter cannot be read from this layer at any price."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "yellow",
+                "detectability": "none",
+                "groundedIn": "no AE capacity measure in either model (§5.4, §10.1)",
                 "candidates": [
                   "745 as of today",
                   "no as-of-quarter-end value"
@@ -462,7 +480,10 @@ export const FALLBACK_BOARD = {
                 "why": "Each claim carries a link to the measure it is supposed to move, so a qualitative win can be checked against a governed number instead of standing on its own — and where the measure turns out not to exist, the tag is what makes that visible rather than the claim quietly passing."
               },
               "directMode": {
+                "provenance": "narrative",
                 "tier": "grey",
+                "detectability": "none",
+                "groundedIn": "measure: null — correct as authored (§5.4)",
                 "candidates": [
                   "claims with no measure attached"
                 ],
@@ -548,7 +569,10 @@ export const FALLBACK_BOARD = {
                 "why": "A commitment tagged to a governed measure can be reviewed next quarter against that same measure; an untagged one can only be reviewed against memory. Card 3 is tagged to attrition and ACV because those are the measures the board has — the layer carries a whole renewals vocabulary, Renewal_Key_Risk_Category1 and Open_Available_to_Renew_clc among them, which would grade it better."
               },
               "directMode": {
+                "provenance": "narrative",
                 "tier": "grey",
+                "detectability": "none",
+                "groundedIn": "measure: null — correct as authored (§5.4)",
                 "candidates": [
                   "commitments with no measure attached"
                 ],
@@ -3248,7 +3272,10 @@ export const FALLBACK_BOARD = {
                 "why": "The same ACV_clc as the tile and the mix bar above, one grain finer, with both years pulled in one grouped query rather than two — which is what makes the one-formula check true by construction instead of by inspection. Global_Combo_Name6 and Combo_Company_Name15 are the real conformed identity this portlet used to invent a name for. Which of the two is the parent is still an open question, and it decides the portlet: the wrong one reproduces the re-parented-subsidiary failure the fan exists to demonstrate."
               },
               "directMode": {
+                "provenance": "certified",
                 "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "ACV_clc at account × relative year; ⚠ is a usage rule (§5.4)",
                 "candidates": [
                   "278 rows that sum to $82M",
                   "the same export summing to $74M, $96M or $103M"
@@ -3429,7 +3456,10 @@ export const FALLBACK_BOARD = {
                 "why": "The roll-up is the portlet and it is the part the layer guarantees: ACV_clc is additive, so three grains of one measure tile exactly rather than three queries happening to agree. The Y/Y channel is the part that is not additive and is never rolled up — that is the catalogue's own split, published as headed sections rather than inferred. What is not governed here is the level-1 boundary."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "ACV_clc certified; motion hierarchy is not a dimension (§5.4)",
                 "candidates": [
                   "one undifferentiated $83M",
                   "two levels that do not tile"
@@ -3608,7 +3638,10 @@ export const FALLBACK_BOARD = {
                 ]
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "catchable",
+                "groundedIn": "ACV_clc additive (§3.4, §7.1); motion parentage absent (§5.4)",
                 "candidates": [
                   "four movements with nothing to group them"
                 ],
@@ -3666,7 +3699,10 @@ export const FALLBACK_BOARD = {
                 "why": "Additivity is the one rule here the layer actually supplies, and it is the one that carries the most weight: because the measure is classified additive, the three levels of the taxonomy tile each other by construction rather than because somebody checked. The layer classifies coverage, velocity, Y/Y and every other ratio the other way, so the same catalogue that lets the roll-up close is what forbids summing the rates beside it. Scale, channel and weighting are the board's, and are named as the board's."
               },
               "directMode": {
+                "provenance": "narrative",
                 "tier": "grey",
+                "detectability": "none",
+                "groundedIn": "presentation rules, no figure (§5.4)",
                 "candidates": [
                   "rules live in each analyst's head"
                 ],
@@ -3980,7 +4016,10 @@ export const FALLBACK_BOARD = {
                 "why": "PubSec is an Operating Unit, not a fourth segment, so these columns are a derived dimension rather than four values of a native one — IF OU = Public Sector then OU else segment end, in the model owner's own words. That one line belongs in the model: left in the client, one analyst tests 'Public Sector', another 'Pub Sec', another forgets ESMB, and four breakouts that all look right disagree with no error anywhere. The OU field's apiName is still unconfirmed, and confirming it is the highest-value discovery call on this board."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "derived segment dimension not in the model (§10.2, §9)",
                 "candidates": [
                   "Account.Type",
                   "a hand-maintained Segment__c",
@@ -4306,7 +4345,10 @@ export const FALLBACK_BOARD = {
                 ]
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "catchable",
+                "groundedIn": "ACV_clc additive (§7.1); derived segment not in model (§10.2)",
                 "candidates": [
                   "sixteen movements, three candidate segments"
                 ],
@@ -4364,7 +4406,10 @@ export const FALLBACK_BOARD = {
                 "why": "A dense matrix is only readable if every cell was made the same way, and every cell here is one certified ACV measure at one grain. The columns are the exception worth stating: PubSec is an Operating Unit rather than a segment peer, so the four-way split is a one-line derivation. Left out of the model, that line gets rewritten slightly differently by every analyst who needs it — one tests 'Public Sector', one tests 'Pub Sec', one forgets ESMB — and four breakouts that all look right disagree with no error anywhere. Put it in the model once and every consumer inherits the same answer, including the agent generating the SQL, which cannot infer a rule that lives in a workbook."
               },
               "directMode": {
+                "provenance": "narrative",
                 "tier": "grey",
+                "detectability": "none",
+                "groundedIn": "presentation rules, no figure (§5.4)",
                 "candidates": [
                   "twenty-eight cells, no stated grain"
                 ],
@@ -4597,7 +4642,10 @@ export const FALLBACK_BOARD = {
                 "why": "Three measures, so the portlet claims none of them as its own. The plan bar and the gap beside it are derived here, exactly, from two authored figures — but the denominator underneath them is the tab's one unsourceable quantity: there is no FinPlan object anywhere in the layer, so 87%, 78% and 128% have no governed basis and neither does anything derived from them. See tableau-source-catalog.json gaps.planAttainment and portlets['outlook-matrix'].derivedFromUnsourceablePlan. Velocity and coverage have moved to their own portlet, where they are real, governed and non-additive — which is why they are never rolled up the motion rail."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "ACV/Attrition/NNAOV certified; no FinPlan object (§5.4)",
                 "candidates": [
                   "87% of a plan version nobody named",
                   "78% or 91% or 64%, by vintage"
@@ -4769,7 +4817,10 @@ export const FALLBACK_BOARD = {
                 "why": "This is the one band on the tab that is governed end to end. Both readings and both benchmarks are real measures with real names, which is more than the plan attainment above it can say. The benchmark is the average of the same fiscal quarter across the prior two fiscal years, not the same day of the prior quarter, and the relative-year window has to reach PY-1 or every historical figure returns null. The Analytics roll-up has no mark on either axis because both measures are non-additive, so there is nothing to place — the rule rendered rather than stated."
               },
               "directMode": {
-                "tier": "yellow",
+                "provenance": "certified",
+                "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "Coverage_clc + Historical_* certified, window governed (§5.4, §8)",
                 "candidates": [
                   "a benchmark over an unstated window"
                 ],
@@ -4863,7 +4914,10 @@ export const FALLBACK_BOARD = {
                 "why": "The ranking is the content, so it turns on the right measure and on re-sorting the rows rather than trusting the order they arrive in. Open Pipe carries its own hazard too: it is $0 the moment a deal is deaded, so a deal that dies between two readings drops off this rail instead of showing as a loss, and Yesterdays_Open_Pipe_clc is what shows what left."
               },
               "directMode": {
-                "tier": "yellow",
+                "provenance": "supplemented",
+                "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "ACV_clc + stated ranking rule; gap needs absent FinPlan (§5.4)",
                 "candidates": [
                   "five accounts, five amounts, no stated order"
                 ],
@@ -4993,7 +5047,10 @@ export const FALLBACK_BOARD = {
                 "why": "The driver-to-measure mapping is what turns a list of causes into something checkable — hovering or focusing a driver lights exactly the metrics it claims, so an over-broad claim is visible as a driver that lights the whole tab and a narrow one as a driver that lights a single panel. As authored, four of the six reach the same five metrics: that is the leadership read and it renders as given rather than being tidied into something more discriminating. Every one of the six reaches at least one metric this layer has no measure for, and the mapping is what makes that visible rather than a claim that quietly passes."
               },
               "directMode": {
+                "provenance": "narrative",
                 "tier": "grey",
+                "detectability": "none",
+                "groundedIn": "measure: null — correct as authored (§5.4)",
                 "candidates": [
                   "six causes, no mapping"
                 ],
@@ -5064,7 +5121,10 @@ export const FALLBACK_BOARD = {
                 "why": "The caveat under this panel turns out to be literally true of the semantic layer and not only of a CRM export: the roster is as-of-today, so a closed year read again next week is a different number. A five-year capacity line needs five as-of-period-end reads, and this layer holds none."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "yellow",
+                "detectability": "none",
+                "groundedIn": "no AE capacity measure in either model (§5.4, §10.1)",
                 "candidates": [
                   "745 as of today"
                 ],
@@ -5136,7 +5196,10 @@ export const FALLBACK_BOARD = {
                 ]
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "no productivity measure (§5.4); ACV numerator certified",
                 "candidates": [
                   "$200K",
                   "$268K",
@@ -5212,7 +5275,10 @@ export const FALLBACK_BOARD = {
                 "why": "The same ACV_clc as the tile on the Exec Summary tab at a coarser grain, which is a real edge and the reason the two tabs reconcile. Two of the five points are not: only three years of ACV exist, confirmed by the model owner, so FY23 and FY24 have no source and cannot be given one. The FY27 point is where the layer is most specific — a partial period needs Is_QTD_ACV_1_clc to be read against a full one, which is exactly what the detached point draws."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "FY25-27 certified; FY23-24 have no rows (§5.4, §8, §10.3)",
                 "candidates": [
                   "$496M",
                   "$580M",
@@ -5289,7 +5355,10 @@ export const FALLBACK_BOARD = {
                 "why": "Direction of good is stated by this board, not by the measure — nothing in this layer declares one. What the layer does state is depth and lag: three years of history at the outside, and actuals a month in arrears, so the FY27 reading is both partial and behind. Whether attrition reaches three years is itself unconfirmed — the owner's answer was about ACV, and attrition reads from a different CTE."
               },
               "directMode": {
-                "tier": "grey",
+                "provenance": "supplemented",
+                "tier": "red",
+                "detectability": "silent",
+                "groundedIn": "FY25-27 certified; FY23-24 have no rows (§5.4, §8, §10.3)",
                 "candidates": [
                   "requires manual reconstruction per year"
                 ],
@@ -5359,7 +5428,10 @@ export const FALLBACK_BOARD = {
                 "why": "AOV cannot be sourced here at all: it is excluded from both models in writing, Forecasting tells skill writers to say so, and the model owner confirms it. The nearest real balance in this layer is Open_Pipe_clc, which the Specialist doc exempts from period-to-date treatment by name — a stock the layer will actually answer for, where this one is not."
               },
               "directMode": {
-                "tier": "red",
+                "provenance": "supplemented",
+                "tier": "yellow",
+                "detectability": "none",
+                "groundedIn": "AOV explicitly excluded from both models (§5.5, §10.1)",
                 "candidates": [
                   "$3594M",
                   "$7188M if H1 is doubled"
@@ -5434,7 +5506,10 @@ export const FALLBACK_BOARD = {
                 "why": "The same field as the NNAOV tile on the Exec Summary tab, so the two tabs cannot disagree — they are consistently mislabelled together, because both render a commit as a booking. Two of the five points have no source either way: three years of history is the outside limit here too."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "red",
+                "detectability": "catchable",
+                "groundedIn": "FY25-27 certified; FY23-24 have no rows (§5.4, §8, §10.3)",
                 "candidates": [
                   "$166M",
                   "$310M",
@@ -5493,7 +5568,10 @@ export const FALLBACK_BOARD = {
                 "why": "Saying which of these rules is the layer's and which is the board's is the point of the card. Additivity and the period-to-date flag are real, named and discoverable, and a chart, an export or an agent reading the same measures inherits them without being told. Polarity is not: neither model carries a direction of good on any measure, so this tab states it rather than inheriting it. A rules card claiming the layer supplied it would be exactly the plausible-but-unsupported metadata this board exists to argue against."
               },
               "directMode": {
+                "provenance": "narrative",
                 "tier": "grey",
+                "detectability": "none",
+                "groundedIn": "presentation rules, no figure (§5.4)",
                 "candidates": [
                   "rules live in each analyst's head"
                 ],
@@ -5559,7 +5637,10 @@ export const FALLBACK_BOARD = {
                 "why": "The 5pt FY27 treatment headwind is a real fact about the business and not a fact this layer holds — no such note exists in either model's businessPreferences, which is where a documented treatment change would live. Sourcing revenue means a different system, not a better discovery call."
               },
               "directMode": {
+                "provenance": "supplemented",
                 "tier": "yellow",
+                "detectability": "none",
+                "groundedIn": "no revenue equivalent — model owner confirmed (§5.4, §10.1)",
                 "candidates": [
                   "$1726M H1",
                   "no note of the 5pt treatment change"

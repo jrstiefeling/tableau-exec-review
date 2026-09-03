@@ -11,7 +11,7 @@
  * charts enter independently and a tab switch cancels them cleanly. */
 
 import { chartFor } from "./charts/index.js";
-import { effectivePortlet, resolveAccent, tierOf, tierMeta, MODES } from "./semantic.js";
+import { effectivePortlet, resolveAccent, tierOf, detectOf, tierMeta, MODES } from "./semantic.js";
 
 /* Fields that exist only because a semantic layer asserts them. In direct
  * mode these are struck rather than hidden — the point is that they were
@@ -28,7 +28,23 @@ const PROVENANCE_FIELDS = [
   { key: "dashboard", label: "Dashboard" }
 ];
 
+/* The two vocabularies the trust dot compresses, spelled out for anyone who
+ * cannot see a glyph or hover a tooltip. */
+const DETECT_LABEL = {
+  silent: ", and the figure shown is wrong with nothing in the picture to say so",
+  catchable: ", and the figure shown is wrong by an amount a magnitude check would find"
+};
+const DETECT_TIP = {
+  silent: " The figure on this tile moved, and nothing about how it renders says so.",
+  catchable: " The figure on this tile moved by an amount its own shape gives away."
+};
+
 const BREAKDOWN_ROWS = [
+  /* `shownFrom` leads: it is the arithmetic that turns the governed figure into
+     the one on the tile, and it is the only row that lets a reader check the
+     claim rather than take it. */
+  { key: "shownFrom", label: "Shown from" },
+  { key: "wouldYouNotice", label: "Would you notice" },
   { key: "missing", label: "Missing" },
   { key: "effect", label: "Effect" },
   { key: "thesis", label: "Thesis" },
@@ -159,11 +175,19 @@ export class Portlet {
     const mode = this.deps.mode();
     const isDirect = mode === MODES.DIRECT;
     const tier = tierOf(this.spec, mode);
+    const detect = detectOf(this.spec, mode);
     const accent = resolveAccent(this.spec, mode);
     const effective = effectivePortlet(this.spec, mode);
     const meta = tierMeta(tier);
 
     this.el.dataset.tier = tier;
+    /* Detectability rides on the same element as the tier, because it is
+       rendered INSIDE the tier dot rather than beside it. An earlier draft gave
+       each portlet a separate warning chip, which put three affordances in a
+       head that has room for two and truncated the KPI titles to "Churned
+       annua…" at 1024. Provenance and detectability are two readings of one
+       fact, so they share one mark. */
+    this.el.dataset.detect = detect;
     this.el.style.setProperty("--accent", accent);
     this.el.style.setProperty("--tier-color", meta.color);
     /* Cleared before the chart mounts, not after. A chart whose surface is
@@ -175,14 +199,17 @@ export class Portlet {
     delete this.el.dataset.surface;
 
     this.trustDot.dataset.tier = tier;
+    this.trustDot.dataset.detect = detect;
+    /* Screen readers get the sentence the glyph is a shorthand for. A bare "!"
+       is not a label. */
     this.trustDot.setAttribute(
       "aria-label",
-      `${this.spec.label} provenance — ${meta.label}`
+      `${this.spec.label} provenance — ${meta.label}${DETECT_LABEL[detect] || ""}`
     );
     this.deps.tip(
       this.trustDot,
       isDirect
-        ? `${meta.label}. ${(this.spec.directMode || {}).missing || ""} Open for the full read.`
+        ? `${meta.label}.${DETECT_TIP[detect] || ""} ${(this.spec.directMode || {}).missing || ""} Open for the full read.`
         : `Governed · ${(this.spec.semantic || {}).measure || "narrative"} · ${(this.spec.semantic || {}).freshness || ""}. Open for definition, grain, lineage and row-level scope.`
     );
 

@@ -280,21 +280,46 @@
 /* Red and grey earn a hard mark. Yellow never does — it means workable but
    ungoverned, and marking it the same as "gone" would flatten the one
    distinction the tier system exists to draw. */
-.portlet[data-tier="red"] .trust-dot::after,
-.portlet[data-tier="grey"] .trust-dot::after {
-  content: "✕";
-  position: absolute;
-  inset: auto -5px -6px auto;
-  width: 11px;
-  height: 11px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--tier-color);
-  color: var(--on-tier);
-  font-size: 7.5px;
+/* No X badge, on any tier.
+   
+   Red and grey used to carry a hard ✕ in the corner of the dot. A strike is
+   the visual opposite of confidence, and confidence is exactly what an
+   inferred figure has: it arrives formatted, in range, and unqualified. The X
+   was the drain in miniature — it told the viewer which numbers to distrust,
+   which is the one service no raw source performs.
+
+   What replaces it is a glyph INSIDE the dot, and only in Direct to source.
+   The dot's core swaps from a 7px disc to a character, so the mark stays one
+   affordance at one size: the portlet head has room for a title, an expand and
+   a dot, and a fourth element truncated the KPI titles at 1024.
+
+     !  silent    — wrong, and nothing in the picture would tell you
+     ?  catchable — wrong by an amount a magnitude or shape check finds
+        none      — the figure did not move, because it never went through
+                    the layer. The four supplemented portlets keep the plain
+                    disc in both modes, which is what makes them legible as
+                    the control group. */
+.portlet[data-detect="silent"] .trust-dot::before,
+.portlet[data-detect="catchable"] .trust-dot::before {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--tier-color);
+  font-family: var(--font-body);
+  font-size: 12px;
   font-weight: 800;
   line-height: 1;
+  /* The glyphs are 1px apart on the optical centre and the dot is 22px, so
+     both are nudged rather than either being left to sit low. */
+  transform: translateY(-0.5px);
+}
+.portlet[data-detect="silent"] .trust-dot::before {
+  content: "!";
+}
+.portlet[data-detect="catchable"] .trust-dot::before {
+  content: "?";
 }
 
 .portlet-body {
