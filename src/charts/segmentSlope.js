@@ -36,6 +36,17 @@ import { strokeDraw, fadeIn, stagger, wait, veil } from "../anim.js";
 
 const BOX = { w: 780, h: 366 };
 const PAD = { l: 46, r: 186, t: 14, b: 30 };
+
+/* The visible window on growth.js's shared symlog axis, in the fractions that
+ * axis returns. The scale itself is untouched — a dot at -40% sits at the same
+ * fraction here as in any cell on the board — but the axis saturates at
+ * ±1585% and nothing on this tab falls below -48%, so drawing the full [-1, 1]
+ * spends a quarter of the plot on an empty decade and squeezes the platform
+ * block against the floor. The window keeps the -100% gridline so the crop is
+ * visible rather than implied, and the top stays at 1 because Tableau Next's
+ * PubSec reading is +1060%. */
+const F_HI = 1;
+const F_LO = -0.62;
 /* Inset so the ENTR and PubSec marks are not welded to the plot edge, and so
  * a dot at either end has room for its stroke. */
 const INSET = 16;
@@ -73,12 +84,12 @@ export function mount(host, ctx) {
 
   const plotW = BOX.w - PAD.l - PAD.r;
   const plotH = BOX.h - PAD.t - PAD.b;
-  const midY = PAD.t + plotH / 2;
-  const halfH = plotH / 2;
   const span = plotW - INSET * 2;
   const colX = (i) => PAD.l + INSET
     + (segments.length > 1 ? (i * span) / (segments.length - 1) : span / 2);
-  const yOf = (yoy) => midY - growthFraction(yoy) * halfH;
+  const yOfF = (f) => PAD.t + ((F_HI - f) / (F_HI - F_LO)) * plotH;
+  const yOf = (yoy) => yOfF(growthFraction(yoy));
+  const inWindow = (f) => f >= F_LO && f <= F_HI;
 
   const wrap = document.createElement("div");
   wrap.className = "slope";
@@ -114,6 +125,7 @@ export function mount(host, ctx) {
   GROWTH_TICKS.forEach((t) => {
     const levels = t.at === 0 ? [0] : [t.at, -t.at];
     levels.forEach((v) => {
+      if (!inWindow(growthFraction(v))) return;
       const y = yOf(v);
       const isZero = v === 0;
       const line = svgEl("path", {

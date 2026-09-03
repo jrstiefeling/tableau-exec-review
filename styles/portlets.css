@@ -3556,8 +3556,10 @@
   color: var(--ink-dim);
 }
 
+/* Inline, not pushed to the far right. Right-aligned it reached about five
+   pixels past the audit overlay's inset edge, so holding D left one glyph of
+   it visible past the end of the line covering it. */
 .gln-alt > em {
-  margin-left: auto;
   font-style: normal;
   font-size: clamp(8px, 0.6vw, 9.5px);
   color: var(--ink-dim);
@@ -4283,20 +4285,31 @@
  * because the charts do not share a numeral component, and it is enumerated
  * rather than reached for with a wildcard so that a new chart's hero has to be
  * added here deliberately — an audit pass that silently skips a figure is
- * worse than one that visibly does not cover it. */
+ * worse than one that visibly does not cover it.
+ *
+ * It has to skip a figure that did not move, though, and the sufficiency panel
+ * is where that bites. Its coverage and velocity readings are identical in
+ * both modes; what moved is the benchmark underneath them and therefore the
+ * verdict. Striking the readings would contradict that panel's own audit line,
+ * which says in words that the readings are unchanged — so the verdict and the
+ * benchmark are struck and the reading is left alone. */
 body.auditing .portlet[data-detect="silent"] :is(
     .stat-value, .attain-value, .attain-pct, .attain-yoy-label,
     .fan-headline, .fan-share, .trend-headline,
-    .gln-keyval, .gln-rolllab b, .gln-dotlab b,
-    .deal-value, .deals-value, .growth-row-value, .growth-rollup-total,
-    .movement-net, .bxa-read
+    .gln-keyval, .gln-rolllab b, .gln-rolllab span,
+    .gln-dotlab b, .gln-dotlab em,
+    .deal-value, .deals-value, .deals-sumtotal,
+    .growth-row-value, .growth-rollup-total,
+    .movement-net, .bxa-verdict, .bxa-base
   ),
 body.auditing .portlet[data-detect="catchable"] :is(
     .stat-value, .attain-value, .attain-pct, .attain-yoy-label,
     .fan-headline, .fan-share, .trend-headline,
-    .gln-keyval, .gln-rolllab b, .gln-dotlab b,
-    .deal-value, .deals-value, .growth-row-value, .growth-rollup-total,
-    .movement-net, .bxa-read
+    .gln-keyval, .gln-rolllab b, .gln-rolllab span,
+    .gln-dotlab b, .gln-dotlab em,
+    .deal-value, .deals-value, .deals-sumtotal,
+    .growth-row-value, .growth-rollup-total,
+    .movement-net, .bxa-verdict, .bxa-base
   ) {
   text-decoration: line-through;
   /* The strike is the tier colour, so it reads as the same voice as the dot
@@ -4414,9 +4427,13 @@ body.auditing .portlet[data-audit] .portlet-audit {
   flex: 1;
   min-height: 0;
   min-width: 0;
-  /* The diameter of a mark at metrics.stakeMax. Every dot is a fraction of
-     it, so the whole series rescales from one declaration. */
-  --dmax: clamp(11px, 1.35vw, 19px);
+  /* The diameter a mark would have at metrics.stakeMax. stakeMax is 83, the
+     Analytics Total reading, and the largest leaf cell here is $16M — so no
+     dot on this plot exceeds 44% of it and the ceiling is set well above the
+     size any mark actually reaches. Sizing against the leaf maximum instead
+     would break the one property the shared stake scale exists for: a dot
+     means the same number of dollars here as it does on the Product tab. */
+  --dmax: clamp(26px, 3.1vw, 44px);
 }
 
 .slope-chart {
