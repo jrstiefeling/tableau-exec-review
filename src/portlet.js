@@ -86,6 +86,16 @@ export class Portlet {
     body.className = "portlet-body";
     front.appendChild(body);
 
+    /* The audit overlay, built once and empty until it has something to say.
+     * Absolutely positioned so that holding D costs no reflow: 27 portlets
+     * reflowing on a keydown would make the pass feel like a page change,
+     * where it has to feel like a light being shone on a page that is already
+     * there. */
+    const audit = document.createElement("p");
+    audit.className = "portlet-audit";
+    audit.setAttribute("aria-live", "polite");
+    front.appendChild(audit);
+
     const back = document.createElement("div");
     back.className = "portlet-face portlet-back";
 
@@ -114,6 +124,7 @@ export class Portlet {
     this.el = el;
     this.body = body;
     this.back = back;
+    this.auditEl = audit;
     parent.appendChild(el);
     this.render();
     return el;
@@ -270,6 +281,47 @@ export class Portlet {
         ? `${meta.label}.${DETECT_TIP[detect] || ""} ${(this.spec.directMode || {}).missing || ""} Open for the full read.`
         : `Governed · ${(this.spec.semantic || {}).measure || "narrative"} · ${(this.spec.semantic || {}).freshness || ""}. Open for definition, grain, lineage and row-level scope.`
     );
+
+    /* The audit line: the certified figure, and the distance from it.
+     *
+     * Present only where a figure actually moved. The four supplemented
+     * portlets and the six narrative ones have no delta to state, so holding D
+     * leaves them completely untouched — and that is the most useful thing the
+     * pass does. A viewer holding the key sees ten panels sitting there
+     * unmarked and learns, without being told, that the layer was never what
+     * was holding those ten up. */
+    const dmAudit = this.spec.directMode || {};
+    /* Only a SCALAR hero can be quoted here. On the Five Year panels `display`
+       is the five-point series, and joining it produced an audit line reading
+       "certified $623 M,$608 M,$551 M,$496 M,$150 M" across two lines and over
+       the axis. Those panels fall back to the delta alone, which already says
+       how many of the five points moved. */
+    const heroDisplay = (this.spec.metrics || {}).display;
+    const governedHero = typeof heroDisplay === "string" ? heroDisplay : null;
+    const moved = detect !== "none";
+    delete this.el.dataset.audit;
+    this.auditEl.textContent = "";
+    if (isDirect && moved && dmAudit.certifiedDelta) {
+      this.auditEl.textContent = governedHero
+        ? `certified ${governedHero} · ${dmAudit.certifiedDelta}`
+        : `off certified by ${dmAudit.certifiedDelta}`;
+      this.el.dataset.audit = "on";
+    } else if (isDirect && dmAudit.provenance === "supplemented") {
+      /* Not "unchanged", which is what this said first and which is not quite
+       * true. These four panels did not hold steady against a certified
+       * figure — there is no certified figure for them to have held steady
+       * against. AE capacity, AOV and revenue have no measure in either model
+       * (§10.1, confirmed by the model owner), so the audit pass has nothing
+       * to lay beside them, and saying so is more use than a green tick.
+       *
+       * It also completes the pass's argument. Holding D marks seventeen
+       * panels with a distance from a certified number and four with the
+       * observation that no such number exists — which is the difference
+       * between "the layer was protecting this and now it is not" and "the
+       * layer was never here". */
+      this.auditEl.textContent = "no certified figure exists to compare";
+      this.el.dataset.audit = "absent";
+    }
 
     /* A re-render mid-sweep must not undo the priming. rerenderAll() runs on
        every mode toggle and lands before the sweep is scheduled, so without

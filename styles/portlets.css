@@ -4455,3 +4455,108 @@
   .trust-dot::before { transition: none; }
   .trust-dot.is-landing::before { animation: none; }
 }
+
+
+/* ---- the audit pass (hold D) --------------------------------------------- */
+
+.audit-hint {
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--ink) 52%, transparent);
+  white-space: nowrap;
+  margin-left: 10px;
+}
+.audit-hint kbd {
+  font-family: var(--font-body);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 3.5px;
+  border: 1px solid color-mix(in srgb, var(--ink) 26%, transparent);
+  border-radius: 3px;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+
+/* The struck figures.
+ *
+ * Keyed on data-detect, which means only the portlets whose figures actually
+ * MOVED get struck. The four supplemented panels and the six narrative ones
+ * carry no detect value, so holding D leaves them completely alone — and ten
+ * untouched panels is the most informative thing in the pass. It says, without
+ * a word of copy, that the layer was never what was holding those ten up.
+ *
+ * The selector list is every hero numeral class on the board. It is long
+ * because the charts do not share a numeral component, and it is enumerated
+ * rather than reached for with a wildcard so that a new chart's hero has to be
+ * added here deliberately — an audit pass that silently skips a figure is
+ * worse than one that visibly does not cover it. */
+body.auditing .portlet[data-detect="silent"] :is(
+    .stat-value, .attain-value, .attain-pct, .attain-yoy-label,
+    .fan-headline, .fan-share, .trend-headline,
+    .mmx-value, .mmx-readnum, .mmx-readvalue, .mmx-readyoy, .mmx-chip,
+    .deal-value, .deals-value, .growth-row-value,
+    .movement-net, .bxa-read
+  ),
+body.auditing .portlet[data-detect="catchable"] :is(
+    .stat-value, .attain-value, .attain-pct, .attain-yoy-label,
+    .fan-headline, .fan-share, .trend-headline,
+    .mmx-value, .mmx-readnum, .mmx-readvalue, .mmx-readyoy, .mmx-chip,
+    .deal-value, .deals-value, .growth-row-value,
+    .movement-net, .bxa-read
+  ) {
+  text-decoration: line-through;
+  /* The strike is the tier colour, so it reads as the same voice as the dot
+     that flagged the portlet rather than as a generic error state. */
+  text-decoration-color: color-mix(in srgb, var(--tier-color, var(--tier-red)) 78%, transparent);
+  text-decoration-thickness: 2px;
+  opacity: 0.5;
+}
+
+/* The certified figure and the distance from it. Sits at the foot of the
+ * portlet, over the caption, because every portlet has a foot and not every
+ * portlet has room beside its hero. */
+.portlet-audit {
+  position: absolute;
+  left: var(--pad-x, 14px);
+  right: var(--pad-x, 14px);
+  bottom: 7px;
+  margin: 0;
+  z-index: 4;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.005em;
+  color: var(--tier-green);
+  /* Opaque, and shadowed. The pass is held, so this is a light being shone on
+     a board rather than a change to it — and it does cover chart furniture on
+     the shorter cards. Reading cleanly as a layer ON TOP is better than
+     reading as broken layout, and what it covers (a Y/Y, a bar) is part of
+     what the pass is saying is wrong anyway. */
+  background: var(--surface);
+  box-shadow: 0 1px 7px -2px color-mix(in srgb, var(--ink) 30%, transparent);
+  border-left: 2.5px solid var(--tier-green);
+  padding: 3px 7px;
+  border-radius: 0 3px 3px 0;
+  opacity: 0;
+  transform: translateY(3px);
+  pointer-events: none;
+  transition: opacity 130ms ease, transform 130ms ease;
+}
+body.auditing .portlet[data-audit] .portlet-audit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* The four panels with no certified counterpart. Amber rather than green,
+ * because the line is not a comparison — it is the statement that no
+ * comparison is available. */
+.portlet[data-audit="absent"] .portlet-audit {
+  color: var(--tier-yellow);
+  border-left-color: var(--tier-yellow);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portlet-audit { transition: none; }
+}

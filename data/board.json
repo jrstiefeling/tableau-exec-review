@@ -88,7 +88,7 @@
                 "hazard": "field-ambiguity",
                 "shownFrom": "Three new-logo tests coexist on the raw object and nothing rules between them — a hand-maintained Type picklist, a New_Logo__c checkbox, and a first-close-date derivation. The direct read takes the most permissive: $6M × 1.867 = $11M. Plan recomputes against the same plan base: 28% rather than 15%. Y/Y against the same prior quarter ($24M): -53% rather than -75%.",
                 "wouldYouNotice": "No. It is still the worst attainment on the board and still a steep decline, so every check anyone applies to it passes. It is simply 87% less bad than the truth, which on the one measure the business is trying to turn around is the difference between \"act now\" and \"watch it\".",
-                "certifiedDelta": "+$5M · 87%",
+                "certifiedDelta": "+$5M · +87%",
                 "layerProvides": "A governed commit measure with a declared grain, so the net-new figure resolves to one definition rather than three.",
                 "layerDoesNotProvide": "The layer holds this only as a commit, not as a booked actual, and there is no target measure for it — the governed plan track is supplemented as well."
               }
@@ -225,7 +225,7 @@
                 "hazard": "point-in-time",
                 "shownFrom": "Attrition actuals land monthly and one month in arrears, with the in-flight month covered by a separate unofficial measure. A direct read finds two of the quarter's three months and reports the quarter as complete: $75M × 2/3 = $50M. Against the same plan base that is 69% rather than 104%; against the same prior year ($85M), -41% rather than -12%. The one-month lag is documented; the flat monthly distribution inside the quarter is a modelled input.",
                 "wouldYouNotice": "No, and worse — you would not want to. Lower is better on this measure, so 69% of plan puts the card in the positive band and it washes GREEN. The governed card is over plan on churn and reads as the miss it is. The degraded card reports the best churn quarter in three years, in the same green as a win. Nobody audits good news.",
-                "certifiedDelta": "-$25M · reads 35 points better than it is, and on the good side of plan rather than the bad",
+                "certifiedDelta": "-$25M · 104% → 69% of plan",
                 "layerProvides": "A named measure for landed actuals and a separate named measure for the in-flight month, so a query can distinguish a complete period from a partial one.",
                 "layerDoesNotProvide": "The layer names the two measures; it does not stop a query summing them, nor presenting a partial quarter as a whole one. It does not declare polarity either — that lower is better here is a property of the board, not of the model."
               }
@@ -467,7 +467,7 @@
                 "supplementedFrom": "The User Hierarchy table, refreshed weekly, reconciled by hand against the FinPlan breakout.",
                 "supplementCost": "No additivity guarantee, so a sum across two branches of the hierarchy may double-count a shared AE. No enforced as-of rule, so the count restates when a territory changes. No lineage, so nothing connects the figure to the quarter it was taken in.",
                 "wouldYouNotice": "Nothing to notice. The figure is the same in both modes. This panel does not move when the toggle flips, because it never went through the layer and there is no guarantee to withdraw. Four panels on this board behave this way, and they are the control group: what moved is what the layer was protecting.",
-                "certifiedDelta": "unchanged",
+                "certifiedDelta": null,
                 "layerProvides": null,
                 "layerDoesNotProvide": null
               }
@@ -3360,7 +3360,7 @@
                 "hazard": "conformed-identity",
                 "shownFrom": "Raw carries an account name, not the consolidated combo key the layer resolves to — the Forecasting model has no Account ID at all, only a name, and the other model has the ID. So a re-parented subsidiary arrives as two keys: one full non-renewal beside one phantom expansion. Modelled by moving accounts within 28 index points of the flat line out to the extremes, which is where a split baseline lands. The expanded and contracted counts and the headline share are then re-derived from the lines as drawn, so the caption cannot disagree with the picture. The roll-up carries the same 8.5% 'Other' inflation as the tile above it: $89.0M against $124M.",
                 "wouldYouNotice": "No. The fan still draws, the density curve keeps the same shape, and the concentration story reads BETTER than the truth — more expanders, a shallower middle. Nothing in a picture of shape reveals a population that has been redistributed, because the shape is what the picture is about and the shape is fine.",
-                "certifiedDelta": "same population, redistributed · the expanded share reads high",
+                "certifiedDelta": "same population, redistributed",
                 "layerProvides": "A consolidated account key — Global_Combo_Name6 — and a prior-year read through the relative-year dimension rather than through a separate snapshot, so both sides of the comparison are the same population.",
                 "layerDoesNotProvide": "Nothing here overclaims: the caveat in the availability table is a query-construction rule — pick one model, and ask for the full result set rather than a top-N — not a missing definition."
               }
@@ -3785,7 +3785,7 @@
                 "hazard": "decomposition-closure",
                 "shownFrom": "The group total and the line breakdown are two queries against four coexisting amount columns, and nothing in raw schema forces them onto the same one. The line-level read runs 6% high — half the up-to-12% per-deal divergence, because a product line aggregates many deals and it partly averages out — while each net is the governed group aggregate and does not move. So every wing overshoots its own net by 6%: Agentic Analytics Platform draws to −$42.2M against a printed net of −$39.8M, a $2.4M gap. The motion parentage is name-matched from product codes, there being no SKU-to-motion dimension in either model, so the two motions are the deck's grouping rather than the layer's.",
                 "wouldYouNotice": "Yes, and this is the one panel that gives itself away without anybody knowing the right answer. The panel states its own tolerance: figures are shown to $0.1M, so two rounded lines need not add to their rounded net by more than that. $2.4M is 24× the tolerance. Add the lines and they do not make the net — and because the gap is a fixed 6%, it is invisible on the largest group and glaring on the smallest: 6% of Agentic Analytics Platform, but the same proportion of a much smaller number on Embedded Agentic Analytics, which is where the growth story lives.",
-                "certifiedDelta": "lines +6% · nets unchanged · every decomposition fails to close",
+                "certifiedDelta": "lines +6% · nets unchanged",
                 "layerProvides": "A published additivity classification. The catalogue is physically organised into additive and do-not-sum sections, and this measure is in the additive one — which is what licenses a decomposition to be taken at all.",
                 "layerDoesNotProvide": "The grouping the decomposition is taken within. That is the deck's, not the layer's."
               }
@@ -4356,7 +4356,7 @@
                 "hazard": "definition-drift",
                 "shownFrom": "Public Sector is not a segment; it is an Operating Unit, and the fourth column is a coalesce the model owner describes as a rule to apply rather than a field to select. Without it, a PubSec account that also carries an Enterprise segment value lands in Enterprise. Modelled at 13% of each row's PubSec dollars: at the top level $2M moves, so PubSec reads $13M rather than $15M and Enterprise $41M rather than $39M. Y/Y recomputes against the same priors: PubSec -1% rather than +14%, Enterprise -32% rather than -35%. Every row total is unchanged, because the dollars moved sideways.",
                 "wouldYouNotice": "No, twice over. Every row total is identical, so the one check anyone runs passes. And the effect is to take the only growing column on the board to -1%, which reads as bad news rather than as an error. Bad news gets believed.",
-                "certifiedDelta": "$2M between two columns · every total unchanged",
+                "certifiedDelta": "$2M between two columns",
                 "layerProvides": "Segment10 as a governed dimension, resolved as of the period close.",
                 "layerDoesNotProvide": "The four-way split itself. PubSec is an Operating Unit, and the derived dimension that coalesces it with Segment10 is the model owner's own expression for a definition that does not exist in the model yet."
               }
@@ -4843,7 +4843,7 @@
                 "hazard": "decomposition-closure",
                 "shownFrom": "The group total and the line breakdown are two queries against four coexisting amount columns, and nothing in raw schema forces them onto the same one. The line-level read runs 6% high — half the up-to-12% per-deal divergence, because a product line aggregates many deals and it partly averages out — while each net is the governed group aggregate and does not move. So every wing overshoots its own net by 6%: Enterprise draws to −$21.8M against a printed net of −$20.5M, a $1.2M gap. The four segments are a coalesce the model owner describes as a rule to apply rather than a field to select, so each decomposition is taken over a population nothing versions.",
                 "wouldYouNotice": "Yes, and this is the one panel that gives itself away without anybody knowing the right answer. The panel states its own tolerance: figures are shown to $0.1M, so two rounded lines need not add to their rounded net by more than that. $1.2M is 12× the tolerance. Add the lines and they do not make the net — and because the gap is a fixed 6%, it is invisible on the largest group and glaring on the smallest: 6% of Enterprise, but the same proportion of a much smaller number on Public Sector, which is where the growth story lives.",
-                "certifiedDelta": "lines +6% · nets unchanged · every decomposition fails to close",
+                "certifiedDelta": "lines +6% · nets unchanged",
                 "layerProvides": "A published additivity classification. The catalogue is physically organised into additive and do-not-sum sections, and this measure is in the additive one — which is what licenses a decomposition to be taken at all.",
                 "layerDoesNotProvide": "The grouping the decomposition is taken within. That is the deck's, not the layer's."
               }
@@ -5224,7 +5224,7 @@
                 "hazard": "mixed",
                 "shownFrom": "Each column inherits the hazard of its own measure, at the same multipliers the exec cards use: ACV × 0.902 for the four coexisting amount columns, attrition × 2/3 for the month of arrears, NNAOV × 1.867 for the most permissive new-logo test. Analytics ACV reads $94.7M rather than $105M. The plan channel drops entirely rather than rendering against a candidate: FinPlan lives in the planning system at OU and product-family grain, is re-versioned at every reforecast, and reaches neither model — the only governed targets are pipegen and Day-1 open pipe. The alternative-basis figures go with it, there being nothing left to arbitrate between.",
                 "wouldYouNotice": "No, and the way you would fail to notice is instructive: this tab now AGREES with the exec tab, cell for cell, because both applied the same wrong multiplier to the same measure. Two surfaces reconciling is the check most people run, and it passes. What it demonstrates is that consistency is not correctness — the layer is what makes cross-tab agreement mean something.",
-                "certifiedDelta": "every cell moved · every plan track gone · the two tabs still agree",
+                "certifiedDelta": "every cell moved · every plan track gone",
                 "layerProvides": "Three certified measures with declared grains and date anchors, and the additivity classification that lets the three rows tile each other.",
                 "layerDoesNotProvide": "Any plan basis for these three measures, and no FinPlan object of any kind. Attainment exists only for pipegen and Day-1 open pipe."
               }
@@ -5436,7 +5436,7 @@
                 "hazard": "unstated-window",
                 "shownFrom": "The readings do not move: coverage is open pipe over commit and velocity is a pace, and a multiplier applied to the raw amounts cancels in a ratio, exactly as it does in pipegen's Y/Y. What moves is the benchmark. The governed Historical_* measures are the average of the same fiscal quarter across the prior two fiscal years, and the documents are emphatic that this is \"not last quarter, not just last year\". A direct read has no such measure and reconstructs the nearest thing to hand, the immediately prior quarter, modelled as a 15% seasonal step: platform coverage's benchmark reads 2.3× rather than 2.7×. The mark keeps its ring and the ring moves.",
                 "wouldYouNotice": "No, and the consequence is a sign flip on the only question the panel is asked. Platform coverage against the governed benchmark is −4% — flat, sufficient-but-not-improving. Against a prior-quarter benchmark it reads clearly above, so a pipeline that is merely holding station reads as one that is building. Both numbers are 2.6 against something beginning with 2.",
-                "certifiedDelta": "readings unchanged · every benchmark moved · two of three comparisons flip sign",
+                "certifiedDelta": "readings unchanged · every benchmark moved",
                 "layerProvides": "Coverage_clc and Historical_Coverage_clc, Specialist_V_clc and Historical_Velocity_clc — the reading and its comparison as a matched pair, with the window declared as part of the measure rather than chosen per query.",
                 "layerDoesNotProvide": "Nothing withheld here. This is the most fully governed portlet on the board, which is why it is the clearest demonstration: what raw source loses is not the number but the thing the number is compared against."
               }
@@ -5799,7 +5799,7 @@
                 "supplementedFrom": "The same weekly User Hierarchy extract as the exec tile, held as a five-year series in a maintained sheet.",
                 "supplementCost": "No enforced date anchor across the five points, so a year that was counted as-of a different week is not comparable with the others, and nothing says which weeks they were.",
                 "wouldYouNotice": "Nothing to notice. All five points are the same in both modes. This panel does not move when the toggle flips, because it never went through the layer and there is no guarantee to withdraw. Four panels on this board behave this way, and they are the control group: what moved is what the layer was protecting.",
-                "certifiedDelta": "unchanged",
+                "certifiedDelta": null,
                 "layerProvides": null,
                 "layerDoesNotProvide": null
               }
@@ -5889,7 +5889,7 @@
                 "hazard": "grain",
                 "shownFrom": "The numerator inherits the ACV field ambiguity on the three years the layer covers: $599 K → $540 K, $549 K → $495 K, $200 K → $180 K, and the H1 run-rate follows. FY23 and FY24 do not move, their numerator having been supplemented already. The denominator does not move in either mode — there is no governed headcount to withdraw.",
                 "wouldYouNotice": "No. Every point still declines, the H1 run-rate is still below every full year shown, and the caption still reads true. A ratio hides an error in its numerator better than the numerator does, because the reader is checking a trend and the trend is intact.",
-                "certifiedDelta": "three of five points moved · every conclusion unchanged",
+                "certifiedDelta": "three of five points moved",
                 "layerProvides": "The numerator, as a certified measure, for three of the five years.",
                 "layerDoesNotProvide": "The denominator, and therefore the measure. No AE capacity or productivity measure exists in either model — the model owner names productivity specifically. Both are supplemented from the User Hierarchy table.",
                 "metrics": {
@@ -6015,7 +6015,7 @@
                 "hazard": "field-ambiguity",
                 "shownFrom": "The layer holds three years of ACV and no more, confirmed by the model owner, so FY23 and FY24 are supplemented in BOTH modes and do not move. The three certified years inherit the four-column ambiguity at × 0.902: $551 M → $497 M, $496 M → $447 M, $150 M → $135 M. FY26's Y/Y is unchanged at -10%, because both of its points moved together. FY25's goes from -9% to -18%, because it compares an inferred point against a supplemented one. Mixing the two tiers puts the entire error on the boundary year.",
                 "wouldYouNotice": "No. On a series already declining, one steeper year reads as the story rather than as an artefact — and it is the year the eye goes to, because it is where the decline appears to accelerate. The acceleration is the seam between two sourcing tiers, and it is the only place on the whole board where you can see mixed sourcing doing damage.",
-                "certifiedDelta": "three of five points moved · the error concentrates on the boundary year",
+                "certifiedDelta": "three of five points moved",
                 "layerProvides": "One certified ACV measure that resolves identically here and on the exec tab, and a governed relative-year dimension for the three years it holds.",
                 "layerDoesNotProvide": "Two of these five years. Only three exist — an absolute date filter for FY23 or FY24 returns no rows — so the first two points are supplemented in governed mode too, and the panel says so in both.",
                 "metrics": {
@@ -6271,7 +6271,7 @@
                 "supplementedFrom": "A Snowflake balance on the active order book, queried directly. AOV is not merely absent from the two models — it is excluded from both in writing, and the Forecasting model instructs the agent to say so if asked.",
                 "supplementCost": "No additivity classification, which matters more here than anywhere: this is a stock, not a flow, and nothing enforces that it is never summed across periods. No versioning of the definition, so what counts as an active order this quarter may differ next quarter.",
                 "wouldYouNotice": "Nothing to notice. All five points are the same in both modes, and legitimately so — a direct Snowflake read is a real way to get a real number onto a board. This panel does not move when the toggle flips, because it never went through the layer and there is no guarantee to withdraw. Four panels on this board behave this way, and they are the control group: what moved is what the layer was protecting.",
-                "certifiedDelta": "unchanged",
+                "certifiedDelta": null,
                 "layerProvides": null,
                 "layerDoesNotProvide": null
               }
@@ -6363,7 +6363,7 @@
                 "hazard": "field-ambiguity",
                 "shownFrom": "The three years the layer covers inherit the permissive new-logo test at × 1.867 — $231 M → $431 M, $166 M → $310 M, $11 M → $21 M — while FY23 and FY24 are supplemented and do not move. The result is that FY25 ($431 M) now sits ABOVE FY23 ($423 M), so a monotonic five-year decline becomes a rise and then a fall, and FY25's Y/Y flips sign from -33% to 25%.",
                 "wouldYouNotice": "Yes, and not from any figure — every value is individually plausible. From the SHAPE. A five-year decline that turns upward in the middle is visibly wrong against the two points either side of it, and those two are the supplemented ones that did not move. The panel is caught by its own control group.",
-                "certifiedDelta": "three of five points moved · the trend reverses direction mid-series",
+                "certifiedDelta": "three of five points moved",
                 "layerProvides": "A governed commit measure with a declared grain and one new-logo definition rather than three.",
                 "layerDoesNotProvide": "Two of these five years, and the polarity that says a rise here is good news — neither model declares direction-of-good on any measure.",
                 "metrics": {
@@ -6551,7 +6551,7 @@
                 "supplementedFrom": "A finance-maintained sheet, downstream of the accounting treatment change documented for FY27.",
                 "supplementCost": "No lineage to the treatment change, so the FY27 discontinuity is visible in the series and unexplained by it. No enforced grain, so nothing prevents a revenue figure being compared with an ACV figure as though they were the same kind of thing.",
                 "wouldYouNotice": "Nothing to notice. All five points are the same in both modes. This panel does not move when the toggle flips, because it never went through the layer and there is no guarantee to withdraw. Four panels on this board behave this way, and they are the control group: what moved is what the layer was protecting.",
-                "certifiedDelta": "unchanged",
+                "certifiedDelta": null,
                 "layerProvides": null,
                 "layerDoesNotProvide": null
               }

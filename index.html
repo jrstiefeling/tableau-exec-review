@@ -115,9 +115,14 @@
               aria-pressed="false"
               title="Render the same board with no semantic layer (K)"
             >
-              Direct
+              Direct to source
             </button>
           </span>
+          <!-- The audit pass is a held key, so it cannot be found by looking.
+               This says so once, in direct mode only, beside the switch that
+               got you there — and it is the smallest type in the topbar
+               because it is an instruction, not a finding. -->
+          <span class="audit-hint" id="audit-hint" hidden>hold <kbd>D</kbd> to audit</span>
         </div>
       </header>
 

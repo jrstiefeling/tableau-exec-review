@@ -264,8 +264,7 @@ const mark = (id) => touched.push(id);
       + `${plan}% of plan puts the card in the positive band and it washes GREEN. The governed `
       + `card is over plan on churn and reads as the miss it is. The degraded card reports the `
       + `best churn quarter in three years, in the same green as a win. Nobody audits good news.`,
-    certifiedDelta: `${money(r1(value - m.value))} · reads ${Math.abs(m.plan - plan)} points better `
-      + `than it is, and on the good side of plan rather than the bad`,
+    certifiedDelta: `${money(r1(value - m.value))} · ${m.plan}% → ${plan}% of plan`,
     layerProvides: "A named measure for landed actuals and a separate named measure for the "
       + "in-flight month, so a query can distinguish a complete period from a partial one.",
     layerDoesNotProvide: "The layer names the two measures; it does not stop a query summing them, "
@@ -330,7 +329,7 @@ const mark = (id) => touched.push(id);
       + `so every check anyone applies to it passes. It is simply ${Math.round(((value / m.value) - 1) * 100)}% `
       + `less bad than the truth, which on the one measure the business is trying to turn around `
       + `is the difference between "act now" and "watch it".`,
-    certifiedDelta: `+${money(r1(value - m.value))} · ${pct(((value / m.value) - 1) * 100)}`,
+    certifiedDelta: `+${money(r1(value - m.value))} · +${pct(((value / m.value) - 1) * 100)}`,
     layerProvides: "A governed commit measure with a declared grain, so the net-new figure "
       + "resolves to one definition rather than three.",
     layerDoesNotProvide: "The layer holds this only as a commit, not as a booked actual, and "
@@ -993,7 +992,17 @@ const supplementedPanel = (id, from, cost, notMoved) => {
       + `flips, because it never went through the layer and there is no guarantee to withdraw. `
       + `Four panels on this board behave this way, and they are the control group: what moved `
       + `is what the layer was protecting.`,
-    certifiedDelta: "unchanged",
+    /* Deliberately null, not "unchanged".
+     *
+     * The audit pass lays a certified figure beside each moved one. These four
+     * have no certified figure for it to lay — AE capacity, AOV and revenue
+     * have no measure in either model at all (§10.1, confirmed by the model
+     * owner) — so "unchanged" would imply a comparison that was made and came
+     * back equal. Nothing was compared. The portlet renders the honest version
+     * instead: "no certified figure exists to compare", in amber rather than
+     * green, which is the difference between "the layer was protecting this
+     * and now it is not" and "the layer was never here." */
+    certifiedDelta: null,
     layerProvides: null,
     layerDoesNotProvide: null
   });
@@ -1036,6 +1045,35 @@ supplementedPanel("trend-revenue",
 
 const missing = [...byId.keys()].filter((id) => !touched.includes(id));
 if (missing.length) throw new Error(`no degraded authoring for: ${missing.join(", ")}`);
+
+/* The audit line has a box, and the box is about 215px wide inside a KPI card
+ * at the 1024 floor — two lines of roughly 42 characters.
+ *
+ * Some of these were authored as prose, because the interesting thing about a
+ * moved figure is usually not its delta but what the delta does to the
+ * reading. Attrition does not merely fall $25M; it reads 35 points better than
+ * it is and lands on the good side of plan rather than the bad. True, and
+ * three lines long, and it spilled out of the card and over the chart below.
+ *
+ * So the badge keeps the arithmetic and the provenance flip keeps the
+ * argument: every clause trimmed here already exists in `wouldYouNotice`, one
+ * click away on the same portlet, with room for a paragraph. Trimming whole
+ * segments rather than characters means a delta is never cut mid-number. */
+const BADGE_CHARS = 44;
+let trimmed = 0;
+byId.forEach((p) => {
+  const dm = p.directMode;
+  if (!dm || !dm.certifiedDelta) return;
+  const parts = String(dm.certifiedDelta).split(" · ");
+  let out = parts[0];
+  for (const part of parts.slice(1)) {
+    if (`${out} · ${part}`.length > BADGE_CHARS) break;
+    out = `${out} · ${part}`;
+  }
+  if (out !== dm.certifiedDelta) trimmed += 1;
+  dm.certifiedDelta = out;
+});
+console.log(`audit lines: ${trimmed} trimmed to <= ${BADGE_CHARS} chars`);
 
 writeFileSync(PATH, `${JSON.stringify(board, null, 2)}\n`);
 console.log(`authored ${touched.length} portlets`);

@@ -20,6 +20,7 @@ const dom = {
   tooltip: document.getElementById("tooltip"),
   layerToggle: document.getElementById("layer-toggle"),
   legend: document.getElementById("trust-legend"),
+  auditHint: document.getElementById("audit-hint"),
   legendDot: document.querySelector(".trust-legend-dot"),
   legendText: document.getElementById("trust-legend-text"),
   topbarName: document.getElementById("topbar-name"),
@@ -113,6 +114,15 @@ function boot({ board, fellBack }) {
   });
   dom.noticeDismiss.addEventListener("click", () => { dom.notice.hidden = true; });
 
+  /* Not scoped to the keydown target: a viewer who holds D and then clicks
+   * something has moved focus, and the board must not stay stuck in the audit
+   * pass because the keyup landed on a different element. window-level keyup
+   * and a blur guard between them make the release unconditional. */
+  document.addEventListener("keyup", (e) => {
+    if (e.key === "d" || e.key === "D") document.body.classList.remove("auditing");
+  });
+  window.addEventListener("blur", () => document.body.classList.remove("auditing"));
+
   document.addEventListener("keydown", (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const tag = (e.target.tagName || "").toLowerCase();
@@ -125,6 +135,27 @@ function boot({ board, fellBack }) {
       else if (controller.activeNotes() && controller.activeNotes().isOpen()) {
         controller.closeNotes();
       }
+      return;
+    }
+    /* The audit pass. HELD, not toggled, and the distinction is the whole
+     * design of it.
+     *
+     * A toggle invites the viewer to leave it on, and a board with the audit
+     * left on is a reconciliation view — it would sit there showing certified
+     * beside inferred, inviting someone to pick. This board reconciles nothing
+     * and offers no resolution; the layer is not a correction applied after
+     * the fact, it is where the definition lived in the first place. So the
+     * pass answers "which of these moved, and by how much" for exactly as long
+     * as the key is down, and then the board goes back to looking correct.
+     *
+     * The release is the argument. */
+    if (e.key === "d" || e.key === "D") {
+      if (e.repeat) return;
+      if (state.mode !== MODES.DIRECT) {
+        note("Nothing to audit — the board is already reading the governed measures.", 2600);
+        return;
+      }
+      document.body.classList.add("auditing");
       return;
     }
     if (e.key === "i" || e.key === "I") {
@@ -186,8 +217,12 @@ function boot({ board, fellBack }) {
     dom.legendText.textContent = direct ? "Direct to source" : "Governed";
     dom.legend.dataset.mode = direct ? "direct" : "governed";
     dom.legend.title = direct
-      ? "Direct to source — raw Salesforce and lakehouse, no semantic layer"
+      ? "Direct to source — raw Salesforce and lakehouse, no semantic layer. Hold D to audit the figures against the certified ones."
       : "Governed — Tableau semantic layer";
+    /* The audit pass is a held key and therefore undiscoverable, so direct mode
+     * says so once, quietly, beside the switch that got you here. It is absent
+     * in governed mode because there is nothing there to audit. */
+    dom.auditHint.hidden = !direct;
 
     inspector.closeNow();
     // Rebuild from the effective data, then re-run the entrance — so the
