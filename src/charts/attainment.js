@@ -117,10 +117,27 @@ function dirOf(good) {
 }
 
 /* The bullet track on its own, at whatever size the caller has room for.
- * Exported because tab 4's outlook matrix carries a FinPlan attainment in
- * three of its nine cells, and a second copy of this grammar there would be
- * two target encodings on one board. Same domain, same bands, same tick,
- * same reach-to-plan contract — just smaller. */
+ * Exported because tab 4's outlook band carries the same grammar, and a second
+ * copy of it there would be two target encodings on one board.
+ *
+ * The default is the plan-attainment case the exec hero cards use: a 0-110
+ * percent domain with the target at 100 and the sentiment bands behind it. The
+ * three options below generalise the *geometry* without touching that default,
+ * because the outlook band needs the identical construction on a different
+ * scale — commit in dollars, a target at the derived plan rather than at a
+ * fixed 100, and no sentiment bands, since a dollar axis has no bands to
+ * carry. What is reused is the part worth reusing: one continuous run from
+ * zero to the target, solid where it was delivered and dashed where it was
+ * not, the ink target tick standing proud of it, and the stepped cap past the
+ * tick when the reading overshoots.
+ *
+ *   domainMax  the end of the scale               (default DOMAIN_MAX)
+ *   target     where the reference tick stands    (default 100)
+ *   value      what the bar measures to           (default `plan`)
+ *   withBands  the sentiment bands behind it      (default true)
+ *
+ * `plan` still carries the tone in every case, so a dollar bar drawn at 87% of
+ * plan is tinted by the same planTone() rule as a percent one. */
 export function bulletTrack(opts = {}) {
   const {
     plan,
@@ -132,7 +149,11 @@ export function bulletTrack(opts = {}) {
     pad = 6,
     label = null,
     withArrow = false,
-    withRules = true
+    withRules = true,
+    withBands = true,
+    domainMax = DOMAIN_MAX,
+    target = 100,
+    value = null
   } = opts;
 
   const p = palette();
@@ -141,7 +162,10 @@ export function bulletTrack(opts = {}) {
   const bandH = Math.max(6, height * 0.5);
   const barH = Math.max(4, bandH * 0.72);
   const capH = Math.min(height - 2, bandH * 1.5);
-  const x = linearScale([0, DOMAIN_MAX], [track.x, track.x + track.w]);
+  const x = linearScale([0, domainMax], [track.x, track.x + track.w]);
+  // What the bar measures, in domain units. Defaults to `plan` so every
+  // existing caller keeps drawing exactly what it drew before.
+  const reading = value == null ? Number(plan) || 0 : Number(value);
 
   const svg = chartRoot(width, height, { label, class: "bullet-svg" });
   const marks = group();
@@ -165,7 +189,7 @@ export function bulletTrack(opts = {}) {
 
   const bands = [];
   const rules = [];
-  if (!isDirect) {
+  if (!isDirect && withBands) {
     planBands(good).forEach((b) => {
       // The down-polarity risk region has zero width on a 0-110 domain. It is
       // still in the rule; there is simply no room for it, so it is not drawn.
@@ -209,7 +233,7 @@ export function bulletTrack(opts = {}) {
    * where growFrom's scaleX would squash it mid-flight. Butt caps, because a
    * round cap overshoots the true endpoint by half the stroke width — points
    * of attainment the metric did not earn. */
-  const barEnd = Math.max(track.x + 1.5, x(Math.min(planPct, 100)));
+  const barEnd = Math.max(track.x + 1.5, x(Math.min(reading, target)));
   const bar = isVoid ? null : svgEl("path", {
     d: `M ${track.x} ${cy} H ${barEnd}`,
     stroke: tint,
@@ -226,9 +250,9 @@ export function bulletTrack(opts = {}) {
    * second chart appended to the first. */
   let gap = null;
   let overrun = null;
-  if (!isVoid && planPct < 100) {
+  if (!isVoid && reading < target) {
     gap = svgEl("path", {
-      d: `M ${barEnd} ${cy} H ${x(100)}`,
+      d: `M ${barEnd} ${cy} H ${x(target)}`,
       stroke: isDirect ? p.ghost : p.ink,
       "stroke-opacity": isDirect ? 0.9 : 0.42,
       "stroke-width": 1,
@@ -237,8 +261,8 @@ export function bulletTrack(opts = {}) {
     });
     marks.appendChild(gap);
   }
-  if (!isVoid && planPct >= 100) {
-    const capEnd = x(Math.min(planPct, DOMAIN_MAX));
+  if (!isVoid && reading >= target) {
+    const capEnd = x(Math.min(reading, domainMax));
     // Starts a little left of the tick so it covers the bar's terminal edge
     // and the two read as one run stepping up as it crosses, rather than as
     // two abutting marks. Height carries the crossing as a categorical fact;
@@ -246,8 +270,8 @@ export function bulletTrack(opts = {}) {
     // overshoot both produce the step, and only their lengths differ — which
     // is what makes over-attainment legible at any magnitude rather than only
     // when it is large.
-    const capStart = x(100) - Math.max(1.5, width * 0.014);
-    overrun = planPct > DOMAIN_MAX
+    const capStart = x(target) - Math.max(1.5, width * 0.014);
+    overrun = reading > domainMax
       ? svgEl("path", { d: notchedCapPath(capStart, capEnd, cy, capH), fill: tint, class: "bullet-overrun is-notched" })
       : svgEl("path", {
         d: `M ${capStart} ${cy} H ${capEnd}`,
@@ -265,7 +289,7 @@ export function bulletTrack(opts = {}) {
   let tick = null;
   if (!isVoid) {
     tick = svgEl("path", {
-      d: `M ${x(100)} ${cy - height * 0.34} V ${cy + height * 0.34}`,
+      d: `M ${x(target)} ${cy - height * 0.34} V ${cy + height * 0.34}`,
       stroke: isDirect ? p.axis : p.ink,
       "stroke-width": 1.6,
       class: "bullet-tick"
@@ -276,7 +300,7 @@ export function bulletTrack(opts = {}) {
 
   let arrow = null;
   if (withArrow && !isDirect) {
-    arrow = goodArrow(x(100), cy + height * 0.44, dirOf(good), width * 0.14, width * 0.028, 2.4, p.ink);
+    arrow = goodArrow(x(target), cy + height * 0.44, dirOf(good), width * 0.14, width * 0.028, 2.4, p.ink);
     marks.appendChild(arrow);
   }
 
@@ -308,7 +332,7 @@ export function bulletTrack(opts = {}) {
     arrow,
     voidMark,
     x,
-    planX: x(100),
+    planX: x(target),
     all: [rail, bands, rules, bar, gap, overrun, tick, arrow, voidMark]
   };
 }
@@ -568,6 +592,7 @@ export function mount(host, ctx) {
   const axisPlanEl = document.createElement("span");
   axisPlanEl.className = "attain-axis-plan";
   axisPlanEl.textContent = barIsVoid ? "no target" : "plan";
+  if (barIsVoid) axisPlanEl.dataset.void = "true";
   axis.appendChild(axisZeroEl);
   axis.appendChild(axisPlanEl);
   row.appendChild(axis);

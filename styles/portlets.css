@@ -774,6 +774,18 @@
 .attain-axis-zero { left: var(--zero-x, 4%); }
 .attain-axis-plan { left: var(--plan-x, 88%); }
 
+/* Direct mode swaps `plan` for `no target`, which is four times as wide under
+   a tick that sits at 88% of the track, so centring it hung the last letter
+   past the card's right edge and the face clipped it. The long form is
+   end-anchored to the strip instead: the tick still falls inside the label, it
+   is still the rightmost thing on the axis, and it is bounded by the same box
+   the track is at every width. */
+.attain-axis-plan[data-void="true"] {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
 /* Geometry survives a tight breakpoint; labels do not. The zero label is the
    first to go, because the left end of a bullet track is zero by convention
    and because at this width it lands a few pixels from the Y/Y readout in the
@@ -2838,7 +2850,7 @@
   grid-template-columns:
     clamp(22px, 2.2vw, 30px)
     minmax(96px, 168px)
-    repeat(3, minmax(0, 1fr));
+    repeat(var(--mmx-cols, 3), minmax(0, 1fr));
   /* Three authored rows. The row gap is zero on purpose: the containment rail
      spans the data rows as one stretched SVG, and only contiguous rows let its
      row centres land exactly rather than approximately. Rows are separated by
