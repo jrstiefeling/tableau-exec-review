@@ -78,13 +78,33 @@ export function veil(nodes) {
     nodes: list,
     hide() {
       if (reducedMotion()) return;
+      // A curtain drops, it does not fade. Assigning opacity alone is not
+      // enough: a node revealed by fadeTo or dashDraw can still be carrying
+      // that primitive's opacity transition, and then hiding it *animates* it
+      // down over 500-700ms. Because the panel is fading in over 420ms at the
+      // same time, the mark is painted, visibly fades out, and is drawn again
+      // — the blinking this function exists to prevent, reintroduced through
+      // the back door on every return visit.
       list.forEach((node) => {
+        node.style.transition = "none";
         node.style.opacity = "0";
+      });
+      // Commit the hidden state while the override is still in force, then
+      // drop it so stylesheet transitions (hover and the like) still apply
+      // and the reveal primitives set their own.
+      if (list.length) void list[0].getBoundingClientRect();
+      list.forEach((node) => {
+        node.style.transition = "";
       });
     },
     settle() {
       list.forEach((node) => {
+        node.style.transition = "none";
         node.style.opacity = "1";
+      });
+      if (list.length) void list[0].getBoundingClientRect();
+      list.forEach((node) => {
+        node.style.transition = "";
       });
     }
   };
@@ -278,7 +298,10 @@ export function dashDraw(node, opts = {}) {
   void node.getBoundingClientRect();
   node.style.transition = `opacity ${d(duration)}ms ${EASE_SOFT} ${d(delay)}ms`;
   node.style.opacity = "1";
-  return wait(delay + duration, signal).then(() => {});
+  return wait(delay + duration, signal).then(() => {
+    if (aborted(signal)) return;
+    node.style.transition = "";
+  });
 }
 
 /* --------------------------------- shapes -------------------------------- */
@@ -357,7 +380,12 @@ export function fadeTo(node, to, opts = {}) {
   node.style.transition = `opacity ${d(duration)}ms ${easing} ${d(delay)}ms`;
   node.style.opacity = String(to);
 
-  return wait(delay + duration, signal).then(() => {});
+  return wait(delay + duration, signal).then(() => {
+    if (aborted(signal)) return;
+    // Leave no transition on the node. Anything still carrying one when the
+    // next veil comes round gets faded out instead of hidden.
+    node.style.transition = "";
+  });
 }
 
 /* Fades a set of nodes in on a cascade. The per-item step is capped in total

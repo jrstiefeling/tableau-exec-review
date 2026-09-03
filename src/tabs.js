@@ -248,7 +248,15 @@ export class TabController {
     const sweep = (this.sweepId += 1);
     const still = reducedMotion();
     const t = replay ? TIMING.replay : TIMING.entry;
-    setMotionScale(still ? 1 : t.scale);
+    // Under reduced motion the primitives each jump to their final value, but
+    // every build path also paces itself with `wait()` between beats, so at a
+    // scale of 1 the board still assembles over the full sweep — a card rail
+    // took 600ms to seat six cards that had each already arrived. Collapsing
+    // the scale collapses the pacing too, which is what "jump to final state"
+    // has to mean for a composition rather than for one mark. The clamp in
+    // setMotionScale floors this at 0.01, so the longest build path costs a
+    // couple of dozen milliseconds instead of two and a half seconds.
+    setMotionScale(still ? 0 : t.scale);
 
     // Before anything is on screen: veil every chart. On a return visit the
     // charts are still sitting there finished, and letting them show through
