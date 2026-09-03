@@ -716,43 +716,30 @@
     "silentFailureModeCountNote": "The brief for this rewrite asked for the 18 modes in §2.5 of docs/semantic-layer.md. The table in that section actually has 20 rows. All 20 are recorded above rather than dropping two to hit the stated count. See documentAmbiguities."
   },
   "portlets": {
-    "_note": "One entry per portlet across all five tabs. 29 total. Status values: 'sourceable' (a certified measure exists and the whole tile can be produced), 'partial' (something exists but at a different definition, population or grain, or part of the tile cannot be produced), 'unsourceable' (nothing in either documented model answers this), 'narrative' (authored content, not a query). Every identifier the documents do not state is a <TBD: ...>. No apiName below is invented.",
+    "_note": "One entry per portlet across all five tabs. 27 total. Status values: 'sourceable' (a certified measure exists and the whole tile can be produced), 'partial' (something exists but at a different definition, population or grain, or part of the tile cannot be produced), 'unsourceable' (nothing in either documented model answers this), 'narrative' (authored content, not a query). Every identifier the documents do not state is a <TBD: ...>. No apiName below is invented. Where a portlet is 'partial' or 'unsourceable', `supplementedBy` records what supplies the missing part instead — the source kind, what specifically comes from there, the section of docs/semantic-layer.md that establishes the gap, and what the substitution costs. That field is the operational half of the finding: the board is not a semantic-layer-only artefact and was never going to be, so a gap is only half a fact until it says what fills it. Source kinds: 'google-sheet' (a person maintains it, re-versioned without history), 'warehouse-table' (a system maintains it, refreshed on its own schedule, no enforced as-of date), 'derived-in-board' (a real governed field with an authored grouping over it), 'not-a-source-gap' (the portlet is 'partial' for a reason that is not a missing source — a query-construction rule to keep, or authored narrative — and nothing supplements it).",
     "_sourceabilitySummary": {
-      "_note": "Recounted after the model owner's corrections were applied. These totals are derived from the status field on each entry below and agree with them exactly.",
-      "total": 29,
-      "sourceable": 1,
-      "partial": 20,
-      "unsourceable": 5,
-      "narrative": 3,
+      "total": 27,
       "byStatus": {
-        "sourceable": [
-          "kpi-pipegen"
-        ],
-        "unsourceable": [
+        "partial": 16,
+        "sourceable": 3,
+        "unsourceable": 5,
+        "narrative": 3
+      },
+      "supplemented": {
+        "portletsWithSomethingOutsideTheLayer": 18,
+        "wholePortlet": [
           "hc-ae",
           "trend-ae-capacity",
-          "trend-ae-productivity",
           "trend-aov",
           "trend-revenue"
         ],
-        "narrative": [
-          "going-well",
-          "h2-focus",
-          "drivers"
-        ],
-        "partialIsEverythingElse": 20
-      },
-      "byTab": {
-        "exec": 9,
-        "analytics-performance": 3,
-        "performance-by-segment": 3,
-        "q3-outlook": 5,
-        "trend": 9
-      },
-      "theTotalsDidNotMoveAndThatIsTheHonestResult": "The model owner's three answers changed a great deal about WHY portlets sit where they sit, and almost nothing about the counts. Worth stating plainly rather than manufacturing movement: (a) The five unsourceable portlets stay unsourceable — the answer confirmed them, so they moved from inferred to confirmed, which is a change in the strength of the claim rather than in the classification. (b) The segment tab's portlets were already 'partial' and stay 'partial': the segment axis went from sourceable-from-neither-model to sourceable-via-a-derived-dimension, which is a large gain, but the two product-motion rows still have no governed dimension and that is what held them at partial in the first place. (c) The three trend panels with real measures stay 'partial' because three of their five points are genuinely sourceable — but the shape of the shortfall got much worse, from two missing years pending a lookup to two years that do not exist. A status field is too coarse to carry that, which is why gaps.fiveYearTrendTabCannotBeSourced states it at the tab level.",
-      "theTabLevelCountThatDoesMatter": "Of the trend tab's nine portlets: four metric panels have NO source at all (all four confirmed by the model owner), three metric panels reach three of five periods, and two are authored content. THE TAB AS DESIGNED CANNOT BE SOURCED, even though no single portlet's status changed. Per-portlet classification hides tab-level impossibility, and this is the case where it does.",
-      "onlyFullySourceableTile": "kpi-pipegen, still the only one — because pipegen is the only metric with a governed target-and-attainment pair.",
-      "q3RedesignNote": "The Q3 outlook tab was recomposed after this summary was written. outlook-acv, outlook-attrition and outlook-nnaov are removed; outlook-benchmark is new and is the tab's only fully sourceable portlet; and outlook-matrix and outlook-deals both now carry quantities derived from the unsourceable FinPlan attainment — see gaps.planAttainment.derivedQuantitiesThatInheritThisLimit."
+        "byKind": {
+          "warehouse-table": 5,
+          "google-sheet": 8,
+          "derived-in-board": 5
+        },
+        "note": "Four portlets are supplemented end to end and have no certified counterpart at all; the rest are certified measures with one channel, dimension or period outside the layer. The four are the control group on the direct-to-source toggle: their figures do not move, because there is no guarantee to withdraw."
+      }
     },
     "kpi-nnaov": {
       "tab": "exec",
@@ -789,7 +776,15 @@
         "Tableau Extract (.tdsx)",
         "Commits",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "supplementedBy": {
+        "scope": "hero measure AND plan track",
+        "kind": "google-sheet",
+        "source": "Planning spreadsheet, plus a definitional gap in the layer itself",
+        "supplies": "The 100% reference, and the presentation of a commit as a booked actual.",
+        "because": "§3.2 for the target, and §10.4 for the measure: NNAOV exists only as a commit. NNAOV_Commit_clc is a forecast, not a booking, and the board presents it as a booked quarter result with a Y/Y and a plan attainment.",
+        "cost": "The only portlet on the board whose HERO figure is misdescribed rather than merely unenforced, which is why its dot is amber in governed mode where kpi-acv's is green."
+      }
     },
     "kpi-acv": {
       "tab": "exec",
@@ -831,7 +826,15 @@
         "Tableau Extract (.tdsx)",
         "ACV_HISTORICALS / TODAY_AND_DEAL_MGMT",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "supplementedBy": {
+        "scope": "plan attainment track only",
+        "kind": "google-sheet",
+        "source": "Planning spreadsheet",
+        "supplies": "The 100% reference the bar is read against. The $82M itself is ACV_clc.",
+        "because": "§3.2 — target and attainment measures exist for Pipe Gen and Day-1 Open Pipe, by product and by source, and for nothing else. §5.4 records that the FinPlan lineage node three portlets name does not exist.",
+        "cost": "Re-versioned at every reforecast with no history, so a screenshot of 70% of plan cannot be reproduced later. Rendered as a dashed amber tick on the card."
+      }
     },
     "kpi-attrition": {
       "tab": "exec",
@@ -870,7 +873,15 @@
         "Tableau Extract (.tdsx)",
         "ATTRITION_ACTUALS / ATTRITION_UNOFFICIAL",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "supplementedBy": {
+        "scope": "plan attainment track only",
+        "kind": "google-sheet",
+        "source": "Planning spreadsheet",
+        "supplies": "The 100% reference. The $75M is Attrition_clc.",
+        "because": "§3.2 — no attrition target measure exists.",
+        "cost": "As kpi-acv. Note the polarity too: that lower is better here is the board's statement, not the model's — §12 corrected this document once for claiming the layer declares measure polarity."
+      }
     },
     "kpi-pipegen": {
       "tab": "exec",
@@ -961,7 +972,15 @@
         "Tableau Extract (.tdsx)",
         "APM product hierarchy (L1/L2/L3)",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "supplementedBy": {
+        "scope": "Embedded / Agentic partition",
+        "kind": "derived-in-board",
+        "source": "Board-side grouping over APM_L120 / APM_L218",
+        "supplies": "The two-motion parentage. The dollars and the leaf products are ACV_clc.",
+        "because": "§5.2 — 'Product motion' in the grain is not a real dimension; the real fields are APM_L120 and APM_L218. §11 records that FCST lists twelve APM_L120 values and does not use the labels this board groups by.",
+        "cost": "A real hierarchy underneath and an authored roll-up on top. Nothing stops the twelve APM values being re-parented, and the panel would still add up."
+      }
     },
     "hc-ae": {
       "tab": "exec",
@@ -992,7 +1011,15 @@
       "confirmedByModelOwner": "The business analyst who owns these semantic models states plainly that headcount and headcount-derived metrics are not available in this SDM. This is no longer a gap this file inferred from the field catalogues; it is settled by the person who owns the model. Anything sourcing headcount would have to come from OUTSIDE THIS SEMANTIC LAYER ENTIRELY — not from a third SDM this file failed to find.",
       "wouldRequireToSourceFully": "A governed quota-carrying-headcount measure with a period-end grain, or a slowly-changing-dimension user table with effective dates. Neither exists here and neither is coming from a further search of this layer. Sourcing it means a different system — <TBD: identify the workforce / capacity system of record and whether it is reachable at all from this app's connections; it is not a Tableau Next discovery call.> The previous instruction to run list_semantic_models for 'headcount' / 'capacity' / 'roster' has been removed: it was a hedge, and the model owner has closed it.",
       "renderAs": "Set measure: null and render as unavailable, or state the derivation AND its limits: current-state only, weekly refresh, no as-of-period-end.",
-      "theBoardIsAccidentallyRight": "The portlet's own directMode warning — 'as-of-today only; prior quarters restate' — turns out to be LITERALLY TRUE of the real semantic layer, not just of raw Org62. That is worth knowing before the demo asserts otherwise."
+      "theBoardIsAccidentallyRight": "The portlet's own directMode warning — 'as-of-today only; prior quarters restate' — turns out to be LITERALLY TRUE of the real semantic layer, not just of raw Org62. That is worth knowing before the demo asserts otherwise.",
+      "supplementedBy": {
+        "scope": "whole portlet",
+        "kind": "warehouse-table",
+        "source": "User Hierarchy table, weekly refresh",
+        "supplies": "Quota-carrying AE headcount, and the 904 prior-year baseline behind the -18%.",
+        "because": "§5.2 and §10.1 — no AE capacity measure exists in either model, confirmed by the model owner, who names headcount and anything divided by headcount as a category.",
+        "cost": "Weekly refresh against a board labelled quarter-to-date, no enforced as-of date, and no lineage. Nothing stops the roster being re-cut mid-quarter and the prior-year comparison moving with it."
+      }
     },
     "acv-account-fan": {
       "tab": "exec",
@@ -1049,7 +1076,12 @@
         "Tableau Extract (.tdsx)",
         "ACV_HISTORICALS",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "supplementedBy": {
+        "scope": "nothing",
+        "kind": "not-a-source-gap",
+        "because": "Nothing is supplemented. §5.2's warning on this portlet is a query-construction rule, not a definitional gap: resolve the account hierarchy field to one model rather than both (FCST has no Account ID, only Account_Name129; SPEC has Account_ID106), and the utterance must request the full result set rather than a top-N. ACV_clc at account x relative year answers the whole panel once those two rules are kept."
+      }
     },
     "going-well": {
       "tab": "exec",
@@ -1124,7 +1156,15 @@
         "ACV_HISTORICALS / TODAY_AND_DEAL_MGMT",
         "APM product hierarchy (L1/L2/L3)",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "supplementedBy": {
+        "scope": "two-level motion taxonomy",
+        "kind": "derived-in-board",
+        "source": "Board-side grouping over APM_L120 / APM_L218",
+        "supplies": "The parent rows. Every leaf and every dollar is ACV_clc.",
+        "because": "§5.2, §11 — as mix-acv.",
+        "cost": "The roll-up closes by additivity, which the layer does guarantee (§7.1). What it does not guarantee is that these are the right parents."
+      }
     },
     "perf-divergence": {
       "tab": "analytics-performance",
@@ -1169,7 +1209,15 @@
       ],
       "priorYearSourcing": "Prior-year dollars are the 'PY' rows of the SAME grouped pull, not a separate point-in-time snapshot and not a second query: Close_Date_Relative_Year_clc IN ('CY','PY') is already in requiredFilters because the Y/Y needs it, so the prior-period ACV_clc rows are already in the result set. The panel that stood here discarded them and kept two rates; this one keeps the dollars and computes nothing from the rates. Same reasoning as portlets['acv-account-fan'].oneGroupedQueryNotTwoPulls.",
       "whyThisIsBetterSourcedThanWhatItReplaces": "The dispersion panel needed a client-side min and max over governed rates — legal, but a selection this board had to justify. This panel needs two dollar figures per line, both governed rows of the same pull, and does its one subtraction on a measure the model certifies as additive. Fewer client-side steps on a stronger guarantee.",
-      "authoringRule": "The 20 movements are AUTHORED in board.json, not computed at render time, per docs/visualization-research.md. A live implementation reads the 'PY' rows directly and does not reproduce the board's derivation."
+      "authoringRule": "The 20 movements are AUTHORED in board.json, not computed at render time, per docs/visualization-research.md. A live implementation reads the 'PY' rows directly and does not reproduce the board's derivation.",
+      "supplementedBy": {
+        "scope": "motion parentage of the decomposition",
+        "kind": "derived-in-board",
+        "source": "Board-side grouping over APM_L120 / APM_L218",
+        "supplies": "Which leaves belong to which wing. The nets and the movements are ACV_clc.",
+        "because": "§5.2, §11 — as mix-acv. Additivity itself is governed (§3.4, §7.1), which is what makes an inferred decomposition that does not close a self-evident failure.",
+        "cost": "The wings are authored; the arithmetic is not. That asymmetry is the panel's whole value in direct mode."
+      }
     },
     "perf-rules": {
       "tab": "analytics-performance",
@@ -1194,7 +1242,12 @@
       "cannotSource": [
         "polarity"
       ],
-      "wouldRequireToSourceFully": "A documented direction-of-good property returned by get_semantic_model_metric. <TBD: inspect a live metric definition to confirm whether one exists.>"
+      "wouldRequireToSourceFully": "A documented direction-of-good property returned by get_semantic_model_metric. <TBD: inspect a live metric definition to confirm whether one exists.>",
+      "supplementedBy": {
+        "scope": "nothing",
+        "kind": "not-a-source-gap",
+        "because": "Authored narrative, not a query. §5.2 records that three of the four rules on these cards are supportable from businessPreferences and that the fourth — measure polarity — is not, which is why the card states direction of good as the board's decision rather than the layer's. Nothing to supplement; the correction was to the claim."
+      }
     },
     "seg-matrix": {
       "tab": "performance-by-segment",
@@ -1267,7 +1320,15 @@
         "ACV_HISTORICALS",
         "APM product hierarchy (L1/L2/L3)",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "supplementedBy": {
+        "scope": "the four segment columns",
+        "kind": "derived-in-board",
+        "source": "The model owner's own expression: IF OU = Public Sector then OU else segment end",
+        "supplies": "The segment dimension every column is cut by.",
+        "because": "§10.2 — the owner supplied this expression, and §9 calls it a definition that does not exist in the model yet. A definition with a person behind it and nothing enforcing it is the textbook supplemented case.",
+        "cost": "Public Sector is carved out of an OU field by a rule that lives in a query rather than in the model, so two people can write it differently and both be defensible."
+      }
     },
     "seg-spread": {
       "tab": "performance-by-segment",
@@ -1311,7 +1372,15 @@
       ],
       "priorYearSourcing": "Prior-year dollars are the 'PY' rows of the SAME grouped pull, not a separate point-in-time snapshot and not a second query: Close_Date_Relative_Year_clc IN ('CY','PY') is already in requiredFilters because the Y/Y needs it, so the prior-period ACV_clc rows are already in the result set. The panel that stood here discarded them and kept two rates; this one keeps the dollars and computes nothing from the rates. Same reasoning as portlets['acv-account-fan'].oneGroupedQueryNotTwoPulls.",
       "whyThisIsBetterSourcedThanWhatItReplaces": "The dispersion panel needed a client-side min and max over governed rates — legal, but a selection this board had to justify. This panel needs two dollar figures per line, both governed rows of the same pull, and does its one subtraction on a measure the model certifies as additive. Fewer client-side steps on a stronger guarantee.",
-      "authoringRule": "The 20 movements are AUTHORED in board.json, not computed at render time, per docs/visualization-research.md. A live implementation reads the 'PY' rows directly and does not reproduce the board's derivation."
+      "authoringRule": "The 20 movements are AUTHORED in board.json, not computed at render time, per docs/visualization-research.md. A live implementation reads the 'PY' rows directly and does not reproduce the board's derivation.",
+      "supplementedBy": {
+        "scope": "the segment dimension of the decomposition",
+        "kind": "derived-in-board",
+        "source": "As seg-matrix",
+        "supplies": "Which accounts belong to which segment. The dollars are ACV_clc.",
+        "because": "§10.2, §9 — as seg-matrix.",
+        "cost": "As seg-matrix, and the decomposition inherits it: a mis-assigned account moves dollars between wings without changing the net."
+      }
     },
     "seg-rules": {
       "tab": "performance-by-segment",
@@ -1335,125 +1404,12 @@
       "cannotSource": [
         "any polarity claim"
       ],
-      "wouldRequireToSourceFully": "As perf-rules."
-    },
-    "outlook-acv": {
-      "tab": "q3-outlook",
-      "status": "removed",
-      "model": "Sls_Forecasting_Metrics_Expanded",
-      "measures": {
-        "forecastCommit": "Current_Commit_clc",
-        "bookedToDate": "ACV_clc",
-        "openPipeline": "Open_Pipe_clc",
-        "planAttainment": null
-      },
-      "measureCorrection": "The authored definition — 'closed-won to date plus in-quarter pipeline weighted by the certified stage-probability model, normalized to a 12-month term' — describes a measure that does not exist. There is NO stage-probability model in either document. The governed forward-looking ACV measure is Current_Commit_clc ('ACV forecast commit'). Either bind the tile to Current_Commit_clc and relabel it as a COMMIT, or state the closed-plus-weighted-pipeline composition as a board-defined derivation. Do not present Current_Commit_clc as ACV: it will not equal ACV_clc and the cross-tab measure-identity edge to kpi-acv and trend-acv would be false.",
-      "dimensions": [
-        "Close_Date_Fiscal_Quarter_Datepart_clc",
-        "Close_Date_Relative_Year_clc",
-        "OU_Group_clc or OU_Operating_Unit (for the alternate basis)"
-      ],
-      "rowGrain": "one row per metric per opportunity per user in the reporting hierarchy",
-      "presentationGrain": "fiscal quarter x board scope",
-      "dateAnchor": "Close_Date17",
-      "requiredFilters": [
-        "exactly one dedup filter",
-        "Is_QTD_ACV_1_clc = TRUE on any Y/Y while the quarter is open"
-      ],
-      "utteranceShape": "Return Commit (Current_Commit_clc) for <scope filter>, filtered to Close_Date_Fiscal_Quarter_Datepart_clc = <resolved at runtime> and Close_Date_Relative_Year_clc = 'CY'. Do not apply Is_Current_Quarter_clc.",
-      "needs": [
-        "value",
-        "yoy"
-      ],
-      "cannotSource": [
-        "the stage-probability weighting",
-        "any plan attainment (none authored on this tile, correctly)"
-      ],
-      "wouldRequireToSourceFully": "A governed weighted-pipeline outlook measure, or an explicit board-defined composition of ACV_clc + a stated weighting of Open_Pipe_clc, versioned in the repo and labelled as the board's own derivation.",
-      "knowledgeGraphEdge": "This tile carries one semantic.measure and holds the edge to kpi-acv and trend-acv. If the tile binds to Current_Commit_clc rather than ACV_clc, THE EDGE MUST NOT BE DRAWN — it would be the board making exactly the loose measure-identity claim it argues against.",
-      "lineage": [
-        "Org62 Opportunity",
-        "Tableau Extract (.tdsx)",
-        "Commits",
-        "Sls_Forecasting_Metrics_Expanded"
-      ],
-      "removedAtTheQ3Redesign": "This tile no longer exists. The three head tiles restated the matrix's Analytics row one band below them — $105M, $79.5M, $25.5M — and the two surfaces disagreed on NNAOV Y/Y (−41% on the tile, −43% in the cell, on the same $25.5M). The band was deleted. The measures survive in portlets['outlook-matrix'], which is now the tab's only reading of each. Everything below is retained because the binding notes still apply there."
-    },
-    "outlook-attrition": {
-      "tab": "q3-outlook",
-      "status": "removed",
-      "model": "Sls_Forecasting_Metrics_Expanded",
-      "measures": {
-        "primary": "Attrition_Commit_clc",
-        "actualForReference": "Attrition_clc"
-      },
-      "measureNote": "This is the tile where the forecast measure is the RIGHT one: Attrition_Commit_clc is 'current attrition forecast commit', and an outlook tile wants a forecast. Bind here, not to Attrition_clc, and label it as a commit.",
-      "dimensions": [
-        "Close_Date_Fiscal_Quarter_Datepart_clc",
-        "Close_Date_Relative_Year_clc",
-        "OU_Group_clc or OU_Operating_Unit (for the *OU Roll-up alternate basis)"
-      ],
-      "rowGrain": "one row per metric per opportunity per user in the reporting hierarchy",
-      "presentationGrain": "fiscal quarter x board scope",
-      "dateAnchor": "Close_Date17",
-      "requiredFilters": [
-        "exactly one dedup filter"
-      ],
-      "utteranceShape": "Return Attrition Commit (Attrition_Commit_clc) for <scope filter>, filtered to Close_Date_Fiscal_Quarter_Datepart_clc = <resolved> and Close_Date_Relative_Year_clc = 'CY'.",
-      "needs": [
-        "value",
-        "yoy"
-      ],
-      "cannotSource": [
-        "polarity — goodDirection: 'down' is a board decision, not a layer property",
-        "any plan attainment"
-      ],
-      "lagCaveat": "If Attrition_clc is used anywhere on this tile as a comparison, the 1-month arrears lag applies and must be stated. Attrition_Commit_clc is a live forecast and does not carry the lag.",
-      "lineageCorrection": "'Org62 Contract', 'Revenue Recognition Ledger', 'Renewal Book Snapshot' and 'FinPlan FY27 Target' — none of the four exists in this layer.",
-      "lineage": [
-        "Org62 Opportunity",
-        "Tableau Extract (.tdsx)",
-        "Commits / ATTRITION_UNOFFICIAL",
-        "Sls_Forecasting_Metrics_Expanded"
-      ],
-      "removedAtTheQ3Redesign": "This tile no longer exists. The three head tiles restated the matrix's Analytics row one band below them — $105M, $79.5M, $25.5M — and the two surfaces disagreed on NNAOV Y/Y (−41% on the tile, −43% in the cell, on the same $25.5M). The band was deleted. The measures survive in portlets['outlook-matrix'], which is now the tab's only reading of each. Everything below is retained because the binding notes still apply there."
-    },
-    "outlook-nnaov": {
-      "tab": "q3-outlook",
-      "status": "removed",
-      "model": "Sls_Forecasting_Metrics_Expanded",
-      "measures": {
-        "primary": "NNAOV_Commit_clc"
-      },
-      "measureNote": "The second tile where the commit measure is the RIGHT one. NNAOV_Commit_clc is a forecast and this is an outlook tile, so the semantics finally line up — unlike kpi-nnaov and trend-nnaov, which render the same commit measure as a booked actual.",
-      "dimensions": [
-        "Close_Date_Fiscal_Quarter_Datepart_clc",
-        "Close_Date_Relative_Year_clc",
-        "New_Logo_Eligible4"
-      ],
-      "rowGrain": "one row per metric per opportunity per user in the reporting hierarchy",
-      "presentationGrain": "fiscal quarter x board scope",
-      "dateAnchor": "Close_Date17",
-      "requiredFilters": [
-        "exactly one dedup filter"
-      ],
-      "utteranceShape": "Return NNAOV Commit (NNAOV_Commit_clc) for <scope filter>, filtered to Close_Date_Fiscal_Quarter_Datepart_clc = <resolved> and Close_Date_Relative_Year_clc = 'CY'.",
-      "needs": [
-        "value",
-        "yoy"
-      ],
-      "cannotSource": [
-        "the Y/Y as a governed measure — no NNAOV_Commit year-over-year measure is documented. <TBD: confirm whether a Y/Y variant exists via list_semantic_model_calculated_measures.> Without one, the Y/Y must come from a grouped pull on Close_Date_Relative_Year_clc, not from client-side division.",
-        "the first-purchase test the authored definition describes — no such rule is documented on this measure"
-      ],
-      "definitionCorrection": "The authored definition claims 'an explicit rule for which account history a still-open deal is tested on. That rule is the measure.' Nothing in either document describes such a rule. New_Logo_Eligible4 is a dimension flag; the flag and the commit measure are separate things.",
-      "lineage": [
-        "Org62 Opportunity",
-        "Tableau Extract (.tdsx)",
-        "Commits",
-        "Sls_Forecasting_Metrics_Expanded"
-      ],
-      "removedAtTheQ3Redesign": "This tile no longer exists. The three head tiles restated the matrix's Analytics row one band below them — $105M, $79.5M, $25.5M — and the two surfaces disagreed on NNAOV Y/Y (−41% on the tile, −43% in the cell, on the same $25.5M). The band was deleted. The measures survive in portlets['outlook-matrix'], which is now the tab's only reading of each. Everything below is retained because the binding notes still apply there."
+      "wouldRequireToSourceFully": "As perf-rules.",
+      "supplementedBy": {
+        "scope": "nothing",
+        "kind": "not-a-source-gap",
+        "because": "Authored narrative, not a query. As perf-rules."
+      }
     },
     "outlook-matrix": {
       "tab": "q3-outlook",
@@ -1527,7 +1483,15 @@
         "neverSum": "The three derived plans do not reconcile: $96.8M + $23M = $119.8M against Analytics' own $120.7M. The renderer states plan per row and never adds them, and there is no bridge or waterfall on the tab for that reason. Do not add one when wiring this live.",
         "wouldRequire": "The same thing the attainment itself would require — a FinPlan object or an ACV target-and-attainment measure pair on the pipegen pattern. Nothing further: given a governed attainment, the derivation above is exact."
       },
-      "movedOutAtTheRedesign": "Velocity and coverage are no longer read from this portlet. They are properties of a motion rather than of that motion's ACV, and they now bind to portlets['outlook-benchmark'] — where the 'hist' relabelling below applies instead."
+      "movedOutAtTheRedesign": "Velocity and coverage are no longer read from this portlet. They are properties of a motion rather than of that motion's ACV, and they now bind to portlets['outlook-benchmark'] — where the 'hist' relabelling below applies instead.",
+      "supplementedBy": {
+        "scope": "merged plan column",
+        "kind": "google-sheet",
+        "source": "Planning spreadsheet",
+        "supplies": "The derived plan and the gap-to-plan bracket. The ACV and attrition cells are certified.",
+        "because": "§3.2 — no ACV target measure. The plan landscape merged into this matrix by the Q3 rebuild has no governed counterpart.",
+        "cost": "Half the panel is enforced and half is not, and they render in the same type."
+      }
     },
     "outlook-benchmark": {
       "tab": "q3-outlook",
@@ -1632,6 +1596,14 @@
           "the $3.2M residual at the end of the bar"
         ],
         "renderRule": "dealRail falls back to the authored total as its scale when the gap cannot be derived — the composition survives, the target does not. Direct mode already takes that branch."
+      },
+      "supplementedBy": {
+        "scope": "gap-to-plan axis",
+        "kind": "google-sheet",
+        "source": "Planning spreadsheet",
+        "supplies": "The axis the five deals are laid along. The deals and amounts are ACV_clc.",
+        "because": "§3.2 — the gap needs a target that does not exist.",
+        "cost": "The ranking is governed; the scale it is drawn on is not."
       }
     },
     "drivers": {
@@ -1674,7 +1646,15 @@
         "and independently, five years of anything — only three fiscal years of data exist. See gaps.fiveYearTrendTabCannotBeSourced."
       ],
       "confirmedByModelOwner": "Headcount and headcount-derived metrics are not available in this SDM, per the model owner. Settled, not inferred.",
-      "wouldRequireToSourceFully": "A governed headcount measure with a period-end time grain, or a user dimension with effective-dated rows. Neither exists in this layer and the model owner has confirmed none is coming. Same out-of-layer <TBD> as hc-ae."
+      "wouldRequireToSourceFully": "A governed headcount measure with a period-end time grain, or a user dimension with effective-dated rows. Neither exists in this layer and the model owner has confirmed none is coming. Same out-of-layer <TBD> as hc-ae.",
+      "supplementedBy": {
+        "scope": "whole portlet",
+        "kind": "warehouse-table",
+        "source": "User Hierarchy table, weekly refresh",
+        "supplies": "Five fiscal years of quota-carrying headcount.",
+        "because": "§5.2 and §10.1 — same missing measure as hc-ae.",
+        "cost": "Same as hc-ae, and additionally there is no guarantee the hierarchy was cut the same way in FY23 as in FY27, which is exactly the comparison the panel draws."
+      }
     },
     "trend-ae-productivity": {
       "tab": "trend",
@@ -1698,7 +1678,15 @@
         "and independently, five years of anything — only three fiscal years of data exist."
       ],
       "confirmedByModelOwner": "The model owner names PRODUCTIVITY explicitly as one of the headcount-derived metrics not available in this SDM. She also names PARTICIPATION, which this board does not currently show — see gaps.headcountAndHeadcountDerivedMetrics. So this is not a gap that a better search would close.",
-      "wouldRequireToSourceFully": "A governed calculated measure for ACV per quota-carrying AE, from outside this semantic layer. Absent that, the portlet's own verify rule already gives the answer: 'If the ratio is not a governed calculated measure, do not compute it client-side from two separately-fetched numbers — that is precisely the ungoverned path this portlet exists to warn about. Fetch it as a measure or render it as unavailable.' LIVE, IT IS UNAVAILABLE, and the portlet is right about why."
+      "wouldRequireToSourceFully": "A governed calculated measure for ACV per quota-carrying AE, from outside this semantic layer. Absent that, the portlet's own verify rule already gives the answer: 'If the ratio is not a governed calculated measure, do not compute it client-side from two separately-fetched numbers — that is precisely the ungoverned path this portlet exists to warn about. Fetch it as a measure or render it as unavailable.' LIVE, IT IS UNAVAILABLE, and the portlet is right about why.",
+      "supplementedBy": {
+        "scope": "the denominator, in every year",
+        "kind": "warehouse-table",
+        "source": "User Hierarchy table, weekly refresh",
+        "supplies": "The AE count under the ratio. The ACV numerator is certified for FY25 onward.",
+        "because": "§5.2 and §10.1 — no productivity measure exists, and the model owner names productivity specifically. §11 records the broader finding: anything divided by headcount is reaching for the same missing denominator.",
+        "cost": "A certified numerator over an unenforced denominator is unenforced. The portlet's own verify rule already says what to do when the ratio cannot be reproduced."
+      }
     },
     "trend-acv": {
       "tab": "trend",
@@ -1741,7 +1729,15 @@
         "Tableau Extract (.tdsx)",
         "ACV_HISTORICALS",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "supplementedBy": {
+        "scope": "FY23 and FY24 points",
+        "kind": "google-sheet",
+        "source": "The source deck the board was built from",
+        "supplies": "The first two of five points. FY25-FY27 H1 are ACV_clc.",
+        "because": "§10.3 and §7.3 — 'Correct, only 3 years of ACV data.' The relative-year window CY/PY/PY-1 is the extent of the DATA, not a windowing choice, and an absolute date filter on Close_Date17 for FY23 or FY24 returns no rows.",
+        "cost": "Two points that cannot be refreshed, re-derived or checked against anything. Marked per point with a halo, in both modes, because the seam is a fact about the data."
+      }
     },
     "trend-attrition": {
       "tab": "trend",
@@ -1783,7 +1779,15 @@
         "Tableau Extract (.tdsx)",
         "ATTRITION_ACTUALS / ATTRITION_UNOFFICIAL",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "supplementedBy": {
+        "scope": "FY23 and FY24 points",
+        "kind": "google-sheet",
+        "source": "The source deck",
+        "supplies": "The first two of five points. FY25 onward is Attrition_clc.",
+        "because": "§10.3, §7.3 — as trend-acv.",
+        "cost": "As trend-acv."
+      }
     },
     "trend-aov": {
       "tab": "trend",
@@ -1804,7 +1808,15 @@
       "confirmedByModelOwner": "The business analyst who owns these semantic models confirms directly that AOV is not available in this SDM. Both documents already said so; the owner settles it. There is no remaining possibility that an undocumented model inside this layer covers it — anything sourcing AOV comes from outside this semantic layer entirely.",
       "whyThisIsTheSharpestFinding": "AOV is the board's marquee stock metric and the anchor of the entire flow-versus-stock argument on the Five Year Trend tab. That argument is SOUND and the layer supports it in principle — but it cannot be demonstrated with THIS row, from THESE models, and the model owner has closed the last avenue for pretending otherwise.",
       "wouldRequireToSourceFully": "A source outside this semantic layer that carries the active order book. <TBD: identify the order-book system of record and whether this app can reach it at all.> The previous instruction to run list_semantic_models and search_assets for 'AOV' / 'order value' / 'book' has been REMOVED — it was a hedge against the possibility of a third, undocumented model, and the model owner has ruled it out.",
-      "theUserDecision": "The stock-versus-flow example is being RE-ANCHORED FROM AOV ONTO OPEN PIPE, which the docs explicitly exempt from PTD. See userDecisions.stockExemplarReanchoredToOpenPipe for the query shape. This portlet either renders as unavailable or is replaced by the Open Pipe exemplar."
+      "theUserDecision": "The stock-versus-flow example is being RE-ANCHORED FROM AOV ONTO OPEN PIPE, which the docs explicitly exempt from PTD. See userDecisions.stockExemplarReanchoredToOpenPipe for the query shape. This portlet either renders as unavailable or is replaced by the Open Pipe exemplar.",
+      "supplementedBy": {
+        "scope": "whole portlet",
+        "kind": "warehouse-table",
+        "source": "Snowflake order-book balance table",
+        "supplies": "Average order value as a balance at each fiscal year end.",
+        "because": "§10.2 — AOV is not merely absent but explicitly and deliberately excluded from both models in writing. FCST instructs that if a user asks about AOV, the SDM cannot answer. The model owner confirms it.",
+        "cost": "No period-to-date rule applies because the layer never sees it, so nothing stops a consumer treating this balance as a flow and annualising the H1 reading. The board declines to, but that is the board's discipline rather than an enforced one."
+      }
     },
     "trend-nnaov": {
       "tab": "trend",
@@ -1847,7 +1859,15 @@
         "Tableau Extract (.tdsx)",
         "Commits",
         "Sls_Forecasting_Metrics_Expanded"
-      ]
+      ],
+      "supplementedBy": {
+        "scope": "FY23 and FY24 points, and the commit-versus-booking gap",
+        "kind": "google-sheet",
+        "source": "The source deck",
+        "supplies": "The first two of five points, and the framing of a commit as an actual.",
+        "because": "§10.3, §7.3 for the history; §10.4 for the measure.",
+        "cost": "Both gaps at once, which is why this is the panel whose shape visibly breaks in direct mode."
+      }
     },
     "trend-revenue": {
       "tab": "trend",
@@ -1868,7 +1888,15 @@
         "the treatmentNote — the 'documented FY27 accounting treatment change' the portlet wants to retrieve from get_semantic_model_metric has no counterpart in either model's businessPreferences as documented"
       ],
       "confirmedByModelOwner": "The business analyst who owns these semantic models confirms directly that revenue is not available in this SDM. Settled, not inferred from the absence of a field.",
-      "wouldRequireToSourceFully": "A source outside this semantic layer. <TBD: identify the revenue system of record and whether this app can reach it at all.> The previous instruction to search this layer for 'revenue' / 'recognized' / 'ratable' / 'ledger' has been REMOVED — the model owner has closed it."
+      "wouldRequireToSourceFully": "A source outside this semantic layer. <TBD: identify the revenue system of record and whether this app can reach it at all.> The previous instruction to search this layer for 'revenue' / 'recognized' / 'ratable' / 'ledger' has been REMOVED — the model owner has closed it.",
+      "supplementedBy": {
+        "scope": "whole portlet",
+        "kind": "warehouse-table",
+        "source": "Finance system export",
+        "supplies": "Recognised revenue by fiscal year, and the FY27 accounting treatment change.",
+        "because": "§5.2 and §10.1 — no revenue equivalent in either model, confirmed unavailable by the model owner. The documented accounting-treatment change the portlet wants to retrieve has no counterpart in either model's businessPreferences.",
+        "cost": "Revenue recognition is restated, and an export carries no version. Two pulls a quarter apart can disagree with each other and both be right."
+      }
     },
     "trend-rules": {
       "tab": "trend",
@@ -1896,7 +1924,12 @@
         "any 'the measure declares whether it is a stock or a flow' claim — there is no periodType property; the distinction is expressed as the presence or absence of a PTD flag plus prose"
       ],
       "theTabItSitsOnCannotBeSourced": "This card's subject is how the tab's periods are made comparable. The tab draws five periods and only three years of data exist (gaps.fiveYearTrendTabCannotBeSourced). A card explaining comparability across five periods, sitting above three, needs rewriting rather than reusing — and the honest version of it is stronger: the layer publishes a period-to-date flag, an additivity classification, and a three-year history, and the chart shows what the history actually reaches rather than what the design wanted.",
-      "theRecast": "See userDecisions.rulesArgumentRecast. The card is being recast onto additivity and period-to-date comparability, which are real, named, structural and discoverable. The argument survives intact and gets stronger evidence."
+      "theRecast": "See userDecisions.rulesArgumentRecast. The card is being recast onto additivity and period-to-date comparability, which are real, named, structural and discoverable. The argument survives intact and gets stronger evidence.",
+      "supplementedBy": {
+        "scope": "nothing",
+        "kind": "not-a-source-gap",
+        "because": "Authored narrative, not a query. As perf-rules."
+      }
     }
   },
   "gaps": {

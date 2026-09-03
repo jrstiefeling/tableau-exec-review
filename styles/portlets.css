@@ -704,6 +704,12 @@
    line-height comes from the token measured off the face's own outlines
    (fonts.css) rather than a literal, so a font swap has one number to
    re-measure instead of a dozen tuned values. */
+/* Seven glyphs or more, which on this board means only pipegen's degraded
+   $2,367M. The governed cards top out at six and keep the full ramp. */
+.attain-value[data-long="true"] {
+  font-size: clamp(20px, 2vw, 30px);
+}
+
 .attain-value {
   font-family: var(--font-display);
   font-size: clamp(22px, 2.3vw, 35px);
@@ -4560,3 +4566,40 @@ body.auditing .portlet[data-audit] .portlet-audit {
 @media (prefers-reduced-motion: reduce) {
   .portlet-audit { transition: none; }
 }
+
+
+/* TM-1, the token pill. The qualifier is a sibling of the figure inside one
+ * border, so the two cannot be separated by a crop. */
+.tm1-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* Pushed to the far end of the kicker row, which is flex. The headline keeps
+     its natural width and this takes the slack, so the pill's position is a
+     function of the headline's length rather than a measured offset. */
+  margin-left: auto;
+  padding: 2.5px 7px 2.5px 8px;
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  border-radius: 999px;
+  white-space: nowrap;
+  cursor: help;
+}
+.tm1-figure {
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: color-mix(in srgb, var(--ink) 78%, transparent);
+}
+.tm1-tag {
+  font-family: var(--font-body);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 46%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  padding-left: 6px;
+}
+
+.tm1-pill[hidden] { display: none; }

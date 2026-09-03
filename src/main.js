@@ -223,6 +223,7 @@ function boot({ board, fellBack }) {
      * says so once, quietly, beside the switch that got you here. It is absent
      * in governed mode because there is nothing there to audit. */
     dom.auditHint.hidden = !direct;
+    controller.setTokenPill(direct);
 
     inspector.closeNow();
     // Rebuild from the effective data, then re-run the entrance — so the

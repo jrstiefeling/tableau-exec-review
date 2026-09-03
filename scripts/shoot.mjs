@@ -161,7 +161,13 @@ const audit = await send("Runtime.evaluate", {
 
 if (probe) {
   const r = await send("Runtime.evaluate", {
-    expression: `(() => { try { return JSON.stringify(${probe}); } catch (e) { return 'PROBE ERROR: ' + e.message; } })()`,
+    /* awaitPromise, so a probe can open something and wait for it to settle
+     * before the shot is taken. Returning a promise from the expression is the
+     * only way to put a delay between a probe's side effect and the capture,
+     * and several things worth photographing — the rules flyover, an expanded
+     * portlet — animate in. */
+    expression: `(async () => { try { return JSON.stringify(await (${probe})); } catch (e) { return 'PROBE ERROR: ' + e.message; } })()`,
+    awaitPromise: true,
     returnByValue: true
   }, sessionId);
   console.log("  probe:", r.result.value);

@@ -404,6 +404,13 @@ export function mount(host, ctx) {
   hero.className = "attain-hero";
   const valueEl = document.createElement("div");
   valueEl.className = "attain-value";
+  /* A length hint, so type can step down for a value the box was never sized
+     for without touching the ones it was. Governed values on these cards are
+     at most six glyphs ($789M, $74M); pipegen's degraded reading is $2,367M,
+     which is seven and clipped its own box at 1440 where the type ramp is
+     largest. Set from the string rather than measured, because measuring means
+     a second layout pass on every card on every mode toggle. */
+  if (String(metrics.display || "").length >= 7) valueEl.dataset.long = "true";
   /* No candidate stack. The hero is one numeral in both modes, at the same
    * size, in the same face — see the note in palette.js. The candidates the
    * sources offer are authored and they live on the provenance face, which is

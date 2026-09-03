@@ -50,6 +50,21 @@ const FLYOVER_KINDS = new Set(["rulesCard"]);
  * the viewer has to have time to accept the board before being told about it.
  * Longer on a first entrance than on a replay, because a replay follows a
  * toggle the viewer just pressed and is already watching for. */
+/* One sentence answering "where does this number come from", which is the
+ * standard every governed figure on this board meets through its provenance
+ * flip. TM-1 is the only quantity here that is derived rather than authored,
+ * so it meets the same standard rather than a lower one. */
+const TM1_TITLE = "TM-1 \u2014 a MODELED estimate, not a benchmark. Reading this board straight "
+  + "from source costs about 155,800 tokens over 69 round trips, against 14,300 over 41 through "
+  + "the layer: ~5,800 tokens a portlet against ~530, and ~150 for a supplemented source, which "
+  + "is the cheapest of the three and carries none of the layer's guarantees \u2014 so cost does "
+  + "not rank these by correctness. Governed cost scales with the ANSWER; direct cost scales "
+  + "with the SOURCE, because meaning has to be recovered by sampling raw rows before anything "
+  + "can be aggregated. Every input is a count taken from this repository: 16 source CTEs, 214 "
+  + "documented fields, 27 portlets, the stated 3x hierarchy fan-out at its low end. Round trips "
+  + "are counted; tokens are modelled; no latency is claimed, because no timing data exists in "
+  + "any source here. Full derivation in docs/direct-mode-redesign.md section 7.";
+
 const TIMING = {
   entry: { shellStep: 17, bandStep: 48, settle: 280, sweep: 290, scale: 0.53, marksHold: 900 },
   replay: { shellStep: 9, bandStep: 26, settle: 160, sweep: 170, scale: 0.38, marksHold: 720 }
@@ -86,6 +101,7 @@ export class TabController {
     this.seen = new Set();
     this.activeId = null;
     this.enterTimers = [];
+    this.tm1Pills = [];
     // Every scheduled step carries the id of the sweep that queued it, so a
     // superseded sweep cannot act even if one of its timers fires in the same
     // tick it was cancelled in.
@@ -160,6 +176,37 @@ export class TabController {
     headline.textContent = tab.headline || tab.label;
     head.appendChild(kicker);
     head.appendChild(headline);
+
+    /* TM-1, the token model, at the right-hand end of the kicker row.
+     *
+     * Board-level rather than per-tab, so it belongs to the chrome — but not
+     * to the TOPBAR, which at the 1024 floor already carries the tab rail, the
+     * mode switch and the audit hint, and which truncated "Analytics Business
+     * Review" to "Analytics Busin…" when the pill was tried there. The kicker
+     * row has 400px of empty space to the right of the headline on every tab
+     * and needs none of it.
+     *
+     * The MODELED qualifier is a sibling of the figure inside one border, so a
+     * crop cannot take one without the other. Every other number on this board
+     * traces to an authored slide; this one is derived, and a screenshot of a
+     * derived token count with the caveat gone becomes a false benchmark
+     * claim. There is no footer strip left to hide a disclaimer in, and there
+     * should not be. */
+    const tm1 = document.createElement("span");
+    tm1.className = "tm1-pill";
+    tm1.hidden = true;
+    tm1.title = TM1_TITLE;
+    const tm1Figure = document.createElement("span");
+    tm1Figure.className = "tm1-figure";
+    tm1Figure.textContent = "~11\u00d7 tokens";
+    const tm1Tag = document.createElement("span");
+    tm1Tag.className = "tm1-tag";
+    tm1Tag.textContent = "TM-1 modeled";
+    tm1.appendChild(tm1Figure);
+    tm1.appendChild(tm1Tag);
+    head.appendChild(tm1);
+    this.tm1Pills.push(tm1);
+
     panel.appendChild(head);
 
     const bands = document.createElement("div");
@@ -413,6 +460,14 @@ export class TabController {
 
   rerenderAll() {
     this.portlets.forEach((portlet) => portlet.render());
+  }
+
+  /* TM-1 is a claim about direct mode only, so it arrives with direct mode and
+   * leaves with it. Every tab carries its own pill because every tab has its
+   * own head; they are set together so the board never shows the claim on one
+   * tab and not another. */
+  setTokenPill(direct) {
+    this.tm1Pills.forEach((pill) => { pill.hidden = !direct; });
   }
 
   /* Cancels the in-flight sweep. Bumping the id as well as clearing the timers
