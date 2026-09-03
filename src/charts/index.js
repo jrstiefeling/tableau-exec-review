@@ -11,7 +11,12 @@
 
 /* growthLanes replaced metricMatrix, which was deleted with it. The module had
  * exactly one caller — q3-outlook's hero — and the Segment tab's seg-matrix,
- * which older notes name as a second caller, renders through growthMatrix. */
+ * which older notes name as a second caller, renders through growthMatrix.
+ *
+ * seg-matrix has since moved off growthMatrix onto segmentSlope. growthMatrix
+ * stays: perf-hierarchy on the Product tab is still a caller and still needs
+ * the full seven-row matrix, so the Segment tab forked rather than retiring
+ * it. */
 
 import { mount as attainment } from "./attainment.js";
 import { mount as mixBar } from "./mixBar.js";
@@ -22,6 +27,7 @@ import { mount as driverRail } from "./driverRail.js";
 import { mount as rulesCard } from "./rulesCard.js";
 import { mount as movementFan } from "./movementFan.js";
 import { mount as growthMatrix } from "./growthMatrix.js";
+import { mount as segmentSlope } from "./segmentSlope.js";
 import { mount as groupMovement } from "./groupMovement.js";
 import { mount as growthLanes } from "./growthLanes.js";
 import { mount as benchmarkAxis } from "./benchmarkAxis.js";
@@ -37,6 +43,7 @@ export const CHARTS = {
   rulesCard,
   movementFan,
   growthMatrix,
+  segmentSlope,
   groupMovement,
   growthLanes,
   benchmarkAxis,
