@@ -284,12 +284,19 @@ export class Portlet {
 
     /* The audit line: the certified figure, and the distance from it.
      *
-     * Present only where a figure actually moved. The five supplemented
-     * portlets with no degraded figure and the six narrative ones have no delta
-     * to state, so holding D leaves them completely untouched — and that is the
-     * most useful thing the pass does. A viewer holding the key sees eleven
-     * panels sitting there unmarked and learns, without being told, that the
-     * layer was never what was holding those eleven up. */
+     * Present only where a figure actually moved. Sixteen panels state a
+     * distance; the five supplemented panels with no certified counterpart
+     * state instead that no such number exists (the branch below); the six
+     * narrative ones have nothing to say either way and holding D leaves them
+     * completely untouched.
+     *
+     * That last group is the most useful thing the pass does. A viewer holding
+     * the key sees six panels sitting there unmarked and learns, without being
+     * told, that the layer was never what was holding those six up.
+     *
+     * This comment used to say eleven were left unmarked, which stopped being
+     * true the moment the "absent" branch below was added: those five are
+     * marked, in amber, and being marked is the whole point of them. */
     const dmAudit = this.spec.directMode || {};
     /* Only a SCALAR hero can be quoted here. On the Five Year panels `display`
        is the five-point series, and joining it produced an audit line reading

@@ -4368,7 +4368,7 @@ body.auditing .portlet[data-audit] .portlet-audit {
   transform: translateY(0);
 }
 
-/* The four panels with no certified counterpart. Amber rather than green,
+/* The five panels with no certified counterpart. Amber rather than green,
  * because the line is not a comparison — it is the statement that no
  * comparison is available. */
 .portlet[data-audit="absent"] .portlet-audit {

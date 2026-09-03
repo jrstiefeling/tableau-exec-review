@@ -729,6 +729,7 @@
         "portletsWithSomethingOutsideTheLayer": 18,
         "wholePortlet": [
           "hc-ae",
+          "acv-ae-fan",
           "trend-ae-capacity",
           "trend-aov",
           "trend-revenue"
@@ -738,7 +739,7 @@
           "google-sheet": 8,
           "derived-in-board": 5
         },
-        "note": "Four portlets are supplemented end to end and have no certified counterpart at all; the rest are certified measures with one channel, dimension or period outside the layer. The four are the control group on the direct-to-source toggle: their figures do not move, because there is no guarantee to withdraw."
+        "note": "Five portlets are supplemented end to end and have no certified counterpart at all; the rest are certified measures with one channel, dimension or period outside the layer. The five are the control group on the direct-to-source toggle: their figures do not move, because there is no guarantee to withdraw. acv-ae-fan joined the group when the exec fan was repointed off account ACV onto per-AE productivity movement — it has a certified measure over a population nothing can certify, so the audit pass has nothing to lay beside it."
       }
     },
     "kpi-nnaov": {
