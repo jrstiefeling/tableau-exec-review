@@ -11141,7 +11141,7 @@ export const FALLBACK_BOARD = {
                 "provenance": "supplemented",
                 "tier": "red",
                 "detectability": "silent",
-                "groundedIn": "ACV_clc + stated ranking rule; gap needs absent FinPlan (§5.4)",
+                "groundedIn": "ACV_clc + stated ranking rule; the ranking itself is not governed (§5.4)",
                 "candidates": [
                   "five accounts, five amounts, no stated order"
                 ],
@@ -11191,11 +11191,11 @@ export const FALLBACK_BOARD = {
                   }
                 },
                 "hazard": "field-ambiguity",
-                "shownFrom": "The four candidate amount columns differ per deal rather than uniformly, because they diverge on product mix and currency — so the error does not cancel the way a single multiplier would. Modelled at up to 12% per deal: US Bank $2.1M → $2.4M and US GOV $2.1M → $1.9M, which lifts US Bank above Charles Schwab. Third and fifth place swap. The total moves $12.5M → $12.6M, inside any plausibility check. The gap they were laid along goes too, being derived from an attainment with no denominator, so the rail falls back to the authored total as its scale.",
+                "shownFrom": "The four candidate amount columns differ per deal rather than uniformly, because they diverge on product mix and currency — so the error does not cancel the way a single multiplier would. Modelled at up to 12% per deal: US Bank $2.1M → $2.4M and US GOV $2.1M → $1.9M, which lifts US Bank above Charles Schwab. Third and fifth place swap. The total moves $12.5M → $12.6M, inside any plausibility check. The composition is untouched by all of it — a total laid end to end is invariant to the order of its parts — so what degrades is the list beneath the bar and not the bar.",
                 "wouldYouNotice": "No. The total is within one per cent, all five accounts are present, and the rail gives no indication that the ordering is the fragile part. An executive briefed on this top five is briefed on a different top five from the one the certified measure produces, and the two briefings are indistinguishable.",
                 "certifiedDelta": "+$0.1M total · two of five reorder",
                 "layerProvides": "One certified ACV measure applied across all five, and a stated ranking rule — order by the metric, nulls last, limited in the utterance.",
-                "layerDoesNotProvide": "The gap the rail is laid along. It derives from the plan attainment, and no plan basis for ACV exists in either model."
+                "layerDoesNotProvide": "Any guarantee about the ORDER. One amount definition is applied across the five under the layer and four coexist without it, and the distance between third and fifth place is smaller than the distance between those columns."
               }
             }
           ]
