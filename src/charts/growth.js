@@ -14,7 +14,7 @@
  * two channels, no second rule for anybody to remember.
  *
  * This module registers no renderer. It is imported by growthMatrix and
- * metricMatrix, and it deliberately does not live in svg.js
+ * growthLanes, and it deliberately does not live in svg.js
  * beside linearScale — three new tabs sharing one new file is a smaller
  * surface than editing a module every existing chart imports. */
 

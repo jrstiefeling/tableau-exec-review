@@ -274,7 +274,7 @@
         "regionalSplit": "<TBD: published-datasource LUID for regional split — PULSE names the prefix c4e2cc15 and the sibling app's catalog holds c4e2cc15-fe0e-4632-91ba-5fd9506257c7 'Closed Business ACV (RLS)'. PULSE states only the eight-character prefix. Re-resolve via list-datasources and confirm the full LUID before use.> Holds OvA Derived Region, OvA Derived Sub Region, Entitlement Region and an APM L1 cross-tab.",
         "specialistPipelineAndForecasting": "<TBD: published-datasource LUID — this is the Cloud face of Sls_Specialist_Reporting (connection externalConnection1, 'Specialist Pipeline and Forecasting (RLS)'). Resolve via list-datasources. A number pulled here and the same number pulled from the SDM should agree; that is the only cross-path reconciliation the layer documents.>"
       },
-      "noLimitKeyClarification": "The tool has no limit parameter, but the generated SQL does, and on the Tableau Next path the limit is expressed IN THE UTTERANCE. SPEC's ranking rule is 'ORDER BY <metric> DESC NULLS LAST LIMIT 10' for top-N. Conversely, for full-population pulls SPEC's Open Pipeline Misalignments pattern requires the phrasing 'return a table of ALL matching rows (do not limit results — request the full result set).' This is a phrasing requirement, not a parameter, and it is the mechanism acv-account-fan depends on."
+      "noLimitKeyClarification": "The tool has no limit parameter, but the generated SQL does, and on the Tableau Next path the limit is expressed IN THE UTTERANCE. SPEC's ranking rule is 'ORDER BY <metric> DESC NULLS LAST LIMIT 10' for top-N. Conversely, for full-population pulls SPEC's Open Pipeline Misalignments pattern requires the phrasing 'return a table of ALL matching rows (do not limit results — request the full result set).' This is a phrasing requirement, not a parameter, and it is the mechanism acv-ae-fan depends on."
     },
     "notPresentInThisBoard": {
       "salesforceOrg62": "The sibling app treats Org62 SOQL as a peer data source. This board has no Org62 path and none of the three PDFs describes one. Org62 Opportunity appears only as the first node of a lineage chain, never as a queryable surface here.",
@@ -540,7 +540,7 @@
     "verifyPeriodTypeBeforePlotting": "See queryContract.periodToDateComparability.verifyPeriodType. This replaces the previous version of this file's verifyPeriodType, which asserted a periodType property that does not exist.",
     "rlsIsNotOptionalAndIsScopedToTheCaller": "See queryContract.rowLevelSecurity. Results are scoped to the caller's entitled hierarchy, not the subject's and not a business unit's. A query run under a service identity will not match what a viewer sees, and the difference will look like a data bug rather than a permissions one — or worse, will not look like anything at all.",
     "magnitudeSanityCheckBeforeRendering": "Every portlet needs an authored expected-magnitude band. A number 3-10x too large means a missing dedup filter. A number far too small means RLS returned the caller's slice, not the subject's. Both render happily.",
-    "failLoudlyOnTruncation": "A silently truncated result still draws, and still looks right. acv-account-fan at 278 rows is the exposed case. Request the full result set in the utterance and fail loudly if the response is capped.",
+    "failLoudlyOnTruncation": "A silently truncated result still draws, and still looks right. acv-ae-fan at 1,000 rows is the exposed case. Request the full result set in the utterance and fail loudly if the response is capped.",
     "noCredentialsInThisFile": "This file holds query shapes, apiNames and field captions only. It must never contain tokens, secrets or connection strings.",
     "silentFailureModes": [
       {
@@ -1021,67 +1021,85 @@
         "cost": "Weekly refresh against a board labelled quarter-to-date, no enforced as-of date, and no lineage. Nothing stops the roster being re-cut mid-quarter and the prior-year comparison moving with it."
       }
     },
-    "acv-account-fan": {
+    "acv-ae-fan": {
       "tab": "exec",
       "status": "partial",
-      "model": "PICK ONE — <TBD: model decision for the account fan>",
-      "modelDecision": "This is the one portlet where the Specialist model is a live alternative. Sls_Specialist_Reporting has a real Account_ID106; Sls_Forecasting_Metrics_Expanded has only Account_Name129 and NO account ID. If account IDENTITY matters more than population completeness, the Specialist identifier is stronger. If the fan must reconcile to the board's Forecasting-sourced kpi-acv total, it must be Forecasting. THEY CANNOT BE MIXED.",
+      "statusWhy": "The MEASURE is fully sourceable and the POPULATION is not. ACV_clc grouped by User_Name10 where User_Role2 = 'AE' needs no headcount measure — at AE grain the denominator is one — and both years come from the 'PY' and 'CY' rows of one grouped query. What cannot be sourced is the set of AEs who were carrying a quota at the prior point: the User Hierarchy table is current state on a weekly refresh with no as-of-period-end read. The portlet is therefore supplemented, not certified, and the panel restricts itself to AEs present on both rosters and holds joiners and leavers out as labelled stubs.",
+      "replacedPortlet": {
+        "was": "acv-account-fan — per-account ACV movement, Q2 FY27 against Q2 FY26",
+        "why": "The account-level ACV data behind that panel does not exist. This file and docs/semantic-layer.md §4 both recorded it as ⚠ partial — sourceable with a query-construction caveat — which asserted a population nobody has. The entry is replaced rather than annotated so that no reader is left with a worked utterance for a pull that cannot be run.",
+        "whatSurvives": "Nothing about the account grain is retained here. The conformed-identity work — Global_Combo_Name6 versus Combo_Company_Name15, and which of the two is the consolidated parent — is still real, still unresolved, and still recorded under recommendations and documentAmbiguities. What it no longer has anywhere on this board is a portlet that depends on it. See directModeBeatWeakened."
+      },
+      "model": "Sls_Forecasting_Metrics_Expanded",
+      "modelDecision": "Settled, and no longer open. The fan reconciles to kpi-acv's certified $82M, so it must be the Forecasting model. The Specialist model was only a live alternative while the subject was account identity — Account_ID106 was the reason to consider it — and at AE grain it buys nothing.",
       "measures": {
-        "forecastingOption": "ACV_clc",
-        "specialistOption": "ACV_Closed_Won_clc"
+        "acv": "ACV_clc"
       },
+      "headcountIsNotNeededAndThatIsThePoint": "§10.1 confirms headcount, and anything divided by headcount, is unavailable — which is why hc-ae is supplemented. That does NOT block this portlet. At AE grain the denominator is one, so 'ACV per AE' is ACV_clc grouped by User_Name10. No headcount measure is queried, computed or implied. The roster is used as a POPULATION, not as a denominator.",
       "dimensions": {
-        "conformedIdentityForecasting": [
-          "Global_Combo_Name6",
-          "Combo_Company_Name15"
-        ],
-        "conformedIdentitySpecialist": [
-          "Global_Combo_Name7",
-          "Account_ID106",
-          "Account_Name130"
-        ],
+        "ae": "User_Name10",
+        "aeRoleFilter": "User_Role2 = 'AE'",
         "relativeYear": "Close_Date_Relative_Year_clc",
-        "segment": "Segment10 (Forecasting) or Derived_Macro_Segment (Specialist). If this portlet needs the board's four-way ENTR / CMRCL / SMB / PubSec split it must use the same derived dimension seg-matrix uses, not a raw segment field — see portlets['seg-matrix'].derivedSegmentDimension. Two portlets deriving 'PubSec' independently is precisely the failure that derivation exists to prevent.",
-        "productMotion": "DOES NOT EXIST — the authored productMotionDimensionApiName has no counterpart"
+        "segment": "Segment10 carries the AE's territory segment where it is populated. The board's enterprise / commercial / growth thresholds on this portlet are authored from the book value in $K and are NOT a governed dimension — same standing note as the panel it replaced, and the same fix: if a segment split is ever needed on the face it must come through the derived dimension seg-matrix uses.",
+        "region": "<TBD: no AE-level region dimension is established in the source docs — resolve via list_semantic_model_dimensions>"
       },
-      "conformedIdentityIsTheRealVersionOfAnInventedNode": "Global_Combo_Name / Combo_Company_Name15 IS the 'conformed identity, not raw Org62 Account.Id' that this portlet currently describes as an invented lineage node called 'Account Hierarchy Conformance'. The real thing has a name, and it is better. Which of the two is the consolidated PARENT identity is <TBD: confirm via get_semantic_model_logical_view or a distinct-values probe> — the labels say 'Global combo/consolidated account name' and 'Combo company name' and the distinction is not stated.",
-      "rowGrain": "one row per metric per opportunity per user (Forecasting) — the dedup filter is what collapses it to one row per account",
-      "presentationGrain": "combo account x Close_Date_Relative_Year_clc",
+      "rowGrain": "one row per metric per opportunity per user in the reporting hierarchy (Forecasting), so a deal appears once for every leader above its owner",
+      "presentationGrain": "quota-carrying AE x Close_Date_Relative_Year_clc",
       "dateAnchor": "Close_Date17 / Opportunity_Close_Date_clc",
       "requiredFilters": [
-        "exactly one dedup filter (Forecasting) or Is_Specialist_AE_Covered_Cleaned_clc = TRUE (Specialist)",
+        "User_Role2 = 'AE'",
+        "NO Is_My_Data_clc — the documented org-wide pattern at this grain is GROUP BY User_Name10 with no caller filter (§2.3)",
         "filter NULL dimension values",
-        "do NOT add Is_Current_Quarter_clc — on a grouped two-year pull it double-counts"
+        "do NOT add Is_Current_Quarter_clc — on a grouped two-year pull it double-counts",
+        "add Is_QTD_ACV_1_clc = TRUE if the quarter is open, or the comparison is a partial quarter against a full one (§2.5)"
       ],
-      "utteranceShape": "Return ACV (ACV_clc) grouped by Global_Combo_Name6 and by Close_Date_Relative_Year_clc for <scope filter>, filtered to Close_Date_Fiscal_Quarter_Datepart_clc = <resolved> and Close_Date_Relative_Year_clc IN ('CY', 'PY'). Return ALL matching rows — do not limit the result set. Filter out null dimension values.",
-      "oneGroupedQueryNotTwoPulls": "The prior year is NOT a separate point-in-time snapshot; it is the 'PY' rows of the same measure. A single grouped query satisfies the portlet's own 'one formula' check by construction, which is the argument for doing it that way. The previous version of this file specified two aggregated pulls, which was wrong for this layer.",
+      "utteranceShape": "Return ACV (ACV_clc) grouped by User_Name10 and by Close_Date_Relative_Year_clc for <scope filter>, filtered to User_Role2 = 'AE' and Close_Date_Fiscal_Quarter_Datepart_clc = <resolved> and Close_Date_Relative_Year_clc IN ('CY', 'PY'). Return ALL matching rows — do not limit the result set. Filter out null dimension values.",
+      "oneGroupedQueryNotTwoPulls": "The prior year is NOT a separate point-in-time snapshot; it is the 'PY' rows of the same measure. A single grouped query satisfies the panel's 'one formula' check by construction, which is the argument for doing it that way.",
       "doNotLimitPhrasing": "Required. 'Return ALL matching rows — do not limit the result set' is a PHRASING requirement on the Tableau Next path, not a parameter. See connections.tableauCloudMcp.noLimitKeyClarification.",
+      "theRosterHazard": {
+        "what": "The prior-year side of this comparison is not 'what each AE sold last year'. It is last year's bookings grouped by whoever owns the record TODAY. The User Hierarchy table is a current roster on a weekly refresh with no as-of-period-end read (§4, §10.1), joined on Record_Owner_Id1 = User_Id31.",
+        "scale": "The board's own headline asserts an 18% headcount decline — 904 to 745 — which is 159 net and, as the panel authors it, 351 gross: 96 joiners and 255 leavers. Drawn naively the chart measures reorganisations rather than productivity, and it fails invisibly, because a clean 745-line fan of a population that never existed looks exactly like a clean 745-line fan.",
+        "theSingleCheckThatDecidesIt": "Whether Record_Owner_Id1 is owner-at-close or current owner. The source documents do not state it; current-owner is an inference from Salesforce semantics. If it is owner-at-close the hazard shrinks to the roster membership question alone. Resolve before any live pull.",
+        "whatTheBoardDoesAboutIt": "Restricts the drawn population to AEs present at BOTH points — 649 of them — and renders the 96 joiners and 255 leavers as two labelled stubs outside the indexed axis, in the two directions. No AE that exists at one end only is ever a line. The renderer enforces this on the cohort column rather than on priorK > 0, because a leaver's currentK of 0 is arithmetically indistinguishable from a paired AE who booked nothing."
+      },
+      "cardinality": "745 is hc-ae's supplemented figure. The live count is COUNT(DISTINCT User_Name10) over the roster, which §5.2 permits with stated limits. Run of_Opportunities_clc for the chosen scope before authoring anything, as the cardinality check.",
       "needs": [
-        "accountId",
-        "productMotion",
-        "segment",
-        "region",
-        "priorQuarterAcv",
-        "currentQuarterAcv"
+        "aeIdentity",
+        "aeRoleFlag",
+        "priorQuarterAcvPerAe",
+        "currentQuarterAcvPerAe",
+        "asOfPeriodEndRoster"
       ],
       "cannotSource": [
-        "productMotion — no motion dimension exists",
-        "the board's segment tiers (enterprise / commercial / growth) — 'growth' matches neither model's vocabulary"
+        "asOfPeriodEndRoster — no as-of-period-end read of the user table exists in either model, which is what makes the paired population a supplement rather than a query",
+        "owner-at-close attribution — a departed AE's prior-year book has already moved to whoever owns the record now, and nothing in the layer separates that from a genuine expansion by the inheriting rep",
+        "the board's segment tiers (enterprise / commercial / growth) — 'growth' matches neither model's vocabulary. Unchanged from the portlet this replaced"
       ],
-      "rowVolume": "The mock population is 278 rows. A live pull at combo-account grain for one scope and two years should be the same order of magnitude. If the response is truncated, FAIL LOUDLY — a silently truncated fan still draws, and still looks right.",
+      "rowVolume": "The mock population is 1,000 rows — 649 paired, 96 joiners, 255 leavers. A live pull at AE grain for one scope and two years should be the same order of magnitude. If the response is truncated, FAIL LOUDLY — a silently truncated fan still draws, and still looks right.",
       "resortClientSide": "Required. SPEC is explicit that server-side ordering is not to be relied on.",
-      "newLogoHandling": "Accounts with no 'PY' row have an undefined movement index and must be returned, summed, and rendered as an inflow stub outside the indexed axis. Cross-check that sum against NNAOV_Commit_clc ONLY AFTER reading kpi-nnaov above — that measure is a COMMIT, so the two are NOT expected to agree, and a mismatch is information rather than a bug. The previous version of this file required the sums to be equal, which would fail against the real layer.",
+      "joinerAndLeaverHandling": "Two cohorts, two reasons, two stubs. A joiner has no prior-year quota, so its prior ACV per AE is undefined rather than zero — the same refusal the account fan made for its new logos. A leaver has no current ACV, so its index would be 0, and 0 on this axis already means something else and true: 'this AE was here and booked nothing'. Both are returned and summed so the population rolls up to the certified totals; neither is ever drawn on the index.",
+      "theIndexRangeAndTheClamp": "The renderer clamped every index into [0, 200]. On the account population nothing overflowed — the largest expansion was 194 — so the clamp never fired and was never noticed. At AE grain 22 of 649 paired AEs index above 250, the largest at 295, so the range is widened to [0, 250] AND the residue is counted on an explicit caret above the axis top. A clamped line drawn at the top tick as though it landed there is the class of thing this board argues against.",
+      "directModeBeatWeakened": "The T2 'conformed-identity' beat — raw gives you two keys, the layer gives you one — used this slot's certified account fan as its control. With the account-level data absent, the honest claim is no longer 'the layer fixes this' but 'neither path can answer it', which is a different and much weaker beat. The hazard is still real and still documented; what the board no longer has is a panel that demonstrates it. This portlet's hazard is point-in-time instead, and its degradation is that NOTHING moves — the roster limit is absent from the semantic layer and from a CRM export alike, which is why the portlet is supplemented and joins the control group.",
       "lineage": [
         "Org62 Opportunity",
         "Tableau Extract (.tdsx)",
         "ACV_HISTORICALS",
-        "Sls_Forecasting_Metrics_Expanded"
+        "Sls_Forecasting_Metrics_Expanded",
+        "User Hierarchy table (weekly refresh, current state) — the supplement"
       ],
       "supplementedBy": {
-        "scope": "nothing",
-        "kind": "not-a-source-gap",
-        "because": "Nothing is supplemented. §5.2's warning on this portlet is a query-construction rule, not a definitional gap: resolve the account hierarchy field to one model rather than both (FCST has no Account ID, only Account_Name129; SPEC has Account_ID106), and the utterance must request the full result set rather than a top-N. ACV_clc at account x relative year answers the whole panel once those two rules are kept."
-      }
+        "scope": "the paired population, and only the population",
+        "kind": "no-as-of-read",
+        "because": "ACV_clc at AE grain is certified and needs nothing added to it. What is supplemented is the answer to 'which AEs were carrying a quota in FY26 Q2', which no measure and no dimension in either documented model can return. Under §6.1's weakest-link rule the portlet's state is its weakest load-bearing input, and the population is load-bearing here in a way it is nowhere else on the board: the picture IS the population.",
+        "cost": "No as-of rule, so the prior roster restates every week and the paired population restates with it. No owner-at-close attribution. No lineage from the roster to the quarter it was taken in. Cardinality is the one checkable property."
+      },
+      "verify": [
+        "Roll-up: the sum of the per-AE 'CY' column must equal the certified quarter total from §8.1. If it does not, the fan is a second competing number and must not render.",
+        "One formula: both years must be ACV_clc. True by construction if the pull was a single grouped query.",
+        "Paired population: every drawn line must have a non-null 'PY' row AND a non-null 'CY' row for the SAME User_Name10. Assert this rather than inferring it from priorK > 0.",
+        "Cardinality: COUNT(DISTINCT User_Name10) against hc-ae's 745, with the difference stated rather than absorbed.",
+        "Range: assert that no index is silently clamped. Anything past the top of the range must be counted on the overflow marker."
+      ]
     },
     "going-well": {
       "tab": "exec",
@@ -1207,7 +1225,7 @@
         "APM product hierarchy (L1/L2/L3)",
         "Sls_Forecasting_Metrics_Expanded"
       ],
-      "priorYearSourcing": "Prior-year dollars are the 'PY' rows of the SAME grouped pull, not a separate point-in-time snapshot and not a second query: Close_Date_Relative_Year_clc IN ('CY','PY') is already in requiredFilters because the Y/Y needs it, so the prior-period ACV_clc rows are already in the result set. The panel that stood here discarded them and kept two rates; this one keeps the dollars and computes nothing from the rates. Same reasoning as portlets['acv-account-fan'].oneGroupedQueryNotTwoPulls.",
+      "priorYearSourcing": "Prior-year dollars are the 'PY' rows of the SAME grouped pull, not a separate point-in-time snapshot and not a second query: Close_Date_Relative_Year_clc IN ('CY','PY') is already in requiredFilters because the Y/Y needs it, so the prior-period ACV_clc rows are already in the result set. The panel that stood here discarded them and kept two rates; this one keeps the dollars and computes nothing from the rates. Same reasoning as portlets['acv-ae-fan'].oneGroupedQueryNotTwoPulls.",
       "whyThisIsBetterSourcedThanWhatItReplaces": "The dispersion panel needed a client-side min and max over governed rates — legal, but a selection this board had to justify. This panel needs two dollar figures per line, both governed rows of the same pull, and does its one subtraction on a measure the model certifies as additive. Fewer client-side steps on a stronger guarantee.",
       "authoringRule": "The 20 movements are AUTHORED in board.json, not computed at render time, per docs/visualization-research.md. A live implementation reads the 'PY' rows directly and does not reproduce the board's derivation.",
       "supplementedBy": {
@@ -1370,7 +1388,7 @@
         "APM product hierarchy (L1/L2/L3)",
         "Sls_Forecasting_Metrics_Expanded"
       ],
-      "priorYearSourcing": "Prior-year dollars are the 'PY' rows of the SAME grouped pull, not a separate point-in-time snapshot and not a second query: Close_Date_Relative_Year_clc IN ('CY','PY') is already in requiredFilters because the Y/Y needs it, so the prior-period ACV_clc rows are already in the result set. The panel that stood here discarded them and kept two rates; this one keeps the dollars and computes nothing from the rates. Same reasoning as portlets['acv-account-fan'].oneGroupedQueryNotTwoPulls.",
+      "priorYearSourcing": "Prior-year dollars are the 'PY' rows of the SAME grouped pull, not a separate point-in-time snapshot and not a second query: Close_Date_Relative_Year_clc IN ('CY','PY') is already in requiredFilters because the Y/Y needs it, so the prior-period ACV_clc rows are already in the result set. The panel that stood here discarded them and kept two rates; this one keeps the dollars and computes nothing from the rates. Same reasoning as portlets['acv-ae-fan'].oneGroupedQueryNotTwoPulls.",
       "whyThisIsBetterSourcedThanWhatItReplaces": "The dispersion panel needed a client-side min and max over governed rates — legal, but a selection this board had to justify. This panel needs two dollar figures per line, both governed rows of the same pull, and does its one subtraction on a measure the model certifies as additive. Fewer client-side steps on a stronger guarantee.",
       "authoringRule": "The 20 movements are AUTHORED in board.json, not computed at render time, per docs/visualization-research.md. A live implementation reads the 'PY' rows directly and does not reproduce the board's derivation.",
       "supplementedBy": {
@@ -1420,8 +1438,7 @@
         "attritionColumn": "Attrition_Commit_clc",
         "nnaovColumn": "NNAOV_Commit_clc",
         "velocity": "Velocity_clc, benchmarked against Historical_Velocity_clc",
-        "coverage": "Coverage_clc, benchmarked against Historical_Coverage_clc",
-        "finPlanAttainment": null
+        "coverage": "Coverage_clc, benchmarked against Historical_Coverage_clc"
       },
       "dimensions": [
         "APM_L120",
@@ -1431,7 +1448,7 @@
         "OU_Group_clc or OU_Operating_Unit"
       ],
       "rowGrain": "one row per metric per opportunity per user in the reporting hierarchy",
-      "presentationGrain": "fiscal quarter × product motion (3 rows), with ACV drawn as a commit-against-derived-plan landscape on a dollar scale and the other two measures as Y/Y stubs on the shared growth axis",
+      "presentationGrain": "fiscal quarter × product motion (3 rows) × measure (3 lanes), each measure drawn as one signed growth axis with all three motions on it and the axis turned by the measure's authored good direction",
       "dateAnchor": "Close_Date17",
       "requiredFilters": [
         "exactly one dedup filter",
@@ -1442,17 +1459,16 @@
       ],
       "utteranceShape": "One utterance per column, each grouped by the product level: Return Commit (Current_Commit_clc) grouped by APM_L218 for <scope filter>, filtered to Close_Date_Fiscal_Quarter_Datepart_clc = <resolved> and Close_Date_Relative_Year_clc = 'CY'. Exclude APM_L120 = 'Other'. Filter out null dimension values. // For the pairs: Return Velocity (Velocity_clc), Historical Velocity (Historical_Velocity_clc), Coverage (Coverage_clc) and Historical Coverage (Historical_Coverage_clc) grouped by APM_L218 for <scope>, filtered to Close_Date_Fiscal_Quarter_Datepart_clc = <resolved> and Close_Date_Relative_Year_clc IN ('CY','PY','PY-1'). Do not sum these — they are non-additive.",
       "needs": [
-        "columns[3]",
+        "columns[3] with goodDirection and polarityWord",
         "rows[3].cells[3]",
-        "cells[].plan",
+        "cells[].yoy",
         "cells[].altBasis",
-        "cells[].altBasis.value",
-        "metrics.landscape"
+        "metrics.key — the shared dollar scale the three levels are read on",
+        "metrics.axisTicks"
       ],
       "cannotSource": [
-        "EVERY FinPlan attainment figure on this portlet — 87% (Analytics), 78% (Platform), 128% (Embedded) — AND the derived plan and gap now drawn from each of them. There is no ACV plan measure and NO FinPlan OBJECT ANYWHERE in either model. The governed target vocabulary is PG_TARGETS, OP_TARGETS and PG_LANDING_QTR_TGT — pipegen and Day-1 open pipe only. The 128% cell is also the only authored value that exercises notchedCapPath(), so the one branch the spec asks to be verified is on an unsourceable figure.",
         "the three motion rows — no motion dimension exists",
-        "polarity — goodDirection: 'down' on the Attrition column is a board decision"
+        "polarity — goodDirection: 'down' on the Attrition lane is a board decision, and on this chart it is load-bearing rather than decorative: it is what turns that lane's axis"
       ],
       "canSource": [
         "the velocity and coverage pairs — both current and historical measures are real and governed in both models",
@@ -1491,7 +1507,9 @@
         "supplies": "The derived plan and the gap-to-plan bracket. The ACV and attrition cells are certified.",
         "because": "§3.2 — no ACV target measure. The plan landscape merged into this matrix by the Q3 rebuild has no governed counterpart.",
         "cost": "Half the panel is enforced and half is not, and they render in the same type."
-      }
+      },
+      "planAttainmentNoLongerDrawn": "This portlet drew every FinPlan attainment figure on the tab — 87%, 78%, 128% — and a derived plan and gap from each. All six came off at the growth rebuild. The limit that blocked them is unchanged and still recorded at gaps.planAttainment; what changed is that nothing here depends on it.",
+      "whyNoPriorYearDollars": "The Y/Y rates are authored to the integer, so a prior-year amount reconstructed from a current amount and a rate is an interval, not a figure: Platform's $75.5M at -15% puts the prior year somewhere in $88.3M-$89.3M. The board does not draw estimates, so the hero states the rate and the current dollars and never the prior-year ones. A live wiring would query the 'PY' rows directly and would not have this problem — the limit is the mock data's precision, not the model's."
     },
     "outlook-benchmark": {
       "tab": "q3-outlook",
@@ -1983,7 +2001,7 @@
         "evidence": "No product-motion, deployment-model or Embedded/Agentic dimension in either model. What exists is the APM hierarchy, where 'Tableau Next' and 'Tableau Server' are both L2 values needing OR-matching across L1 and L2.",
         "affectedPortlets": [
           "mix-acv",
-          "acv-account-fan",
+          "acv-ae-fan",
           "perf-hierarchy",
           "perf-divergence",
           "seg-matrix",
@@ -2017,23 +2035,17 @@
         "kpi-nnaov",
         "kpi-attrition"
       ],
-      "affectsEveryFinPlanAttainmentFigureOnTheQ3OutlookTab": [
-        "outlook-matrix",
-        "outlook-deals"
-      ],
+      "affectsEveryFinPlanAttainmentFigureOnTheQ3OutlookTab": [],
       "specificFiguresWithNoSource": [
         "kpi-acv plan attainment",
         "kpi-nnaov plan attainment",
-        "kpi-attrition plan attainment",
-        "outlook-matrix Analytics ACV 87% of Product FinPlan",
-        "outlook-matrix Platform ACV 78% of Product FinPlan",
-        "outlook-matrix Embedded ACV 128% of Product FinPlan"
+        "kpi-attrition plan attainment"
       ],
       "onlyFullySourceableAttainment": "kpi-pipegen. It is the only hero gauge with a governed target-and-attainment pair, and the only fully sourceable metric tile on the board.",
       "wouldRequire": "A FinPlan object, or ACV/NNAOV/attrition target-and-attainment measure pairs on the pipegen pattern. <TBD: search list_semantic_models for 'FinPlan', 'plan', 'target', 'quota'.>",
       "renderRule": "Render the attainment track as unavailable rather than dividing by a number from outside the layer. attainment.js already has this branch (barIsVoid).",
       "derivedQuantitiesThatInheritThisLimit": {
-        "_note": "ADDED AT THE Q3 REDESIGN. Everything below is arithmetically exact from two authored figures and unsourceable for exactly one reason: one of those two figures has no governed denominator. Exactness is not sourceability.",
+        "_note": "RETIRED AT THE GROWTH REBUILD, kept for the record. Everything below was arithmetically exact from two authored figures and unsourceable for exactly one reason: one of those two figures had no governed denominator. Exactness is not sourceability — which is why the honest resolution was to stop drawing the derived quantities rather than to keep drawing them with a caveat attached.",
         "derivation": "plan = commit ÷ attainment; gap = plan − commit. Both are computed in the renderer from data/board.json's authored commit and authored attainment percentage, and both are labelled 'derived' wherever they are drawn.",
         "figures": [
           "outlook-matrix Analytics derived plan $120.7M and derived gap −$15.7M, from $105M ÷ 87%",
@@ -2041,10 +2053,17 @@
           "outlook-matrix Embedded derived plan $23M and derived overrun +$6.5M, from $29.5M ÷ 128%",
           "outlook-deals the $15.7M gap the five deals are laid along, and the 80% share and $3.2M residual read off it — the same Analytics derivation, restated in that portlet's own metrics.gap.basis"
         ],
-        "consequence": "The plan bar, its target tick, the dashed shortfall, the gap readout and the deals composition's entire scale all rest on a percentage neither semantic model can produce. If the tab is wired live, every one of them has to come off with the attainment, not just the attainment.",
-        "whyItIsStillDrawn": "The tab already printed '87% of Product FinPlan' as authored data before the redesign, so the plan was on the page either way. Deriving a dollar gap from an authored attainment percentage is no less sourceable than the percentage itself — the limit is identical in both cases, and it is recorded here rather than allowed to pick the chart. See docs/q3-redesign.md.",
-        "renderRule": "Handled structurally, not with copy. metricMatrix's landscape branch drops the bullet entirely in direct mode and draws the dashed void track in its place, because a gap derived from a contested commit would be three different gaps rendered as one. dealRail falls back from the derived gap to the authored total as its scale, keeping the composition and losing the target."
-      }
+        "consequence": "This is what the limit cost while it was being drawn: a plan bar, its target tick, a dashed shortfall, a gap readout and the deals composition's entire scale, all resting on a percentage neither semantic model can produce. The Q3 rebuild removed all five rather than qualifying them, so nothing on that tab has to come off if the board is wired live.",
+        "renderRule": "No longer applicable — nothing renders these. Kept because the rule it states is general and the next portlet to derive a quantity from an ungoverned one will need it: handle it structurally, not with copy. A gap derived from a contested commit would be three different gaps rendered as one, so the mark comes off rather than being annotated.",
+        "status": "retired — no portlet computes any of these",
+        "whyItIsNoLongerDrawn": "It was drawn because the tab already printed '87% of Product FinPlan' as authored data, and deriving a dollar gap from an authored percentage is no less sourceable than the percentage itself. That reasoning holds and was never the problem. What settled it was the subject: a hero whose largest mark is a shortfall against a target nobody can produce is a chart of the wrong thing, and the tab's own authored headline — 'Q3 tracks to $105M with attrition running 20% ahead of last year' — had been a growth claim the whole time."
+      },
+      "q3OutlookNoLongerAffected": "The Q3 Outlook tab drew six figures off this limit and now draws none. Its hero was rebuilt onto year-over-year growth, which is authored for all nine of its cells in both modes, and the deals rail was re-based from the derived gap onto the five deals' own total. Neither portlet reads an attainment percentage in either mode. The exec tab's three cards are unaffected and still do.",
+      "figuresRetiredFromTheBoard": [
+        "outlook-matrix Analytics ACV 87% of Product FinPlan — no longer drawn",
+        "outlook-matrix Platform ACV 78% of Product FinPlan — no longer drawn",
+        "outlook-matrix Embedded ACV 128% of Product FinPlan — no longer drawn"
+      ]
     },
     "nnaovExistsOnlyAsACommit": {
       "finding": "NNAOV_Commit_clc is 'Net New ACV + Offset Value COMMIT' — a forecast, not a booking. There is no booked NNAOV actual in either model.",
@@ -2115,12 +2134,12 @@
         "Combo_Company_Name15",
         "Global_Combo_Name7 (Specialist)"
       ],
-      "replaces": "The invented lineage node 'Account Hierarchy Conformance' on acv-account-fan.",
-      "why": "Global_Combo_Name and Combo_Company_Name15 are exactly the 'conformed identity, not raw Org62 Account.Id' that acv-account-fan currently describes as an invented node. The real thing has a name, is governed, and is better. It is also the field that prevents a re-parented subsidiary reading as one full non-renewal beside one phantom expansion — which is the failure the portlet exists to demonstrate.",
+      "replaces": "Nothing on the board any more. It replaced the invented lineage node 'Account Hierarchy Conformance' on acv-account-fan, and that portlet has been repointed to per-AE productivity because the account-level ACV data does not exist. The field is still the right answer to the question; the question is no longer on the board.",
+      "why": "Global_Combo_Name and Combo_Company_Name15 are exactly the 'conformed identity, not raw Org62 Account.Id' that acv-account-fan described as an invented node called 'Account Hierarchy Conformance'. The real thing has a name, is governed, and is better, and it is the field that prevents a re-parented subsidiary reading as one full non-renewal beside one phantom expansion. KEPT AS A RECOMMENDATION, DEMOTED IN PRIORITY: the portlet that depended on it is gone, so this is no longer load-bearing for anything the board draws. It is now the correction of an authority document rather than a fix to a panel.",
       "openQuestion": "<TBD: confirm which of Global_Combo_Name6 and Combo_Company_Name15 is the consolidated PARENT identity — the labels say 'Global combo/consolidated account name' and 'Combo company name' and the distinction is not stated. Resolve via get_semantic_model_logical_view or a distinct-values probe.>",
       "note": "Sls_Forecasting_Metrics_Expanded has NO Account ID at all, only Account_Name129. Sls_Specialist_Reporting has Account_ID106. If account identity matters more than population completeness, that is an argument for the Specialist model on this one portlet.",
       "affectedPortlets": [
-        "acv-account-fan",
+        "acv-ae-fan",
         "outlook-deals"
       ]
     },
@@ -2308,9 +2327,9 @@
       ]
     },
     {
-      "id": "seq-acv-account-fan",
+      "id": "seq-acv-ae-fan",
       "portlets": [
-        "acv-account-fan"
+        "acv-ae-fan"
       ],
       "model": "DECIDE FIRST — this is the one portlet where the Specialist model is a live alternative",
       "goal": "Per-account ACV movement, current quarter against the same quarter prior year. The most demanding pull on the board: full population, two periods, conformed identity, and a hard reconciliation requirement.",
@@ -2357,10 +2376,10 @@
     "1. CONFIRM THE MCP SERVER SURFACE. Verify the Tableau Next MCP server is connected and healthy, and READ THE PARAMETER NAMES OFF ITS OWN TOOL SCHEMA. Three artifacts spell the analyze_data target parameters three different ways and at most one is right. MCP credentials and configuration live entirely outside this repo and are never referenced here.",
     "2. RESOLVE THE FISCAL CALENDAR ISSUE BEFORE ANYTHING ELSE. The real fiscal year starts February 1, so FQ3 = August-October. A board labelled 'Q2 FY27' with generatedAt 2026-09-01 IS DATED INSIDE FY27 Q3. Decide which it is: a closed-quarter Q2 retrospective — in which case the QTD flags are unnecessary and any 'quarter to date' kicker is wrong — or a live Q3 board that is mislabelled. Then resolve Close_Date_Fiscal_Quarter_Datepart_clc AT RUNTIME and never hardcode it; FCST contradicts itself on which quarter is current (header and §11 say Q2, §5 says 3, PULSE says 3 throughout) and the disagreement is a staleness artifact, not a schema fact.",
     "3. DECIDE THE BOARD SCOPE, ONCE, FOR THE WHOLE BOARD. 'Analytics Business Unit' is not a scope that exists in either model. Choose one of: APM_L120 = 'Analytics' (a product scope), an OU_Group_clc / OU_Operating_Unit value (an org scope), or a named leader's hierarchy. These are three different populations and they will not agree. Record the decision, state it on the board, and make it once — if different portlets use different scopes, every cross-tab measure-identity edge the knowledge graph draws becomes false.",
-    "4. DECIDE THE MODEL PER PORTLET, AND NEVER MIX. Two unrelated SDMs, no relationship, same words meaning different numbers. Every portlet gets exactly one model. acv-account-fan is now the ONLY portlet where the choice is genuinely open, and its decision must be recorded before the first query. seg-matrix's is settled: the segment derivation in step 5 only works on Sls_Forecasting_Metrics_Expanded, because Segment10 is the only segment field carrying SMB and the derivation cannot create one.",
+    "4. DECIDE THE MODEL PER PORTLET, AND NEVER MIX. Two unrelated SDMs, no relationship, same words meaning different numbers. Every portlet gets exactly one model. No portlet's choice is open any more: acv-account-fan was the last one where the Specialist model was a live alternative, and its replacement acv-ae-fan is settled on Sls_Forecasting_Metrics_Expanded because it reconciles to kpi-acv. seg-matrix's is settled: the segment derivation in step 5 only works on Sls_Forecasting_Metrics_Expanded, because Segment10 is the only segment field carrying SMB and the derivation cannot create one.",
     "5. BUILD THE DERIVED SEGMENT DIMENSION, IN THE SEMANTIC LAYER. The board's four segment columns are NOT four values of one native dimension. Per the model owner: PubSec is an OPERATING UNIT, not a segment, and the four-way split is a derived dimension — 'IF OU = Public Sector then OU else segment end'. That single line, quoted verbatim, is the definition. Add it to the SDM as a calculated dimension so every consumer inherits the same answer, including the Analytics Agent, which generates SQL from apiNames and cannot infer a rule that lives in someone's workbook. DO NOT reimplement it client-side in each workbook or app: a one-line rule that determines what 'PubSec' means, left out of the model, gets rebuilt slightly differently by every analyst who needs it, and four segment breakouts that all look right disagree with no error anywhere. THEN CONFIRM THE ONE OUTSTANDING IDENTIFIER: the OU field's apiName is <TBD> and neither documented candidate is confirmed to carry a Public-Sector value — OU_Operating_Unit (Forecasting, no value set documented at all) or OU_Group_clc (Specialist, whose value list shows a truncated 'Pub Se…'). The near-hit and the SMB value are in different models and the models cannot be joined, so this check is the highest-value discovery call on the segment tab: if Forecasting's OU field carries no Public Sector value, the four-column set is blocked again and genuinely this time. Resolve the literal with a distinct-values probe, never from a document. See portlets['seg-matrix'].derivedSegmentDimension. STILL OWED SEPARATELY: the board's own enterprise / commercial / growth tier labels used elsewhere match neither model's vocabulary, and the model owner's answer does not address them; and ESMB, which Segment10 carries and the four columns do not show, needs a stated destination.",
     "6. DECIDE WHAT THE FIVE YEAR TREND TAB SHOWS, BEFORE IT GOES LIVE. THE TAB AS DESIGNED CANNOT BE SOURCED. It draws five periods (FY23, FY24, FY25, FY26, FY27 H1) and the model owner confirms there are only three years of ACV data — 'Correct, only 3 years of ACV data.' Three years is the extent of the data, not of the relative-year vocabulary, so there is no date-filter workaround. Four of the seven metric panels have no measure at all and are confirmed unavailable by the model owner (trend-aov, trend-revenue, trend-ae-capacity, trend-ae-productivity); the other three (trend-acv, trend-attrition, trend-nnaov) reach three of five points. The Y/Y channel reaches two of five and the two-year CAGR channel reaches one of five, because a 2-year CAGR at the earliest available year has no prior basis to compute from. DECIDE ONE OF: (a) re-cut the tab as a three-year trend of the three flow metrics that exist, with FY27 as the period-to-date detached point — the recommendation, and still a defensible chart; (b) hold the tab in mock and label it as such; (c) source the missing years from outside this semantic layer, which is a different project. WHAT IS NOT AVAILABLE is rendering five periods against three years of data and fixing it in the caption — two of the five points would have no source, and a chart with two invented points is the exact failure this board exists to argue against. See gaps.fiveYearTrendTabCannotBeSourced.",
-    "7. DECIDE THE PRODUCT-MOTION MAPPING, IN THE OPEN. No motion dimension exists. Commit an explicit, versioned APM-L2-to-motion mapping to this repo, labelled as a mapping THIS BOARD DEFINES rather than one the layer provides. Six portlets depend on it: mix-acv, acv-account-fan, perf-hierarchy, perf-divergence, seg-matrix, outlook-matrix.",
+    "7. DECIDE THE PRODUCT-MOTION MAPPING, IN THE OPEN. No motion dimension exists. Commit an explicit, versioned APM-L2-to-motion mapping to this repo, labelled as a mapping THIS BOARD DEFINES rather than one the layer provides. Five portlets depend on it: mix-acv, perf-hierarchy, perf-divergence, seg-matrix, outlook-matrix. acv-ae-fan no longer does — it is keyed on a rep, not a product.",
     "8. READ businessPreferences ON BOTH MODELS AND APPLY THEM. They apply to every generated query whether or not you ask. AND DO NOT LIFT A LITERAL FILTER VALUE OUT OF THEM — the stored 'UP +' string is documentation, not data, and filtering on it returns zero rows with no error. Resolve every filter VALUE with a distinct-values probe instead.",
     "9. CONFIRM EVERY FIELD'S VISIBILITY AND aggregationType BEFORE NAMING IT IN AN UTTERANCE. Several fields the board wants are hidden (SFR_Pipe_Gen_Amount_clc, Coverage_clc in the Specialist model, SFR_ID). A hidden field returns nothing rather than erroring. Coverage_clc is the correct field in one model and hidden in the other.",
     "10. WIRE THE ALWAYS-ON FILTERS PER MODEL, NOT GLOBALLY. Forecasting needs exactly ONE dedup filter chosen from the seven scenarios, or results run 3-10x too large; Is_My_Data_clc and User_Name10 are mutually exclusive. Specialist needs Is_Specialist_AE_Covered_Cleaned_clc = TRUE on every query without exception, plus COUNT(DISTINCT Opportunity_ID35) for any count. Note that if the runtime identity has no forecast record, Is_My_Data_clc becomes a NO-OP THAT RETURNS ALL DATA — an analyst or service identity is the likeliest to hit this.",
@@ -2370,7 +2389,7 @@
     "14. RECAST THE RULES CARDS ONTO ADDITIVITY AND PERIOD-TO-DATE. Remove every polarity claim; the layer does not publish one. Add the additivity classification and the PTD flags, both of which it does. See userDecisions.rulesArgumentRecast.",
     "15. RE-ANCHOR THE STOCK EXEMPLAR ONTO OPEN PIPE. AOV is explicitly excluded from both models in writing AND CONFIRMED UNAVAILABLE BY THE MODEL OWNER, so this is no longer a preference between two options — it is the only remaining one. Open Pipe is a real governed balance that the docs explicitly exempt from PTD, which is the same argument with better evidence. See userDecisions.stockExemplarReanchoredToOpenPipe.",
     "16. FIX THE PROVENANCE STRINGS. meta.sdm 'Analytics Revenue SDM' does not exist — name the model per portlet. meta.certifiedBy 'Analytics RevOps' has no counterpart — use document owner or a <TBD>. meta.freshness is a four-stage chain, not a timestamp. meta.rls has the wrong subject — scope is the caller's entitled hierarchy. Every lineage array needs its invented nodes replaced with the real chain: Org62 Opportunity -> Tableau Extract (.tdsx) -> the named CTE in Underlying_Data_Source1 -> the SDM.",
-    "17. RE-SORT EVERY GROUPED RESULT CLIENT-SIDE. SPEC is explicit that server-side ordering is not to be relied on. This matters most on outlook-deals, whose ranking is its content, and on acv-account-fan.",
+    "17. RE-SORT EVERY GROUPED RESULT CLIENT-SIDE. SPEC is explicit that server-side ordering is not to be relied on. This matters most on outlook-deals, whose ranking is its content, and on acv-ae-fan, whose 649 lines are ordered by prior-year book.",
     "18. VERIFY THE CROSS-TAB MEASURE IDENTITIES BEFORE DRAWING THE KNOWLEDGE-GRAPH EDGES. kpi-acv / trend-acv HOLDS — both are ACV_clc. kpi-nnaov / trend-nnaov holds but both ends are mislabelled. kpi-attrition / trend-attrition holds on Attrition_clc. hc-ae / trend-ae-capacity has no measure at either end, so the edge cannot be drawn. outlook-acv's edge to kpi-acv MUST NOT BE DRAWN if the tile binds to Current_Commit_clc. An edge asserting an identity the layer does not support is the board making exactly the loose claim it argues against.",
     "19. ADD THE LIVE TIER. Insert a live tier in the fetch chain in src/main.js ahead of data/board.json, keeping board.json and the embedded fallback beneath it. Set meta.dataMode accordingly so the UI stops labelling itself a mock snapshot. Add the explicit 'as of' both primary documents require on any published brief, and the scope statement from step 3.",
     "20. KEEP THE directMode BLOCKS AUTHORED. They are an argument about what the semantic layer provides, not a report on live data, and they do not become discoverable just because the numbers above them do.",
@@ -2414,7 +2433,7 @@
       "THE FIFTEENTH CTE. Underlying_Data_Source1 is described as a union of 15 input CTEs; fourteen values are listed. The doc flags the arithmetic itself.",
       "TRUNCATED apiNames. Several deal-movement flags run past the right edge of the source tables and are cut mid-name (…Opportunity_was_Compressed_c…, Since_Yesterday_Manager_Forecast_Judgment_Ch…clc, Since_Last_Week_Change_in_Attrition_Commit_c…). The source table for the Specialist datasource is also cut (SSE_DM_TAB_DE_PRD.FACT_SALES_SPECIALIST_FORE…), as are two OU_Group_clc values (Pub Se…, E… France). None has been reconstructed.",
       "APM_L218's FULL VALUE SET. Only two values are given ('Tableau Next', 'Tableau Server') and the doc calls them examples. Encoded as a <TBD> with an instruction to enumerate live.",
-      "WHICH COMBO FIELD IS THE PARENT IDENTITY. Global_Combo_Name6 versus Combo_Company_Name15 — the doc explicitly marks the distinction as unresolved and requiring a live probe. This is load-bearing for acv-account-fan, because the wrong choice reproduces the exact failure that portlet exists to demonstrate.",
+      "WHICH COMBO FIELD IS THE PARENT IDENTITY. Global_Combo_Name6 versus Combo_Company_Name15 — the doc explicitly marks the distinction as unresolved and requiring a live probe. NO LONGER LOAD-BEARING FOR ANY PANEL. It was load-bearing for acv-account-fan, which has been repointed to per-AE productivity because the account-level data does not exist. Still worth resolving — it is the correct answer to a real question, and two documents in this repo describe it — but nothing on the board now waits on it.",
       "STILL OPEN — WHETHER EITHER SEGMENT DIMENSION IS TIME-AWARE. The board's seg-matrix claims segment is 'a property of the account as of the period' and that the dimension is 'certified and time-aware'. Neither document says anything about snapshotting or as-of behaviour on Segment10 or Derived_Macro_Segment. THE MODEL OWNER'S PUBSEC ANSWER DOES NOT SETTLE THIS — it is a different question about a different property, and conflating the two would be reading an answer about what the columns MEAN as an answer about when they are MEASURED. Encoded as a <TBD> with the instruction not to make the claim until confirmed.",
       "NEW — WHICH OU FIELD CARRIES A PUBLIC-SECTOR VALUE, AND WHAT THE EXACT LITERAL IS. The model owner's derivation tests 'OU = Public Sector' but names the field by business label, not apiName. Two candidates exist across the three PDFs and neither is confirmed: OU_Operating_Unit (Sls_Forecasting_Metrics_Expanded — named in FCST's dimension catalogue with NO value set documented anywhere) and OU_Group_clc (Sls_Specialist_Reporting — value set stated as verified live 2026-07-02, one value truncated in the source as 'Pub Se…', the only documented near-hit in any of the three documents). THE NEAR-HIT AND THE SMB VALUE ARE IN DIFFERENT MODELS AND THE MODELS CANNOT BE JOINED, so the derivation has to run on Forecasting and therefore depends on OU_Operating_Unit carrying a Public Sector value — which no document establishes. This is the single identifier to confirm at discovery time before binding the segment tab, and the exact literal must come from a distinct-values probe, never from a document: a wrong literal returns an empty PubSec column beside three that look correct, with no error.",
       "NEW — WHETHER A CALCULATED DIMENSION IMPLEMENTING THE DERIVATION ALREADY EXISTS. The model owner describes what to return ('you'd just have to return …'), which reads as a rule to be applied rather than a field to be selected. Confirm via list_semantic_model_calculated_dimensions whether it is already in the SDM. If it is not, it should be added — see portlets['seg-matrix'].derivedSegmentDimension.belongsInTheSemanticLayerNotTheClient — and until it is, the board is computing it, which must be labelled on the tab.",

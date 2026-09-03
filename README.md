@@ -182,7 +182,7 @@ src/
   tooltip.js       one shared tooltip
   charts/          attainment, mixBar, statTile, cardRail, trendPanel,
                    driverRail, rulesCard, movementFan, growthMatrix,
-                   groupMovement, metricMatrix, dealRail
+                   groupMovement, growthLanes, benchmarkAxis, dealRail
                    growth.js — the shared symlog scale, not a renderer
   fallback.js      GENERATED — do not edit
 styles/

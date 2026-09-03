@@ -284,12 +284,12 @@ export class Portlet {
 
     /* The audit line: the certified figure, and the distance from it.
      *
-     * Present only where a figure actually moved. The four supplemented
-     * portlets and the six narrative ones have no delta to state, so holding D
-     * leaves them completely untouched — and that is the most useful thing the
-     * pass does. A viewer holding the key sees ten panels sitting there
-     * unmarked and learns, without being told, that the layer was never what
-     * was holding those ten up. */
+     * Present only where a figure actually moved. The five supplemented
+     * portlets with no degraded figure and the six narrative ones have no delta
+     * to state, so holding D leaves them completely untouched — and that is the
+     * most useful thing the pass does. A viewer holding the key sees eleven
+     * panels sitting there unmarked and learns, without being told, that the
+     * layer was never what was holding those eleven up. */
     const dmAudit = this.spec.directMode || {};
     /* Only a SCALAR hero can be quoted here. On the Five Year panels `display`
        is the five-point series, and joining it produced an audit line reading
@@ -308,17 +308,23 @@ export class Portlet {
       this.el.dataset.audit = "on";
     } else if (isDirect && dmAudit.provenance === "supplemented") {
       /* Not "unchanged", which is what this said first and which is not quite
-       * true. These four panels did not hold steady against a certified
+       * true. These five panels did not hold steady against a certified
        * figure — there is no certified figure for them to have held steady
        * against. AE capacity, AOV and revenue have no measure in either model
-       * (§10.1, confirmed by the model owner), so the audit pass has nothing
-       * to lay beside them, and saying so is more use than a green tick.
+       * (§10.1, confirmed by the model owner), and the AE productivity fan has
+       * a certified measure over a population nothing can certify, so the audit
+       * pass has nothing to lay beside any of them — and saying so is more use
+       * than a green tick.
        *
-       * It also completes the pass's argument. Holding D marks seventeen
-       * panels with a distance from a certified number and four with the
-       * observation that no such number exists — which is the difference
-       * between "the layer was protecting this and now it is not" and "the
-       * layer was never here". */
+       * It also completes the pass's argument. Holding D marks sixteen panels
+       * with a distance from a certified number and five with the observation
+       * that no such number exists — which is the difference between "the layer
+       * was protecting this and now it is not" and "the layer was never here".
+       *
+       * Sixteen and five rather than seventeen and four since the exec fan was
+       * repointed off account ACV: the account-level data does not exist, so the
+       * panel that was one of the board's five certified portlets is now one of
+       * its supplemented ones. */
       this.auditEl.textContent = "no certified figure exists to compare";
       this.el.dataset.audit = "absent";
     }

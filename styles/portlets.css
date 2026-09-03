@@ -296,9 +296,12 @@
      !  silent    — wrong, and nothing in the picture would tell you
      ?  catchable — wrong by an amount a magnitude or shape check finds
         none      — the figure did not move, because it never went through
-                    the layer. The four supplemented portlets keep the plain
-                    disc in both modes, which is what makes them legible as
-                    the control group. */
+                    the layer. The five supplemented portlets with no degraded
+                    figure keep the plain disc in both modes, which is what
+                    makes them legible as the control group. Five rather than
+                    four since the exec fan was repointed off account ACV: its
+                    measure is certified and its population is not, so it
+                    joined the group. */
 .portlet[data-detect="silent"] .trust-dot::before,
 .portlet[data-detect="catchable"] .trust-dot::before {
   width: auto;
@@ -4270,10 +4273,11 @@
 /* The struck figures.
  *
  * Keyed on data-detect, which means only the portlets whose figures actually
- * MOVED get struck. The four supplemented panels and the six narrative ones
- * carry no detect value, so holding D leaves them completely alone — and ten
- * untouched panels is the most informative thing in the pass. It says, without
- * a word of copy, that the layer was never what was holding those ten up.
+ * MOVED get struck. The five supplemented panels with no degraded figure and
+ * the six narrative ones carry no detect value, so holding D leaves them
+ * completely alone — and eleven untouched panels is the most informative thing
+ * in the pass. It says, without a word of copy, that the layer was never what
+ * was holding those eleven up.
  *
  * The selector list is every hero numeral class on the board. It is long
  * because the charts do not share a numeral component, and it is enumerated

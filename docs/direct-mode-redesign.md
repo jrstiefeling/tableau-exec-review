@@ -275,7 +275,7 @@ Option (a), modeled and labelled. Every input is a count re-derivable from this 
 | Source tables under the extract | 16 | **Counted.** 15 input CTEs plus the flattened user hierarchy |
 | Distinct documented fields | 214 | **Counted** across §3 — 140 Forecasting, 81 Specialist, 7 names appearing in both with different definitions |
 | Silent failure modes | 20 | **Counted.** `guardrails.silentFailureModes` |
-| Renewable accounts / opportunity rows | 260 / 278 | **Stated.** `acv-account-fan` |
+| Paired AEs / population rows | 649 / 1,000 | **Stated.** `acv-ae-fan`. Was 260 / 278 against `acv-account-fan`, whose subject is withdrawn |
 | Hierarchy fan-out | 3×–10× | **Stated verbatim** in the Forecasting model. The low end is used |
 
 ### 7.2 Unit of comparison
@@ -284,8 +284,10 @@ Option (a), modeled and labelled. Every input is a count re-derivable from this 
 board-level unit amortises session discovery fairly on both sides rather than charging it to one
 tile.
 
-Portlet classes: 22 measure portlets, 1 population portlet (`acv-account-fan`), 6 narrative and
-rules portlets that issue no query.
+Portlet classes: 22 measure portlets, 1 population portlet (`acv-ae-fan`), 6 narrative and
+rules portlets that issue no query. The population portlet's row count went up — 1,000 rather than
+278 — when its subject moved from accounts to AEs, so the governed side of §7.3 carries more rows
+for the same one round trip, which if anything sharpens the comparison.
 
 ### 7.3 Governed
 
@@ -593,7 +595,8 @@ variety is what makes the tab-to-tab reading interesting, and it comes free from
 | `kpi-pipegen` | Exec | fan-out — no dedup filter, 3× the hierarchy | **yellow** |
 | `mix-acv` | Exec | exclusion-convention — `APM_L1 'Other'` retained, no motion taxonomy | red |
 | `hc-ae` | Exec | no-source — no headcount measure in either model | grey |
-| `acv-account-fan` | Exec | conformed-identity — raw account name, not the consolidated key | red |
+| ~~`acv-account-fan`~~ | Exec | ~~conformed-identity — raw account name, not the consolidated key~~ | ~~red~~ |
+| `acv-ae-fan` | Exec | point-in-time — a current roster with no as-of-period-end read | **yellow**, and **supplemented**: nothing moves |
 | `going-well` | Exec | no-source — authored narrative, no measure | grey |
 | `h2-focus` | Exec | no-source | grey |
 | `perf-hierarchy` | Product | exclusion-convention — the `'Other'` bucket reappears as a product | red |
@@ -613,6 +616,34 @@ variety is what makes the tab-to-tab reading interesting, and it comes free from
 | `trend-nnaov` | Five Year | field-ambiguity, ×1.867 | red |
 | `trend-aov` | Five Year | flow-as-stock | red |
 | `trend-revenue` | Five Year | no-source — no recognised-revenue measure | grey |
+
+### 10.1 One hazard now has no exhibit: `conformed-identity`
+
+`acv-account-fan` was the T2 conformed-identity beat, and the beat was *raw gives you two keys, the
+layer gives you one*: a re-parented subsidiary arrives as one full non-renewal beside one phantom
+expansion in an export, and resolves to a single `Global_Combo_Name6` through the layer.
+
+That exhibit needed the certified version to exist as its control, and it does not. The
+account-level ACV pair cannot be produced at all, so the honest claim is no longer "the layer fixes
+this" but **"neither path can answer it"** — a different and much weaker beat, and not one the
+walkthrough can land in ten seconds in front of an audience.
+
+Recorded here rather than left to be discovered mid-demo. Three consequences:
+
+- **No panel on the board carries `conformed-identity` any more.** The hazard is still real, still
+  documented in §3 and still the sharpest thing in the layer's account vocabulary. It has no
+  exhibit. The walkthrough should either drop the beat or state it as an absence — *"the thing that
+  would show you this is the thing we cannot draw"* — which is a legitimate move on this board but
+  is a different sentence and has to be scripted as one.
+- **The replacement is not a substitute for it.** `acv-ae-fan`'s hazard is `point-in-time`, and its
+  degradation is that **nothing moves**: a roster with no as-of-period-end read is missing from a
+  CRM export and from the semantic layer alike, so the panel is supplemented and joins the control
+  group. That is a good beat and it is T2, but it argues the opposite half of the thesis — what the
+  layer was *never* protecting, rather than what it protects.
+- **The control group grows from four panels to five.** `hc-ae`, `trend-ae-capacity`, `trend-aov`,
+  `trend-revenue` and now `acv-ae-fan`. The audit pass moves with it: holding D marks sixteen panels
+  with a distance from a certified figure and five with the observation that no such figure exists.
+  The counts are stated in `src/portlet.js` beside the branch that produces them.
 | `trend-ae-capacity` | Five Year | no-source — no headcount measure, no as-of grain | grey |
 | `trend-ae-productivity` | Five Year | grain — ambiguous numerator over an absent denominator | red |
 | `trend-rules` | Five Year | no-source | grey |
@@ -814,7 +845,7 @@ the estimate and collides with nobody.
 ### Done and ready to merge
 
 - **All 29 `directMode` blocks**, in final shape, in `direct-mode-blocks.json`. Every `shownFrom`
-  arithmetic computed and cross-checked; the exec `mix-acv`, `acv-account-fan` and Product
+  arithmetic computed and cross-checked; the exec `mix-acv` and Product
   `perf-hierarchy` figures all carry the same 8.5% `'Other'` inflation so the tabs agree with each
   other.
 - **The supplemented register** for `data/tableau-source-catalog.json`, staged in
