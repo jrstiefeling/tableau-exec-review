@@ -165,6 +165,55 @@ export class Portlet {
     return head;
   }
 
+  /* Holds the provenance mark at its GOVERNED reading.
+   *
+   * This is the hinge of the whole reveal. The degraded board renders at full
+   * confidence — same palette, same sentiment, same typography — so for the
+   * first second and a half after the toggle there is nothing on screen to say
+   * anything has changed except the figures themselves, which nobody has
+   * memorised. The board looks fine. It IS the board, in the shape an
+   * executive would accept without a second look.
+   *
+   * Then the marks land, and they land as a CHANGE rather than as a state: a
+   * dot that was green goes red, and the four that were amber stay amber. What
+   * the eye reads is not "these are the untrustworthy panels" but "these are
+   * the panels that just moved" — and the ones that did not move are the ones
+   * that never went through the layer. The control group identifies itself by
+   * sitting still.
+   *
+   * Doing this by withholding the mark rather than by animating the figures is
+   * also the only honest option. A screenshot taken at any point in the sweep
+   * shows real provenance or none, never a wrong one. */
+  primeMarks() {
+    if (!this.marks) return;
+    this.el.classList.add("marks-pending");
+    this.el.dataset.tier = this.marks.from;
+    this.el.dataset.detect = "none";
+    this.el.style.setProperty("--tier-color", tierMeta(this.marks.from).color);
+    this.trustDot.dataset.tier = this.marks.from;
+    this.trustDot.dataset.detect = "none";
+  }
+
+  landMarks() {
+    if (!this.marks) return;
+    this.el.classList.remove("marks-pending");
+    const moved = this.marks.from !== this.marks.tier || this.marks.detect !== "none";
+    this.el.dataset.tier = this.marks.tier;
+    this.el.dataset.detect = this.marks.detect;
+    this.el.style.setProperty("--tier-color", tierMeta(this.marks.tier).color);
+    this.trustDot.dataset.tier = this.marks.tier;
+    this.trustDot.dataset.detect = this.marks.detect;
+    /* Only the dots that actually change get the flare. A pulse on all 27
+       would be decoration; a pulse on the 17 that moved is information, and it
+       makes the four that hold still legible as a deliberate group rather than
+       as portlets the sweep happened to miss. */
+    if (moved) {
+      this.trustDot.classList.remove("is-landing");
+      void this.trustDot.offsetWidth;
+      this.trustDot.classList.add("is-landing");
+    }
+  }
+
   /* Re-derives everything that depends on mode. Called on mount and again on
    * every Knowledge Layer toggle, so a portlet's chart, colours and
    * provenance are genuinely rebuilt from the effective data rather than
@@ -180,6 +229,15 @@ export class Portlet {
     const effective = effectivePortlet(this.spec, mode);
     const meta = tierMeta(tier);
 
+    /* Stage three of the choreography needs two readings of the same portlet:
+       where the figure comes from with the layer in place, and where it comes
+       from without. Both are computed here, on the render that already knows
+       the mode, and the sweep in tabs.js decides when the second one lands. */
+    this.marks = {
+      from: tierOf(this.spec, MODES.TRUSTED),
+      tier,
+      detect
+    };
     this.el.dataset.tier = tier;
     /* Detectability rides on the same element as the tier, because it is
        rendered INSIDE the tier dot rather than beside it. An earlier draft gave
@@ -212,6 +270,12 @@ export class Portlet {
         ? `${meta.label}.${DETECT_TIP[detect] || ""} ${(this.spec.directMode || {}).missing || ""} Open for the full read.`
         : `Governed · ${(this.spec.semantic || {}).measure || "narrative"} · ${(this.spec.semantic || {}).freshness || ""}. Open for definition, grain, lineage and row-level scope.`
     );
+
+    /* A re-render mid-sweep must not undo the priming. rerenderAll() runs on
+       every mode toggle and lands before the sweep is scheduled, so without
+       this the marks would be written once at their final value and stage
+       three would have nothing left to reveal. */
+    if (this.el.classList.contains("marks-pending")) this.primeMarks();
 
     this.body.innerHTML = "";
     const mountChart = chartFor(this.spec.kind);
@@ -249,7 +313,7 @@ export class Portlet {
     head.className = "prov-head";
     const eyebrow = document.createElement("p");
     eyebrow.className = "prov-eyebrow";
-    eyebrow.textContent = isDirect ? "Direct read · no semantic layer" : "Semantic provenance";
+    eyebrow.textContent = isDirect ? "Direct to source · no semantic layer" : "Semantic provenance";
     const title = document.createElement("h3");
     title.className = "prov-title";
     title.textContent = s.metricName || this.spec.label;
@@ -384,7 +448,7 @@ export class Portlet {
     badge.textContent = degradedMeta.short;
     const heading = document.createElement("p");
     heading.className = "pb-heading";
-    heading.textContent = "Without the Knowledge Layer";
+    heading.textContent = "Read straight from source";
     head.appendChild(badge);
     head.appendChild(heading);
     card.appendChild(head);

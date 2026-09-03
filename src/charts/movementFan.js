@@ -45,7 +45,7 @@
 
 import { chartRoot, svgEl, group, smoothPath, linearScale } from "../svg.js";
 import { palette, toneColor, tierMeta } from "../palette.js";
-import { countUp, scramble, strokeDraw, fadeIn, stagger, wait, veil } from "../anim.js";
+import { countUp, strokeDraw, fadeIn, stagger, wait, veil } from "../anim.js";
 
 const W = 1000;
 const H = 200;
@@ -267,8 +267,7 @@ export function mount(host, ctx) {
    * two group shares — so countUp cannot drive it: it parses one numeral out
    * of a string. The two shares are counted independently and the slash is
    * static, which reads as the split arriving rather than as one number
-   * rolling. In direct mode the headline is not a number at all; it is the
-   * authored refusal, and it scrambles through the candidate roll-ups first. */
+   * rolling. Both modes hand back a pair, so both count. */
   const head = document.createElement("div");
   head.className = "fan-head";
   const headline = document.createElement("p");
@@ -868,14 +867,13 @@ export function mount(host, ctx) {
   async function build(signal) {
     fadeIn(svg, { duration: 380, y: 4, signal });
     fadeIn(head, { duration: 400, y: 6, signal });
-    if (countedShares) {
-      shareEls.forEach(({ el, display }, i) =>
-        countUp(el, display, { delay: 80 + i * 120, duration: 900, signal })
-      );
-    } else {
-      const candidates = isDirect ? (ctx.portlet.directMode || {}).candidates : null;
-      scramble(headline, candidates || [], metrics.headline || "", { delay: 100, signal });
-    }
+    /* Both modes count the two shares up. There is no scramble branch any
+     * more: the degraded fan now derives real expanded/contracted counts from
+     * the lines it actually drew, so it has two shares to count rather than a
+     * refusal to animate through. */
+    shareEls.forEach(({ el, display }, i) =>
+      countUp(el, display, { delay: 80 + i * 120, duration: 900, signal })
+    );
     fadeIn(originMark, { delay: 120, duration: 340, y: 0, scaleFrom: 0.4, signal });
     fadeIn(originLabel, { delay: 200, duration: 360, y: 0, x: -6, signal });
 

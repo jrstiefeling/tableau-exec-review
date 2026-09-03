@@ -44,7 +44,7 @@ import { palette, toneOf, toneColor, planTone, tierMeta } from "../palette.js";
 import { growthFraction, growthX, DECADE_FRACTIONS, CORE, CORE_FRACTION } from "./growth.js";
 import { bulletTrack } from "./attainment.js";
 import {
-  countUp, scramble, strokeDraw, dashDraw, fadeIn, growFrom, stagger, wait, veil
+  countUp, strokeDraw, dashDraw, fadeIn, growFrom, stagger, wait, veil
 } from "../anim.js";
 
 /* The Y/Y stub. Its own small viewBox per cell, identical in every cell, so the
@@ -790,9 +790,6 @@ export function mount(host, ctx) {
   /* --------------------------------- build -------------------------------- */
 
   async function build(signal) {
-    const candidates = isDirect ? (ctx.portlet.directMode || {}).candidates : null;
-    const contested = Boolean(candidates && candidates.length > 1);
-
     /* 1 — the tree, then the names it brackets. */
     railSpines.forEach((node) => strokeDraw(node, { duration: 240, signal }));
     stagger(railTicks, { step: 46, duration: 240, y: 0, signal });
@@ -832,8 +829,7 @@ export function mount(host, ctx) {
     landNodes.forEach((n) => {
       const delay = n.r * ROW_STEP;
       fadeIn(n.valueEl, { delay, duration: 420, y: 8, signal });
-      if (contested) scramble(n.valueEl, candidates, n.display, { delay: delay + 120, signal });
-      else countUp(n.valueEl, n.display, { delay: delay + 120, duration: 900, signal });
+      countUp(n.valueEl, n.display, { delay: delay + 120, duration: 900, signal });
       fadeIn(n.yoyChip, { delay: delay + 340, duration: 320, y: 0, x: -6, signal });
       fadeIn(n.planLine, { delay: delay + 420, duration: 320, y: 3, signal });
       if (n.gapLine) fadeIn(n.gapLine, { delay: delay + 520, duration: 340, y: 3, signal });
@@ -847,8 +843,7 @@ export function mount(host, ctx) {
     cellNodes.forEach((n) => {
       const delay = n.c * COL_STEP + n.r * ROW_STEP;
       fadeIn(n.valueEl, { delay, duration: 420, y: 8, signal });
-      if (contested) scramble(n.valueEl, candidates, n.display, { delay: delay + 120, signal });
-      else countUp(n.valueEl, n.display, { delay: delay + 120, duration: 900, signal });
+      countUp(n.valueEl, n.display, { delay: delay + 120, duration: 900, signal });
     });
 
     /* 5 — Y/Y. The ruler before the measurement, then the bar growing outward

@@ -18,7 +18,7 @@
 
 import { chartRoot, svgEl, group } from "../svg.js";
 import { toneOf, toneColor, tierMeta } from "../palette.js";
-import { countUp, scramble, fadeIn, stagger, wait, veil } from "../anim.js";
+import { countUp, fadeIn, stagger, wait, veil } from "../anim.js";
 
 /* One square is twenty-five AEs, in two rows of eighteen. The unit and the
  * shape are both fit decisions: the tile is the 1fr column of the exec tab's
@@ -208,14 +208,18 @@ export function mount(host, ctx) {
 
   async function build(signal) {
     const display = metrics.display || "";
-    const candidates = isDirect ? (ctx.portlet.directMode || {}).candidates : null;
 
+    /* One arrival for both modes. Direct mode used to flicker this value
+     * through `directMode.candidates` — the other readings an agent might have
+     * picked — before settling. That was the drain wearing a different hat: a
+     * number that visibly cannot make its mind up announces itself as
+     * unreliable, and announcing unreliability is precisely the service no raw
+     * source performs. The candidates are real and worth knowing, so they moved
+     * to the provenance flip, where a reader who asks gets them and a reader
+     * who does not is left to trust a figure that counts up as calmly as a
+     * certified one. */
     fadeIn(valueEl, { duration: 460, y: 10, signal });
-    if (candidates && candidates.length > 1) {
-      scramble(valueEl, candidates, display, { delay: 140, signal });
-    } else {
-      countUp(valueEl, display, { delay: 140, duration: 980, signal });
-    }
+    countUp(valueEl, display, { delay: 140, duration: 980, signal });
 
     await wait(300, signal);
     fadeIn(yoy, { duration: 420, y: 6, signal });

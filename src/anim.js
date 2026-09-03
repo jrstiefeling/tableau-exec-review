@@ -194,53 +194,6 @@ export function countUp(el, display, opts = {}) {
   });
 }
 
-/* Cycles a value through its competing candidates before settling.
- *
- * This is the direct-mode counterpart to countUp. A governed metric rolls up
- * to one number; an ungoverned one flickers between the several defensible
- * answers nobody has ruled between, and lands on all of them at once. The
- * motion is the argument — a static list of three values reads as a footnote,
- * where watching the headline refuse to settle reads as a problem. */
-export function scramble(el, candidates, final, opts = {}) {
-  const { cycles = 7, interval = 110, delay = 0, signal } = opts;
-  const pool = (candidates && candidates.length ? candidates : [final]).filter(Boolean);
-
-  if (reducedMotion() || pool.length < 2) {
-    el.textContent = final;
-    return Promise.resolve();
-  }
-
-  return wait(delay, signal).then((cancelled) => {
-    if (cancelled || aborted(signal)) {
-      el.textContent = final;
-      return;
-    }
-    return new Promise((resolve) => {
-      let i = 0;
-      let timer = 0;
-      const finish = () => {
-        clearTimeout(timer);
-        el.textContent = final;
-        resolve();
-      };
-      if (signal) signal.addEventListener("abort", finish, { once: true });
-
-      const tick = () => {
-        if (aborted(signal)) return finish();
-        if (i >= cycles) {
-          if (signal) signal.removeEventListener("abort", finish);
-          return finish();
-        }
-        el.textContent = pool[i % pool.length];
-        i += 1;
-        // Decelerating cycle, so it reads as searching for an answer and
-        // failing to find one rather than as a fixed-rate blink.
-        timer = setTimeout(tick, d(interval + i * 26));
-      };
-      tick();
-    });
-  });
-}
 
 /* --------------------------------- paths --------------------------------- */
 

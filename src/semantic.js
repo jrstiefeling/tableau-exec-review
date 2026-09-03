@@ -122,7 +122,7 @@ export function detectOf(portlet, mode) {
  * portlet, in the order that puts the most specific statement first. */
 export function degradationLine(portlet) {
   const dm = portlet.directMode;
-  if (!dm) return "No Knowledge Layer dependency in this portlet.";
+  if (!dm) return "No semantic layer dependency in this portlet.";
   return dm.effect || dm.missing || dm.thesis || "Ungoverned in direct-only mode.";
 }
 

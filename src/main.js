@@ -165,15 +165,28 @@ function boot({ board, fellBack }) {
      * The full sentence each label used to carry moves to the title, where it
      * is available without spending 450px of topbar on it every frame. */
     dom.layerToggle.setAttribute("aria-pressed", String(direct));
-    dom.layerToggle.textContent = direct ? "Governed" : "Direct";
+    /* "Direct to source" rather than "Direct read".
+     *
+     * The old label named the ACT — reading directly — which is not the thing
+     * in dispute; every board reads something directly. What is in dispute is
+     * WHAT is read, and "to source" is the whole argument in two words: an
+     * agent pointed at raw Salesforce objects and lakehouse tables instead of
+     * at a layer where the business's definitions live. It also stops the
+     * toggle implying that the governed side is somehow indirect or cached,
+     * which "Direct read" did by contrast and which is false — governed is a
+     * direct read too, of a different thing.
+     *
+     * It costs 30px more than "Direct read" and the topbar carries it at the
+     * 1024 floor, verified. */
+    dom.layerToggle.textContent = direct ? "Governed" : "Direct to source";
     dom.layerToggle.title = direct
       ? "Return to the governed view — Tableau semantic layer (K)"
-      : "Render the same board with no semantic layer (K)";
+      : "Read the same board straight from Salesforce and the lakehouse, with no semantic layer (K)";
     dom.legendDot.dataset.tier = direct ? "red" : "green";
-    dom.legendText.textContent = direct ? "Direct read" : "Governed";
+    dom.legendText.textContent = direct ? "Direct to source" : "Governed";
     dom.legend.dataset.mode = direct ? "direct" : "governed";
     dom.legend.title = direct
-      ? "Direct read — no semantic layer"
+      ? "Direct to source — raw Salesforce and lakehouse, no semantic layer"
       : "Governed — Tableau semantic layer";
 
     inspector.closeNow();

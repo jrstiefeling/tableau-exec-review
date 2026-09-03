@@ -44,9 +44,15 @@ const FLYOVER_KINDS = new Set(["rulesCard"]);
  * pass takes to cross the board. scale compresses every chart's internal
  * sequence so the whole thing lands inside the budget a presenter can talk
  * over — roughly 1.7s cold, under a second on return. */
+/* marksHold is the pause between the board finishing and the provenance marks
+ * landing (stage three). It is the longest deliberate stillness anywhere in
+ * the build and the only one whose job is rhetorical rather than mechanical:
+ * the viewer has to have time to accept the board before being told about it.
+ * Longer on a first entrance than on a replay, because a replay follows a
+ * toggle the viewer just pressed and is already watching for. */
 const TIMING = {
-  entry: { shellStep: 17, bandStep: 48, settle: 280, sweep: 290, scale: 0.53 },
-  replay: { shellStep: 9, bandStep: 26, settle: 160, sweep: 170, scale: 0.38 }
+  entry: { shellStep: 17, bandStep: 48, settle: 280, sweep: 290, scale: 0.53, marksHold: 900 },
+  replay: { shellStep: 9, bandStep: 26, settle: 160, sweep: 170, scale: 0.38, marksHold: 720 }
 };
 
 /* Horizontal centre of an element measured against the panel, accumulated up
@@ -296,9 +302,20 @@ export class TabController {
     if (this.deps.onTabChange) this.deps.onTabChange(id);
   }
 
-  /* Stage one lays the page out; stage two sweeps across it left to right.
-   * Both tabs run this, so the exec board and the trend board enter the same
-   * way even though nothing they contain is alike. */
+  /* Stage one lays the page out; stage two sweeps across it left to right;
+   * stage three lands the provenance marks once the board is finished and has
+   * been sitting still for a beat. Every tab runs this, so the exec board and
+   * the trend board enter the same way even though nothing they contain is
+   * alike — and the mode toggle runs it too, which is what makes the switch
+   * visibly enacted rather than a silent content swap.
+   *
+   * Stage three exists because of what direct mode now looks like. The
+   * degraded board is not drained any more; it renders at full confidence, so
+   * the only thing distinguishing it is 27 small dots. Landing those dots with
+   * everything else would have wasted them — they would arrive as part of the
+   * furniture. Landing them a beat late turns them into an event, and the
+   * event carries the argument: the board you just accepted is the board whose
+   * numbers are wrong. */
   choreograph(id, { replay }) {
     const list = this.byTab.get(id) || [];
     if (!list.length) return;
@@ -319,7 +336,13 @@ export class TabController {
     // Before anything is on screen: veil every chart. On a return visit the
     // charts are still sitting there finished, and letting them show through
     // stage one would mean the board arrives complete and is then wiped.
-    list.forEach((portlet) => portlet.primeChart());
+    list.forEach((portlet) => {
+      portlet.primeChart();
+      // Under reduced motion the marks are never withheld: a viewer who has
+      // asked for no animation is asking for the finished state, and the
+      // finished state includes knowing where the figures came from.
+      if (!still) portlet.primeMarks();
+    });
 
     // All geometry read in one pass, before a single style is written, so the
     // sweep costs one layout rather than one per portlet.
@@ -338,11 +361,28 @@ export class TabController {
 
     /* ---- stage two: the visualisations draw in ---- */
     const opens = still ? 0 : lastShell + t.settle;
+    let lastBuild = 0;
     list.forEach((portlet, i) => {
       const across = (centres[i] - left) / span;
       const delay = still ? 0 : Math.round(opens + across * t.sweep);
+      lastBuild = Math.max(lastBuild, delay);
       this.schedule(delay, sweep, () => portlet.build(0));
     });
+
+    /* ---- stage three: the provenance marks land ---- */
+    if (still) {
+      list.forEach((portlet) => portlet.landMarks());
+      return;
+    }
+    /* The hold is measured from the last chart to START drawing, plus that
+     * chart's own build time, plus a pause. The pause is the point: it is long
+     * enough that the board reads as finished and settled, and short enough
+     * that nobody has looked away. Everything lands together rather than
+     * sweeping again — a second sweep would read as more drawing, where a
+     * simultaneous arrival reads as a verdict on a board that is already
+     * complete. */
+    const marks = Math.round(lastBuild + t.marksHold);
+    this.schedule(marks, sweep, () => list.forEach((portlet) => portlet.landMarks()));
   }
 
   /* Queues one step of a sweep, discarding it if a later sweep has started. */

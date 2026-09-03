@@ -27,7 +27,7 @@
 
 import { chartRoot, svgEl, group, linearScale } from "../svg.js";
 import { palette, toneOf, planTone, planBands, toneColor, tierMeta, PLAN_DOMAIN } from "../palette.js";
-import { countUp, scramble, strokeDraw, dashDraw, fadeIn, stagger, wait, veil } from "../anim.js";
+import { countUp, strokeDraw, dashDraw, fadeIn, stagger, wait, veil } from "../anim.js";
 
 /* The track's own units, and the one place on this card where the reviewer's
  * "the attainment tracks are cramped" is actually fixed.
@@ -787,16 +787,16 @@ export function mount(host, ctx) {
 
   async function build(signal) {
     const display = metrics.display || "";
-    const candidates = isDirect ? (ctx.portlet.directMode || {}).candidates : null;
-
     // The hero is not made to wait for the chart — it is the hero.
     fadeIn(svg, { duration: 400, y: 5, signal });
     fadeIn(valueEl, { duration: 400, y: 10, signal });
-    if (candidates && candidates.length > 1) {
-      scramble(valueEl, candidates, display, { delay: 100, signal });
-    } else {
-      countUp(valueEl, display, { delay: 60, duration: 1020, signal });
-    }
+    /* Counts up in both modes. The scramble that used to run here in direct
+     * mode is gone for the same reason the drained palette is: a figure that
+     * flickers through alternatives before settling is a figure declaring
+     * itself unsafe, and nothing about reading raw schema produces that
+     * declaration. The alternatives it flickered through are in the provenance
+     * flip instead. */
+    countUp(valueEl, display, { delay: 60, duration: 1020, signal });
 
     // The scale arrives empty first: you draw the ruler before the
     // measurement.
