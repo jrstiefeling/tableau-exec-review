@@ -241,7 +241,14 @@ const audit = await send("Runtime.evaluate", {
       range.selectNodeContents(n);
       Array.from(range.getClientRects()).forEach((r) => {
         if (r.width > 2 && r.height > 2) {
-          lines.push({ r, owner, text: n.nodeValue.trim().slice(0, 26) });
+          const port = owner.closest('.portlet');
+          lines.push({
+            r,
+            owner,
+            where: (port ? port.dataset.portlet + '/' : '')
+              + (owner.getAttribute('class') || owner.tagName),
+            text: n.nodeValue.trim().slice(0, 26)
+          });
         }
       });
     }
@@ -256,8 +263,8 @@ const audit = await send("Runtime.evaluate", {
         // A third of the shorter line's height: enough to separate a line
         // painted THROUGH another from two lines whose descenders touch.
         if (oy < Math.min(A.r.height, B.r.height) / 3) continue;
-        out.collide.push(Math.round(ox) + 'x' + Math.round(oy) + 'px  "'
-          + A.text + '" over "' + B.text + '"');
+        out.collide.push(Math.round(ox) + 'x' + Math.round(oy) + 'px  ['
+          + A.where + '] "' + A.text + '"  OVER  [' + B.where + '] "' + B.text + '"');
       }
     }
 
@@ -276,9 +283,30 @@ const audit = await send("Runtime.evaluate", {
      * clipper's own padding box in the same coordinate space. Nothing is
      * cloned, moved or restyled. */
     out.paintClip = [];
+    /* A mark that paints nothing cannot be clipped in any sense a viewer
+     * could notice. trendPanel's .trend-dev-hit is a transparent rect
+     * deliberately oversized by 2px a side to make a 1-unit bar hoverable, so
+     * it hangs outside its plot by design and was the only thing this check
+     * found on the Five Year tab — 14px of nothing, at the 1024 floor, in
+     * governed mode, which is exactly where a real clip would matter most. */
+    /* No backslashes anywhere in here. This whole expression is a template
+     * literal on the Node side, so an escape written for the page's regex
+     * engine is consumed before it ever gets sent: a fill test written as
+     * /^rgba(.*,\\s*0)$/ arrived as /^rgba(.*,s*0)$/ and silently matched
+     * nothing. Alpha is read by string surgery instead. */
+    const paints = (n) => {
+      if (n.textContent.trim()) return true;
+      const s = getComputedStyle(n);
+      const none = (v) => {
+        if (!v || v === 'none' || v === 'transparent') return true;
+        return v.split(' ').join('').endsWith(',0)');
+      };
+      return !(none(s.fill) && none(s.stroke));
+    };
     const leaves = (root) => Array.from(root.querySelectorAll('*')).filter((n) =>
       n.children.length === 0 && (n.textContent.trim() || n.tagName === 'rect'
-        || n.tagName === 'circle' || n.tagName === 'path' || n.tagName === 'line'));
+        || n.tagName === 'circle' || n.tagName === 'path' || n.tagName === 'line')
+      && paints(n));
     document.querySelectorAll('.panel.is-active *').forEach((box) => {
       if (hidden(box)) return;
       const s = getComputedStyle(box);
@@ -365,7 +393,7 @@ console.log("  stage", a.stage, "bands", a.bands, "| scrollers", a.scrollers.len
   "| stage-overflow", a.overflow.length, "| clipped", a.clipped.length,
   "| paint-clip", (a.paintClip || []).length, "| collide", (a.collide || []).length,
   "| still-hidden", a.invisible.length);
-(a.collide || []).slice(0, 8).forEach((s) => console.log("    COLLIDE", s));
+(a.collide || []).forEach((s) => console.log("    COLLIDE", s));
 a.invisible.forEach((s) => console.log("    HIDDEN", s));
 a.scrollers.slice(0, 6).forEach((s) => console.log("    SCROLL", s));
 a.overflow.slice(0, 8).forEach((s) => console.log("    OVER  ", s));
