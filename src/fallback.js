@@ -3885,10 +3885,14 @@ export const FALLBACK_BOARD = {
                     ]
                   }
                 ],
-                "axisNote": "Y/Y — linear inside ±10%, one decade per gridline beyond it",
+                "axisNote": "Y/Y — linear inside ±10%, one decade per gridline beyond it. Bracket: that segment's slowest to fastest product line.",
                 "caption": "Bar length is Y/Y on a log scale past ±10%; dot area is the ACV behind it · the dollars are on hover, or expand for the full grid",
                 "rateLabels": "all",
-                "allSegmentsNote": "The All Segments reading of every row is the Analytics Performance tab, in full."
+                "allSegmentsNote": "The All Segments reading of every row is the Analytics Performance tab, in full.",
+                "interval": {
+                  "leafLevel": 2,
+                  "tipLabel": "product lines"
+                }
               },
               "semantic": {
                 "metricName": "ACV by Product and Derived Segment",

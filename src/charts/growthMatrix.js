@@ -83,6 +83,12 @@ export function mount(host, ctx) {
   const columnCount = Math.max(1, segments.length);
   const single = columnCount === 1;
   const rollup = metrics.rollup || null;
+  /* Authored only where a column interval means something. Four segment
+   * columns make it a comparison — PubSec's leaves span a decade and a half
+   * where CMRCL's span two thirds of one — and the single-column lane makes
+   * it one bracket with nothing to compare against, which is why the lane
+   * does not author it. A data decision, not a special case in here. */
+  const interval = !single && metrics.interval ? metrics.interval : null;
   const stakeMax = Number(metrics.stakeMax) || 1;
   const good = metrics.goodDirection || "up";
   const degraded = isDirect && (tier === "red" || tier === "grey");
@@ -354,6 +360,9 @@ export function mount(host, ctx) {
     body.className = "growth-body";
 
     const rail = buildRail(body);
+    // Before the rows, so every cell and every numeral paints over it. The
+    // interval is context for the marks, not a mark competing with them.
+    const intervals = interval ? buildIntervals(body) : [];
 
     const rowLabels = [];
     const valueLabels = [];
@@ -389,7 +398,91 @@ export function mount(host, ctx) {
     });
 
     wrap.appendChild(body);
-    return { body, rail, rowLabels, valueLabels, cells };
+    return { body, rail, intervals, rowLabels, valueLabels, cells };
+  }
+
+  /* The column interval: two hairlines down each column at its slowest and
+   * fastest leaf rate, capped top and bottom.
+   *
+   * This is what is left of the dispersion panel that stood beside this
+   * matrix. Two of that panel's three jobs were already done here — the
+   * minimum and the maximum of every column are two cells of this grid, and
+   * the reader is looking at them — and the third, the width of the interval,
+   * was the arithmetic difference of two Y/Y figures off bases three orders
+   * of magnitude apart. So the interval moves into the column it describes,
+   * at no cost in slot, and the panel's slot goes to the dollar movement that
+   * difference was standing in for.
+   *
+   * Endpoints are selected rather than authored. The board's own catalog
+   * rules on this: the low and high of an interval are a selection over
+   * governed values, not a new formula, so taking min and max client-side
+   * creates no ungoverned measure. Authoring them would put a second copy of
+   * four rates in the data file to drift from the first.
+   *
+   * Capped, because a pair of bare verticals in a chart already carrying four
+   * decade gridlines reads as two more gridlines; closed at both ends it
+   * reads as one interval. And the caps are what let it span the full body
+   * height honestly — every non-leaf rate in all four columns falls inside
+   * its own column's leaf interval, so the bracket says "every rate in this
+   * column lies between these two", which is true of the total and both
+   * motion rows as well as of the leaves it is taken over.
+   *
+   * Offsets come from ratePercent() against the same box the axis tick labels
+   * use, which is the alignment guarantee: the bracket cannot drift from the
+   * ruler that reads it, because both are positioned by one function against
+   * one track. */
+  function buildIntervals(body) {
+    const leafLevel = Number(interval.leafLevel);
+    const leaves = rows.filter((r) => Number(r.level) === leafLevel && !r.socket);
+    if (leaves.length < 2) return [];
+
+    return segments.map((seg, c) => {
+      const rates = leaves
+        .map((r) => Number((r.yoy || [])[c]))
+        .filter((v) => Number.isFinite(v));
+      if (rates.length < 2) return null;
+
+      const lo = Math.min(...rates);
+      const hi = Math.max(...rates);
+      const loRow = leaves.find((r) => Number(r.yoy[c]) === lo);
+      const hiRow = leaves.find((r) => Number(r.yoy[c]) === hi);
+
+      const slot = document.createElement("div");
+      slot.className = "growth-dispwrap";
+      slot.style.setProperty("--col", String(3 + c));
+
+      // left and right rather than left and width: the two edges are two
+      // rates, and expressing the second as a distance from the first would
+      // make it a span — which is the figure this whole change exists to stop
+      // printing.
+      const left = ratePercent(lo, box);
+      const right = 100 - ratePercent(hi, box);
+      slot.style.setProperty("--disp-lo", `${left.toFixed(2)}%`);
+      slot.style.setProperty("--disp-hi", `${right.toFixed(2)}%`);
+
+      const bar = document.createElement("div");
+      bar.className = "growth-disp";
+      slot.appendChild(bar);
+
+      /* The hit target cannot be the bracket itself: it spans the whole
+       * column and would swallow every cell tooltip underneath it. A strip
+       * at the top of the column instead, over the header row where there is
+       * no mark to compete with. */
+      const hit = document.createElement("div");
+      hit.className = "growth-disphit";
+      ctx.tip(hit, degraded
+        ? `${seg.label} — an interval over ${interval.tipLabel || "leaf rows"} that nothing certifies as a set`
+        : `${seg.label} · slowest to fastest of the ${leaves.length} ${interval.tipLabel || "leaf rows"}: `
+          + `${hiRow.label} at ${signed(hi)}, ${loRow.label} at ${signed(lo)}`);
+      slot.appendChild(hit);
+
+      body.appendChild(slot);
+      return { slot, bar };
+    }).filter(Boolean);
+  }
+
+  function signed(v) {
+    return `${v < 0 ? "\u2212" : "+"}${Math.abs(v)}%`;
   }
 
   /* The containment rail: a vertical spine per parent spanning its children's
@@ -846,6 +939,7 @@ export function mount(host, ctx) {
       rollupNodes.carryTies
     ],
     headNodes,
+    bodyNodes.intervals.map((i) => i.bar),
     bodyNodes.rail.spines,
     bodyNodes.rail.ticks,
     bodyNodes.rail.breaks,
@@ -942,6 +1036,13 @@ export function mount(host, ctx) {
     });
     stagger(columnMajor.map((c) => c.rateEl).filter(Boolean), {
       step: single ? 60 : 34, duration: 320, y: 0, delay: 220, maxTotal: 620, signal
+    });
+
+    /* 9 — and the interval closes over the column, once every rate inside it
+     * has arrived. Last, and column by column in +x so it nests inside the
+     * page sweep: it is a reading of the marks, so it cannot precede them. */
+    stagger(bodyNodes.intervals.map((i) => i.bar), {
+      step: tempo.barCol || 90, duration: 380, y: 0, delay: 420, maxTotal: 520, signal
     });
 
     fadeIn(axisNoteEl, { delay: 140, duration: 420, y: 4, signal });
