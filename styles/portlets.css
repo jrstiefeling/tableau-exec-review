@@ -4500,14 +4500,14 @@ body.auditing .portlet[data-detect="silent"] :is(
     .stat-value, .attain-value, .attain-pct, .attain-yoy-label,
     .fan-headline, .fan-share, .trend-headline,
     .mmx-value, .mmx-readnum, .mmx-readvalue, .mmx-readyoy, .mmx-chip,
-    .deal-value, .deals-value, .growth-row-value,
+    .deal-value, .deals-value, .growth-row-value, .growth-rollup-total,
     .movement-net, .bxa-read
   ),
 body.auditing .portlet[data-detect="catchable"] :is(
     .stat-value, .attain-value, .attain-pct, .attain-yoy-label,
     .fan-headline, .fan-share, .trend-headline,
     .mmx-value, .mmx-readnum, .mmx-readvalue, .mmx-readyoy, .mmx-chip,
-    .deal-value, .deals-value, .growth-row-value,
+    .deal-value, .deals-value, .growth-row-value, .growth-rollup-total,
     .movement-net, .bxa-read
   ) {
   text-decoration: line-through;
