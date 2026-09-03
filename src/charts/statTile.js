@@ -55,6 +55,16 @@ export function mount(host, ctx) {
 
   const valueEl = document.createElement("div");
   valueEl.className = "stat-value";
+  /* Same contract as the attainment hero: where direct mode has no single
+   * figure to show, the numeral becomes the candidate stack the sources
+   * actually offer — "$105 / $121 / $94M" — which is three numerals in the
+   * box that held one. On the outlook hero at 44px that took a second line
+   * and pushed the Y/Y row and the caption out through the card's bottom
+   * edge, so the stack takes the size two lines of it cost about what the
+   * governed numeral's one line did. */
+  if (isDirect && ((ctx.portlet && ctx.portlet.directMode) || {}).candidates?.length > 1) {
+    valueEl.dataset.contested = "true";
+  }
   wrap.appendChild(valueEl);
 
   const yoy = document.createElement("span");

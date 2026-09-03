@@ -959,6 +959,20 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The candidate stack, at the size the attainment hero already gives it — see
+   the note on .attain-value[data-contested="true"]. Two lines of this cost
+   about what the governed numeral's one line did, and the clamp means a
+   fourth candidate can never push the caption off the card. */
+.stat-value[data-contested="true"] {
+  font-size: clamp(15px, 1.55vw, 22px);
+  letter-spacing: -0.005em;
+  line-height: 1.22;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .stat-footnote {
   margin: 0;
   font-size: 9.5px;
