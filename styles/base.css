@@ -17,24 +17,48 @@
  * board is the colour telling you the number cannot be trusted. */
 
 :root {
-  --ink: #17181c;
-  --ink-soft: #565a63;
-  --ink-dim: #696d78;
+  /* Four ink steps rather than three. The board previously gave headline,
+     caption and axis furniture almost the same weight, which is most of why
+     it read as a wireframe: hierarchy has to be carried somewhere, and if the
+     type sizes are already near their floor it has to be carried by value. */
+  --ink-hero: #0d0f13;
+  --ink: #14161a;
+  --ink-soft: #4d525c;
+  --ink-dim: #6b7280;
 
-  --surface: #f5f4f0;
-  --surface-raised: rgba(255, 255, 255, 0.88);
+  --surface: #f4f2ed;
+  --surface-raised: rgba(255, 255, 255, 0.9);
   --surface-high: #ffffff;
   --surface-solid: #ffffff;
 
-  --line: rgba(23, 24, 28, 0.12);
-  --line-strong: rgba(23, 24, 28, 0.21);
+  --line: rgba(20, 22, 26, 0.13);
+  --line-strong: rgba(20, 22, 26, 0.22);
 
   --accent: #1c6e8c;
   --glow: rgba(28, 110, 140, 0.22);
 
-  --pos: #12806a;
-  --warn: #92640a;
-  --neg: #c0483c;
+  /* Per-panel identity. tabs.js has always written --tab-accent onto every
+     panel and nothing read it, so five tabs shared one chrome colour. It now
+     drives the kicker, the headline rule, the tab indicator and the panel
+     wash, which is what makes moving between tabs feel like moving rooms. */
+  --tab-accent: var(--accent);
+
+  /* Sentiment, deepened. These are the spine of the data — decline against
+     growth — and at the previous saturation they were legible on a 1px axis
+     tick and nowhere else. Each tone carries a wash for card surfaces and a
+     lift for band fills, so a tone can be spent at three strengths without
+     anyone hand-mixing an rgba at the call site. */
+  --pos: #0f7a5e;
+  --pos-lift: rgba(15, 122, 94, 0.16);
+  --pos-wash: rgba(15, 122, 94, 0.062);
+
+  --warn: #a06b05;
+  --warn-lift: rgba(160, 107, 5, 0.16);
+  --warn-wash: rgba(160, 107, 5, 0.062);
+
+  --neg: #c0392b;
+  --neg-lift: rgba(192, 57, 43, 0.15);
+  --neg-wash: rgba(192, 57, 43, 0.058);
 
   --tier-green: #12806a;
   --tier-yellow: #92640a;
@@ -67,6 +91,7 @@
 }
 
 body.direct-mode {
+  --ink-hero: #43464e;
   --ink: #4a4d55;
   --ink-soft: #7b7f88;
   --ink-dim: #a0a4ac;
@@ -80,11 +105,23 @@ body.direct-mode {
   --line-strong: rgba(23, 24, 28, 0.16);
 
   --accent: #8b8f98;
+  --tab-accent: #8b8f98;
   --glow: rgba(139, 143, 152, 0.14);
 
+  /* Every wash drains with its tone. The card tints, the panel wash and the
+     per-tab identity all resolve through these, so losing the semantic layer
+     takes the colour off the board through one path rather than a dozen. */
   --pos: #8b8f89;
+  --pos-lift: rgba(139, 143, 137, 0.1);
+  --pos-wash: rgba(139, 143, 137, 0.04);
+
   --warn: #9a917c;
+  --warn-lift: rgba(154, 145, 124, 0.1);
+  --warn-wash: rgba(154, 145, 124, 0.04);
+
   --neg: #a3837c;
+  --neg-lift: rgba(163, 131, 124, 0.1);
+  --neg-wash: rgba(163, 131, 124, 0.04);
 
   --shadow-card: 0 1px 2px rgba(23, 24, 28, 0.03), 0 4px 12px rgba(23, 24, 28, 0.04);
   --shadow-lift: 0 12px 30px rgba(23, 24, 28, 0.09);
@@ -124,8 +161,13 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(48% 44% at 16% 10%, rgba(28, 110, 140, 0.07), transparent 70%),
-    radial-gradient(42% 40% at 86% 80%, rgba(192, 72, 60, 0.05), transparent 72%);
+    radial-gradient(52% 46% at 14% 6%, color-mix(in srgb, var(--tab-accent) 16%, transparent), transparent 72%),
+    radial-gradient(46% 42% at 88% 84%, rgba(192, 57, 43, 0.075), transparent 74%),
+    radial-gradient(60% 30% at 50% 100%, rgba(15, 122, 94, 0.05), transparent 76%);
+  /* The accent leg follows the active tab — tabs.js mirrors --tab-accent onto
+     body — so the page itself changes temperature on a switch rather than only
+     the chrome doing it. A gradient cannot be transitioned, and the panel
+     cross-fade covers the swap. */
   opacity: 1;
   transition: opacity 0.8s var(--ease), filter 0.8s var(--ease);
 }
@@ -161,14 +203,34 @@ button {
 /* --------------------------------- topbar --------------------------------- */
 
 .topbar {
+  position: relative;
   flex: none;
   display: flex;
   align-items: center;
   gap: clamp(12px, 2vw, 28px);
-  padding: clamp(10px, 1.6vh, 18px) clamp(16px, 2.4vw, 32px);
+  padding: clamp(7px, 1.2vh, 15px) clamp(16px, 2.4vw, 32px);
   border-bottom: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.18));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.24));
   transition: var(--theme-transition);
+}
+
+/* A hairline of the active tab's accent along the bottom of the topbar. The
+   cheapest possible per-tab signal: one pixel, no layout, and it means the
+   identity of the tab is stated at the top of the page as well as inside it. */
+.topbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--tab-accent) 62%, transparent),
+    color-mix(in srgb, var(--tab-accent) 12%, transparent) 62%,
+    transparent
+  );
+  transition: background 0.5s var(--ease);
 }
 
 /* Identity is the only flexible item on the row: the tab navigation and the
@@ -185,11 +247,11 @@ button {
 }
 
 .topbar-mark {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   flex: none;
-  border-radius: 8px;
-  background: conic-gradient(from 140deg, var(--accent), #6b4fbf, var(--pos), var(--accent));
+  border-radius: 7px;
+  background: conic-gradient(from 140deg, var(--tab-accent), #6b4fbf, var(--pos), var(--tab-accent));
   box-shadow: 0 0 0 1px rgba(23, 24, 28, 0.06);
   transition: var(--theme-transition), filter 0.6s var(--ease);
 }
@@ -512,9 +574,9 @@ body.direct-mode .topbar-mark {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px clamp(16px, 2.4vw, 32px);
+  padding: 5px clamp(16px, 2.4vw, 32px);
   border-top: 1px solid var(--line);
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--ink-dim);
   letter-spacing: 0.02em;
   transition: var(--theme-transition);
