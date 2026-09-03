@@ -37,6 +37,55 @@ export function chartRoot(width, height, opts = {}) {
   });
 }
 
+/* Publishes `--u` on a chart root: how many viewBox user units one CSS pixel
+ * is worth in the box the chart currently occupies.
+ *
+ * `chartRoot` above is the reason this is needed. Laying out against a fixed
+ * viewBox and letting CSS fit it is the right deal for marks — the chart never
+ * re-measures, and a small multiple's marks stay comparable because they are
+ * all drawn in the same units — but text takes the same deal whether it wants
+ * it or not. A 10-unit label in a cell scaled to 0.55 is 5.5px, and the reader
+ * is at the same distance from every cell on the board.
+ *
+ * With `--u` published, a label can ask for a real size:
+ *
+ *     font-size: calc(9.5px * var(--u, 1));
+ *
+ * and land at 9.5px on screen whatever the scale beneath it. The `, 1`
+ * fallback matters: it is what renders between mount and the first observation,
+ * and in a print or no-ResizeObserver path there is never a second one.
+ *
+ * The scale is recomputed rather than read off `getScreenCTM` so it works
+ * before layout has flushed, and it repeats the `meet` rule exactly — the
+ * smaller of the two ratios, because that is the one preserveAspectRatio
+ * picks. An observer whose element has left the document disconnects itself;
+ * a re-render on a mode change drops seven of these at once. */
+export function publishPixelUnit(svg) {
+  const vb = svg.viewBox.baseVal;
+  if (!vb || !vb.width || !vb.height) return null;
+
+  const apply = () => {
+    const box = svg.getBoundingClientRect();
+    // A portlet on an inactive panel measures zero. Holding the last good
+    // value is right: it is the one the panel will come back at.
+    if (!box.width || !box.height) return;
+    const scale = Math.min(box.width / vb.width, box.height / vb.height);
+    if (scale > 0) svg.style.setProperty("--u", String(1 / scale));
+  };
+
+  apply();
+  if (typeof ResizeObserver !== "function") return null;
+  const observer = new ResizeObserver(() => {
+    if (!svg.isConnected) {
+      observer.disconnect();
+      return;
+    }
+    apply();
+  });
+  observer.observe(svg);
+  return observer;
+}
+
 export function group(attrs = {}) {
   return svgEl("g", attrs);
 }

@@ -40,7 +40,11 @@ export function mount(host, ctx) {
     button.appendChild(marker);
     button.appendChild(title);
 
-    const targets = severed ? [] : driver.affects || [];
+    /* The rail lights itself along with the panels it points at. Without its
+     * own id in the set, `.stage.is-highlighting` dims every portlet that is
+     * not a target — including the one the pointer is resting on — so the
+     * gesture faded out the thing making it. */
+    const targets = severed ? [] : [ctx.id, ...(driver.affects || [])];
     const count = document.createElement("span");
     count.className = "driver-count";
     count.textContent = severed ? "—" : String((driver.affects || []).length);

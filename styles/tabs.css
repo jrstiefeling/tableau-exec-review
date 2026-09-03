@@ -363,13 +363,31 @@
  * continuous vertical line — and narrowing them to the left column to feed
  * the rail would have cost the tab's one shared-scale property. */
 .panel[data-tab="exec"] .panel-bands {
-  /* 240px is not arbitrary. It is the width at which the longest authored
-     narrative title — "Immersive AE + SE Enablement" — clears the numbered
-     marker, the tag mark and the card padding on one line. Below it the rail
-     starts ellipsising titles, which is the defect this column exists to
-     fix. */
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.25fr);
-  grid-template-rows: minmax(0, 0.84fr) minmax(0, 1.04fr) minmax(0, 1fr);
+  /* 268px, from 240px. 240 was set against "Immersive AE + SE Enablement" and
+     that was the wrong string to measure: it is the longest title that fits,
+     not the longest title there is. Eight of the ten cleared it and five did
+     not — "Launched Tableau Customer Pitch" lost "Pitch", "Laulima &
+     Dreamforce Readiness" lost "Readiness".
+
+     268 is where the eighth-longest of the ten fits with the row furniture
+     tightened, which is as far as width alone can take this: the ninth needs
+     204px of title and the tenth 263px, and buying the tenth would mean taking
+     70px out of the alluvial and the movement fan in the column beside it.
+     Those two have their own floors — the fan's caption was clipped until the
+     last pass — so the last two titles are authored short instead, and the
+     full strings stay on the tooltip and the expanded card. See the note on
+     `railTitle` in src/charts/cardRail.js.
+
+     The 28px comes out of a left column that has 740px at the 1024 floor, and
+     nothing in it is at a minimum. */
+  grid-template-columns: minmax(0, 1fr) minmax(268px, 0.25fr);
+  /* The middle row takes 0.05fr off the bottom one, which is about 9px at the
+     1024 floor. It goes to the mix card's insight, whose third line is the one
+     thing on this tab the reclaimed status-bar height was spent restoring. The
+     movement fan below can afford it: its plot has container-query thresholds
+     at 82px and 62px that add and drop label rows, and it stays clear of both
+     at all three review sizes after the shift. */
+  grid-template-rows: minmax(0, 0.84fr) minmax(0, 1.09fr) minmax(0, 0.95fr);
 }
 
 .panel[data-tab="exec"] .band[data-layout="hero"] {
@@ -600,17 +618,18 @@
 
 /* ------------------------------- responsive ------------------------------- */
 
-/* The topbar carries four things on one row — identity, navigation, the mode
-   state and the controls — and at five tabs navigation needs most of it. The
-   order things are given up in is the information architecture, so it is
-   stated in one place rather than discovered breakpoint by breakpoint:
+/* The topbar carries three things on one row — identity, navigation and the
+   mode switch — and at five tabs navigation needs most of it. The order
+   things are given up in is the information architecture, so it is stated in
+   one place rather than discovered breakpoint by breakpoint:
      1. the strapline (org and data mode — context, not content)
-     2. the keyboard hint in the status bar (the shortcuts still work)
-     3. the tab numerals (an affordance for a shortcut, not the label)
-     4. the knowledge-graph button's text (its glyph and its title remain)
-   The board's name, the five tab labels and the mode switch are never given
-   up, at any width. The name truncating reads as a bug, and the mode
-   indicator is the one piece of chrome this particular board cannot lose. */
+     2. the tab numerals (an affordance for a shortcut, not the label)
+   The board's name, the Tableau mark, the five tab labels and the mode switch
+   are never given up, at any width. The name truncating reads as a bug, and
+   the mode indicator is the one piece of chrome this particular board cannot
+   lose. Two rungs of this ladder retired with the knowledge-graph button and
+   the status bar; the row is now short enough at 1024 that it never reaches
+   the bottom of what is left. */
 
 @media (max-width: 1440px) {
   .topbar-eyebrow {
@@ -619,23 +638,13 @@
 }
 
 @media (max-width: 1280px) {
-  .statusbar-hint {
-    display: none;
-  }
-
   .topbar {
     gap: 15px;
   }
-
-  .pill-btn {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
 }
 
-/* The numeral is a hint that `3` switches to this tab, and the status bar
-   that says so has already gone by here. It is the cheapest 125px on the
-   row. */
+/* The numeral is a hint that `3` switches to this tab. It is the cheapest
+   125px on the row. */
 @media (max-width: 1180px) {
   .tabnav-index {
     display: none;
@@ -647,19 +656,8 @@
   }
 }
 
-/* 1024 is the width that matters — a projector or a shared screen. The graph
-   button becomes its glyph, which it can afford to be: it is a toggle with a
-   keyboard shortcut and a title, not a label anyone reads twice. */
+/* 1024 is the width that matters — a projector or a shared screen. */
 @media (max-width: 1100px) {
-  .pill-btn-label {
-    display: none;
-  }
-
-  .pill-btn {
-    padding: 8px 10px;
-    gap: 0;
-  }
-
   .tabnav-btn {
     padding: 7px 11px;
     font-size: 12.5px;
@@ -687,12 +685,6 @@
 
   .topbar {
     padding: 6px clamp(14px, 2.2vw, 26px);
-  }
-
-  .statusbar {
-    padding: 4px clamp(14px, 2.2vw, 26px);
-    font-size: 10px;
-    white-space: nowrap;
   }
 
   .panel {
@@ -745,26 +737,16 @@
   }
 
   .topbar-mark {
-    width: 19px;
-    height: 19px;
-    border-radius: 6px;
+    width: 21px;
+    height: 21px;
   }
 
   .tabnav-btn {
     padding: 5px 13px;
   }
 
-  .pill-btn {
-    padding: 6px 12px;
-  }
-
   .mode-switch-btn {
     padding: 4px 11px;
-  }
-
-  .statusbar {
-    padding: 3px clamp(14px, 2.2vw, 26px);
-    font-size: 9.5px;
   }
 
   .panel {
@@ -880,9 +862,5 @@
   .band[data-layout="outlook-matrix"],
   .band[data-layout="distribution"] {
     grid-auto-rows: minmax(260px, auto);
-  }
-
-  .statusbar-hint {
-    display: none;
   }
 }

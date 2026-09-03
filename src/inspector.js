@@ -16,7 +16,7 @@
 const OPEN_MS = 520;
 const CLOSE_MS = 420;
 
-export function createInspector({ stage, scrim, onChange }) {
+export function createInspector({ stage, scrim }) {
   let active = null;
 
   function targetRect() {
@@ -78,7 +78,6 @@ export function createInspector({ stage, scrim, onChange }) {
     scrim.classList.add("is-visible");
 
     active = { el, ghost, parent, next };
-    if (onChange) onChange(active);
 
     // Focus moves into the expanded card so Escape and Tab behave the way a
     // dialog should, rather than leaving focus behind in the collapsed grid.
@@ -138,7 +137,6 @@ export function createInspector({ stage, scrim, onChange }) {
     stage.classList.remove("is-inspecting");
     scrim.classList.remove("is-visible");
     active = null;
-    if (onChange) onChange(null);
   }
 
   function close() {

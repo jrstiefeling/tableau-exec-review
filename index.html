@@ -35,7 +35,52 @@
     <div class="app">
       <header class="topbar">
         <div class="topbar-id">
-          <span class="topbar-mark" aria-hidden="true"></span>
+          <!-- The Tableau mark, hand-built from the nine plus signs the
+               identity is composed of: one large, four at the cardinals, four
+               at the corners. Every mark is an axis-aligned rectangle, so it
+               stays crisp from the 22px the topbar draws it at up to any
+               display size, with no raster asset and no second request.
+
+               It does not take --tab-accent. A product mark is not a datum:
+               the tab indicator, the topbar hairline and the kicker rule all
+               carry the per-tab accent already, and a logo that changes colour
+               as you move across tabs is a logo that has been mistaken for a
+               reading. It does not drain in direct mode either — see the note
+               on .topbar-mark in base.css. -->
+          <svg
+            class="topbar-mark"
+            viewBox="0 0 24 24"
+            role="img"
+            aria-label="Tableau"
+            focusable="false"
+          >
+            <g class="mark-corner">
+              <rect x="3.05" y="4.2" width="4.2" height="1.9" />
+              <rect x="4.2" y="3.05" width="1.9" height="4.2" />
+              <rect x="16.75" y="4.2" width="4.2" height="1.9" />
+              <rect x="17.9" y="3.05" width="1.9" height="4.2" />
+              <rect x="3.05" y="17.9" width="4.2" height="1.9" />
+              <rect x="4.2" y="16.75" width="1.9" height="4.2" />
+              <rect x="16.75" y="17.9" width="4.2" height="1.9" />
+              <rect x="17.9" y="16.75" width="1.9" height="4.2" />
+            </g>
+            <g class="mark-side">
+              <rect x="0.15" y="10.9" width="5.5" height="2.2" />
+              <rect x="1.8" y="9.25" width="2.2" height="5.5" />
+              <rect x="18.35" y="10.9" width="5.5" height="2.2" />
+              <rect x="20" y="9.25" width="2.2" height="5.5" />
+            </g>
+            <g class="mark-axis">
+              <rect x="9.25" y="1.8" width="5.5" height="2.2" />
+              <rect x="10.9" y="0.15" width="2.2" height="5.5" />
+              <rect x="9.25" y="20" width="5.5" height="2.2" />
+              <rect x="10.9" y="18.35" width="2.2" height="5.5" />
+            </g>
+            <g class="mark-core">
+              <rect x="6.4" y="10.15" width="11.2" height="3.7" />
+              <rect x="10.15" y="6.4" width="3.7" height="11.2" />
+            </g>
+          </svg>
           <div class="topbar-titles">
             <p class="topbar-eyebrow" id="topbar-eyebrow">Tableau MCP · Semantic Layer</p>
             <p class="topbar-name" id="topbar-name">Analytics Business Review</p>
@@ -73,17 +118,6 @@
               Direct
             </button>
           </span>
-          <button
-            id="graph-toggle"
-            class="pill-btn"
-            type="button"
-            aria-pressed="false"
-            aria-label="Knowledge graph"
-            title="Show which portlets resolve to the same certified measure (G)"
-          >
-            <span class="pill-btn-glyph" aria-hidden="true"></span>
-            <span class="pill-btn-label">Knowledge graph</span>
-          </button>
         </div>
       </header>
 
@@ -94,18 +128,7 @@
 
       <main class="stage" id="stage">
         <div class="stage-scrim" id="stage-scrim" aria-hidden="true"></div>
-        <svg class="graph-layer" id="graph-layer" aria-hidden="true"></svg>
       </main>
-
-      <footer class="statusbar">
-        <span class="statusbar-item" id="status-period">—</span>
-        <span class="statusbar-sep" aria-hidden="true"></span>
-        <span class="statusbar-item" id="status-freshness">—</span>
-        <span class="statusbar-sep" aria-hidden="true"></span>
-        <span class="statusbar-item" id="status-scope">—</span>
-        <span class="statusbar-spacer"></span>
-        <span class="statusbar-item statusbar-hint">1–5 or ← → to switch · I how to read · G knowledge graph · K knowledge layer · Esc to close</span>
-      </footer>
     </div>
 
     <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>

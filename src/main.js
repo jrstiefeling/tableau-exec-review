@@ -8,7 +8,6 @@
 
 import { createTooltip } from "./tooltip.js";
 import { createInspector } from "./inspector.js";
-import { createGraph } from "./graph.js";
 import { TabController } from "./tabs.js";
 import { flattenPortlets, MODES } from "./semantic.js";
 import { FALLBACK_BOARD } from "./fallback.js";
@@ -16,12 +15,10 @@ import { FALLBACK_BOARD } from "./fallback.js";
 const dom = {
   stage: document.getElementById("stage"),
   scrim: document.getElementById("stage-scrim"),
-  graphLayer: document.getElementById("graph-layer"),
   nav: document.getElementById("tabnav"),
   indicator: document.getElementById("tabnav-indicator"),
   tooltip: document.getElementById("tooltip"),
   layerToggle: document.getElementById("layer-toggle"),
-  graphToggle: document.getElementById("graph-toggle"),
   legend: document.getElementById("trust-legend"),
   legendDot: document.querySelector(".trust-legend-dot"),
   legendText: document.getElementById("trust-legend-text"),
@@ -30,9 +27,6 @@ const dom = {
   notice: document.getElementById("notice"),
   noticeText: document.getElementById("notice-text"),
   noticeDismiss: document.getElementById("notice-dismiss"),
-  statusPeriod: document.getElementById("status-period"),
-  statusFreshness: document.getElementById("status-freshness"),
-  statusScope: document.getElementById("status-scope"),
   docTitle: document.getElementById("doc-title")
 };
 
@@ -68,19 +62,21 @@ function boot({ board, fellBack }) {
   const meta = board.meta || {};
   const allPortlets = flattenPortlets(board.tabs);
   const labelOf = new Map(allPortlets.map((p) => [p.id, p.label]));
-  const tabLabels = new Map(board.tabs.map((t) => [t.id, t.label]));
 
   dom.topbarName.textContent = meta.board || "Business Review";
   dom.topbarEyebrow.textContent = `${meta.org || ""} · ${meta.dataModeLabel || "Mock snapshot"}`.replace(/^ · /, "");
+  /* `meta.period` still reaches the reader, through the document title and
+   * every tab's kicker. `meta.freshness`, `meta.scope` and `meta.generatedAt`
+   * no longer render anywhere board-wide, and that is the point of them:
+   * both vary by measure, so they belong on the provenance face of the tile
+   * whose measure they describe, which is where all 26 corrected portlets
+   * carry their own. The board-level strings stay authored in board.json
+   * because every per-portlet freshness string is derived from them. */
   dom.docTitle.textContent = `${meta.board || "Business Review"} · ${meta.period || ""}`.trim();
-  dom.statusPeriod.textContent = meta.period || "—";
-  dom.statusFreshness.textContent = `Freshness ${meta.freshness || "—"}`;
-  dom.statusScope.textContent = meta.scope || "—";
 
   const inspector = createInspector({
     stage: dom.stage,
-    scrim: dom.scrim,
-    onChange: () => graph.redraw()
+    scrim: dom.scrim
   });
 
   const controller = new TabController({
@@ -99,23 +95,7 @@ function boot({ board, fellBack }) {
       specFor: (id) => allPortlets.find((p) => p.id === id) || null,
       note,
       reveal,
-      onTabChange: () => {
-        clearHighlights();
-        graph.redraw();
-      }
-    }
-  });
-
-  const graph = createGraph({
-    svg: dom.graphLayer,
-    stage: dom.stage,
-    controller,
-    allPortlets,
-    mode: () => state.mode,
-    tabLabel: (id) => tabLabels.get(id) || id,
-    onJump: (tabId, portletId) => {
-      controller.navigate(tabId);
-      reveal(portletId, 520);
+      onTabChange: () => clearHighlights()
     }
   });
 
@@ -131,10 +111,6 @@ function boot({ board, fellBack }) {
   dom.layerToggle.addEventListener("click", () => {
     setMode(state.mode === MODES.DIRECT ? MODES.TRUSTED : MODES.DIRECT);
   });
-  dom.graphToggle.addEventListener("click", () => {
-    graph.toggle();
-    dom.graphToggle.setAttribute("aria-pressed", String(graph.isOn()));
-  });
   dom.noticeDismiss.addEventListener("click", () => { dom.notice.hidden = true; });
 
   document.addEventListener("keydown", (e) => {
@@ -143,14 +119,11 @@ function boot({ board, fellBack }) {
     if (tag === "input" || tag === "textarea" || e.target.isContentEditable) return;
 
     /* One Escape ladder, innermost first: the expanded portlet, then the
-     * reading-notes sheet, then the graph overlay. */
+     * reading-notes sheet. */
     if (e.key === "Escape") {
       if (inspector.isOpen()) inspector.close();
       else if (controller.activeNotes() && controller.activeNotes().isOpen()) {
         controller.closeNotes();
-      } else if (graph.isOn()) {
-        graph.set(false);
-        dom.graphToggle.setAttribute("aria-pressed", "false");
       }
       return;
     }
@@ -158,11 +131,6 @@ function boot({ board, fellBack }) {
       const notes = controller.activeNotes();
       if (notes) notes.toggle();
       else note("This tab states no reading rules of its own.", 3200);
-      return;
-    }
-    if (e.key === "g" || e.key === "G") {
-      graph.toggle();
-      dom.graphToggle.setAttribute("aria-pressed", String(graph.isOn()));
       return;
     }
     if (e.key === "k" || e.key === "K") {
@@ -181,12 +149,9 @@ function boot({ board, fellBack }) {
     }
   });
 
-  let resizeTimer = 0;
   window.addEventListener("resize", () => {
     inspector.reposition();
     controller.positionIndicator();
-    window.clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => graph.redraw(), 140);
   });
 
   /* -------------------------------- helpers ------------------------------- */
@@ -220,7 +185,6 @@ function boot({ board, fellBack }) {
     controller.rerenderAll();
     controller.rerenderNotes();
     controller.replayActive();
-    graph.redraw();
   }
 
   function highlight(ids, on) {

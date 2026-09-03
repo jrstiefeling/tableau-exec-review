@@ -41,7 +41,7 @@ Five tabs, composed to fit one viewport each with nothing to scroll:
 
 **Analytics Performance** — the product taxonomy at two levels, as a roll-up bar whose level-1 boundary sits exactly on a level-2 boundary, beside a growth spread and the rules the tab is drawn under.
 
-**Performance by Segment** — twenty-eight cells of product line against segment, each carrying a Y/Y bar on the shared growth scale, a stake dot area-scaled to the ACV behind it, and its own rate as a numeral. There is no All Segments column: that reading is the product tab in full, and the knowledge graph links them.
+**Performance by Segment** — twenty-eight cells of product line against segment, each carrying a Y/Y bar on the shared growth scale, a stake dot area-scaled to the ACV behind it, and its own rate as a numeral. There is no All Segments column: that reading is the product tab in full, and both tabs resolve to the same certified ACV measure, so a fifth column would restate rather than find.
 
 **Q3 Outlook** — three measures against three lenses, with FinPlan attainment reusing the exec tab's bullet grammar and historical benchmarks as dumbbells, over the five largest committed deals.
 
@@ -79,15 +79,11 @@ What changes:
 
 Each portlet carries its own trust tier: **green** governed, **yellow** available but ungoverned, **red** contested or unavailable, **grey** reconstructable only by hand. Red and grey earn a hard ✕. Yellow never does — it means workable but ungoverned, and marking it the same as *gone* would flatten the distinction the tier system exists to draw.
 
-### 3. The knowledge graph — the claim no tile can make on its own
+### 3. Narrative tags — the claim a tile cannot make about itself
 
-`Knowledge graph`, or press <kbd>G</kbd>.
+Every row on the Going Well and H2 Focus rails carries a mark pointing at the certified measure that could check it. Hover or focus the mark and that measure's portlet lights; click it and the portlet is revealed. A qualitative win with nothing to light is a qualitative win nobody can audit, and turning the Knowledge Layer off severs every one of them.
 
-A per-tile provenance panel can tell you that a number is governed. It cannot tell you that *this number and that other number are the same number*. That claim is what a semantic layer uniquely makes.
-
-With the graph on, portlets resolving to the same certified measure are linked. Where the counterpart lives on another tab, the link becomes a jump badge. ACV now appears on four of the five tabs at four different grains — quarter, quarter x product, quarter x product x segment, and quarter x account — so the badges are the argument: the same certified measure, cut four ways, and the four cuts cannot disagree. Portlets with no shared measure dim out.
-
-Turn the Knowledge Layer off with the graph still on and it fragments. The measure edges are exactly what disappears; what survives is the plumbing, portlets that happen to read the same upstream table. The broken measure links render as stubs reaching toward each other and stopping, with a ✕ in the gap.
+The same gesture runs the Five Year tab's driver rail: each of the six drivers lights exactly the panels it claims to explain, and the count on the row is derived from that mapping rather than authored beside it. One driver lights five of the seven panels; another lights one. The difference between those two rows is the difference between a cause and an excuse.
 
 ## The stock-versus-flow tell
 
@@ -101,21 +97,21 @@ AOV is a *stock* — a balance read at a point in time, so an H1 reading sits on
 
 A spreadsheet cannot tell those two rows apart. Both are five numbers in a line. Nothing in the raw data distinguishes them. The distinction lives in the measure, and it is the difference between a correct chart and a confidently wrong one built from the same correct numbers.
 
-The **How this tab reads** card states this and three other rules the tab applies — zero baselines, polarity from the measure, one stated colour threshold. Turn off the Knowledge Layer and that card degrades to *rules live in each analyst's head*, which is the whole point: those rules are properties of the measures, so every chart, export and agent reading them inherits them. Nobody has to remember to apply them, and nobody can quietly not.
+The **How this tab reads** card states this and three other rules the tab applies, and it is careful about which of them the layer supplies. Two are the layer's: an additivity classification on every measure, which is what makes a roll-up close by construction, and a period-to-date flag on the measures that accumulate, which is what refuses a half year against a full one. Two are the board's own — the zero baseline and the ±10% colour threshold — and polarity is explicitly the board's, because no measure in either model declares a direction of good. Turn off the Knowledge Layer and the card degrades to *rules live in each analyst's head*, which is the point of stating the split: the layer's half is inherited by every chart, export and agent reading the same measures, and the board's half has to be written down somewhere or it is lost.
 
 ## Demo talk track
 
 Roughly five minutes.
 
 1. **Open on the Exec Summary.** Let it build. "Every tile here is a certified measure, and every one of them knows what it means."
-2. **Point at Attrition.** 104% of plan renders as a miss and −12% Y/Y renders as good news. "Nobody coloured that cell. The measure declares lower-is-better and everything downstream inherits it."
+2. **Point at Attrition.** 104% of plan renders as a miss and −12% Y/Y renders as good news. "Nobody coloured that cell twice. Attrition is lower-is-better, this board says so once, and every mark on every tab inherits it — including the ones on tabs you haven't opened."
 3. **Click the trust dot on NNAOV.** Walk the flip: definition, grain, lineage, row-level scope. "This is the back of the tile, not a governance page somebody has to go find."
 4. **Press <kbd>3</kbd> for Performance by Segment.** Twenty-eight cells, one growth scale. "Tableau Next is up 1060% in PubSec and down at the bottom of the tab in dollars. Both facts are in one cell, because length is the rate and area is the stake."
-5. **Press <kbd>5</kbd> for the Five Year Trend.** Let the seven panels build. Hover a driver — the metrics it claims light up. "Six causes, and each one knows which measures it explains."
+5. **Press <kbd>5</kbd> for the Five Year Trend.** Let the seven panels build. Hover driver 6, then driver 4. "Accounting treatment lights one panel. Competitive landscape lights five. One of those is a cause and one is a shape of the whole year."
 6. **Compare ACV and AOV at FY27 H1.** The stock-versus-flow tell above. This is the moment worth slowing down for.
-7. **Press <kbd>G</kbd>, then <kbd>1</kbd>.** The jump badges appear. "The same certified ACV is on four of these five tabs at four grains. That's why they cannot disagree."
+7. **Open the (i) on that tab.** Read the additivity rule out loud. "Two of these four rules are the layer's and two are ours, and the card says which. That is the difference between governance and a house style."
 8. **Press <kbd>K</kbd>.** Let the board rebuild in the drained palette. Sit in it. "Nothing broke. It still renders. It just stopped telling you anything you could defend in this room."
-9. **Press <kbd>G</kbd> again while degraded.** The graph fragments. "And these two tiles no longer have any reason to agree."
+9. **Point at any narrative tag.** Every one is struck through. "Twenty-six claims, and not one of them has a number left to check it against."
 10. **Press <kbd>K</kbd> to come back.**
 
 ## Keyboard
@@ -125,10 +121,10 @@ Roughly five minutes.
 | <kbd>1</kbd> … <kbd>5</kbd> | Jump to a tab |
 | <kbd>←</kbd> <kbd>→</kbd> | Previous / next tab |
 | <kbd>Home</kbd> <kbd>End</kbd> | First / last tab, from inside the tablist |
-| <kbd>G</kbd> | Knowledge graph overlay |
+| <kbd>I</kbd> | How to read this tab |
 | <kbd>K</kbd> | Knowledge Layer on / off |
 | <kbd>Enter</kbd> | Expand the focused portlet |
-| <kbd>Esc</kbd> | Close the expanded portlet, then the graph |
+| <kbd>Esc</kbd> | Close the expanded portlet, then the reading notes |
 
 Tabs are a proper ARIA tablist with roving tabindex. Portlets are focusable, the expanded card takes focus and returns it, and `prefers-reduced-motion` is honoured in JS as well as CSS — every animation primitive jumps straight to its final state rather than merely running faster.
 
@@ -175,11 +171,11 @@ src/
   main.js          boot, controls, keyboard, mode switching
   tabs.js          tab router and the entrance choreographer
   portlet.js       portlet lifecycle, trust dot, provenance face
-  semantic.js      direct-mode merge, trust tiers, measure graph model
+  semantic.js      direct-mode merge, trust tiers, portlet flattening
   inspector.js     expand-and-flip, with a ghost holding the grid place
-  graph.js         knowledge-graph overlay
+  notes.js         the per-tab (i) sheet and the rules it carries
   anim.js          strokeDraw, dashDraw, countUp, scramble, growFrom, veil
-  palette.js       mode-aware colours, sentiment, polarity, plan bands
+  palette.js       mode-aware colours, sentiment, good-direction, plan bands
   svg.js           SVG construction, scales, path builders
   tooltip.js       one shared tooltip
   charts/          attainment, mixBar, statTile, cardRail, trendPanel,

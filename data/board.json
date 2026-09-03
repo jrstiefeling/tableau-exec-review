@@ -497,6 +497,7 @@
                   {
                     "n": 3,
                     "title": "Scaled Proactive Customer Investment Motion",
+                    "railTitle": "Proactive Customer Investment",
                     "body": "Operationalize a fully programmatic retention and value-recovery framework across FDEs, Professional Services, AWS, and Partners.",
                     "links": [
                       "kpi-attrition",
@@ -515,6 +516,7 @@
                   {
                     "n": 5,
                     "title": "Continued rapid product innovation",
+                    "railTitle": "Continued product innovation",
                     "body": "across Generative Data Apps, Tableau Studio, Knowledge Graph, Teams integration, Project Beacon, Command Center, and Private Connect for GCP and Azure.",
                     "links": [
                       "mix-acv"
@@ -651,7 +653,7 @@
                     "Motion totals: 15,580 + 98,310 = 113,890 and 24,000 + 58,000 = 82,000. Both grains close on the same certified figures.",
                     "Group split: 30,000 + 83,890 = 113,890 and 38,247 + 37,753 = 76,000, so the expanded / contracted split is a partition of the renewable base rather than a sample of it."
                   ],
-                  "doesNotReconcileTo": "kpi-attrition ($75M) and trend-attrition. Attrition is measured against the prior-period contract book across the whole installed base; this population is the Q2 bookings cohort. The 15 accounts that renewed nothing take $7.1M of prior ACV with them and that figure is not a subset of the attrition tile at any stated grain. Do not draw a graph edge between them, and do not label the contracting group 'churn'."
+                  "doesNotReconcileTo": "kpi-attrition ($75M) and trend-attrition. Attrition is measured against the prior-period contract book across the whole installed base; this population is the Q2 bookings cohort. The 15 accounts that renewed nothing take $7.1M of prior ACV with them and that figure is not a subset of the attrition tile at any stated grain. Do not present the two as the same measure, and do not label the contracting group 'churn'."
                 },
                 "generator": {
                   "note": "This population is generated, not hand-typed. The rule is stated here so anyone can reproduce the 278 rows exactly and confirm the distribution is a consequence of a stated rule rather than authored noise shaped to look convincing.",
@@ -3555,8 +3557,8 @@
               "metrics": {
                 "rules": [
                   {
-                    "title": "Roll-up is geometry",
-                    "body": "Cloud and Server tile the Platform bar exactly, and the two motions tile the total exactly. The level-1 boundary recurs one level down because all three levels are one certified measure at three grains, so the partition closes by construction rather than by being checked afterwards."
+                    "title": "The roll-up closes by additivity",
+                    "body": "Cloud and Server tile the Platform bar exactly, and the two motions tile the total exactly. All three levels are one certified measure read at three grains, and the layer classifies that measure as additive — a row-level sum is safe — so the partition closes by construction rather than by being reconciled afterwards. The ratios on this tab are classified the other way and are never summed."
                   },
                   {
                     "title": "Stake and rate are separate channels",
@@ -3574,26 +3576,27 @@
               },
               "semantic": {
                 "metricName": "Presentation Rules",
-                "definition": "The partition, channel, scaling and weighting rules the semantic layer applies to every product, segment and outlook mark on this board.",
-                "sdm": "Analytics Revenue SDM",
+                "definition": "The partition, channel, scaling and weighting rules applied to every product, segment and outlook mark on this board. The first is a property of the measure — the layer publishes an additivity classification, so a roll-up either closes or is refused. The other three are this board's own encoding decisions, stated rather than left implicit.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded — the model behind every measure these three tabs read",
                 "measure": null,
-                "grain": "Applies to all measures on the product, segment and outlook tabs",
+                "grain": "Applies to all measures on the product, segment and outlook tabs. Additivity is readable per measure off aggregationType via list_semantic_model_calculated_measures.",
                 "lineage": [
-                  "Semantic Model Definition"
+                  "Semantic Model Definition",
+                  "businessPreferences"
                 ],
                 "rls": "Not scoped — rules apply to every viewer identically",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Jul 28, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Product Performance",
-                "why": "These rules are properties of the measures rather than of the charts, so every chart, export and agent reading those measures inherits them. Nobody has to remember to apply them, and nobody can quietly not."
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "Additivity is the one rule here the layer actually supplies, and it is the one that carries the most weight: because the measure is classified additive, the three levels of the taxonomy tile each other by construction rather than because somebody checked. The layer classifies coverage, velocity, Y/Y and every other ratio the other way, so the same catalogue that lets the roll-up close is what forbids summing the rates beside it. Scale, channel and weighting are the board's, and are named as the board's."
               },
               "directMode": {
                 "tier": "grey",
                 "candidates": [
                   "rules live in each analyst's head"
                 ],
-                "missing": "Any place for a partition rule, a scale or a weighting to live except the head of whoever built the chart",
-                "effect": "Four rules that have to be remembered, re-explained and re-applied by every person and every agent that touches these numbers",
+                "missing": "Any place for an additivity classification, a scale or a weighting to live except the head of whoever built the chart",
+                "effect": "Four rules that have to be remembered, re-explained and re-applied by every person and every agent that touches these numbers — starting with which of them may be added up and which may not",
                 "thesisTag": "T3",
                 "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
                 "risk": "Two analysts draw the same hierarchy on two different scales and both defend it",
@@ -4043,8 +4046,8 @@
               "metrics": {
                 "rules": [
                   {
-                    "title": "One measure, two grains",
-                    "body": "Every cell is the same certified ACV measure, read at product line crossed with customer segment. The columns are a dimension of one measure rather than five measures that resemble each other, which is what makes reading across a row a comparison."
+                    "title": "One measure, and one derived dimension",
+                    "body": "Every cell is the same certified ACV measure, read at product line crossed with segment — which is what makes reading across a row a comparison. But the four columns are not four values of one dimension. Three are segments and Public Sector is an Operating Unit, so the split is a derived dimension the model owner writes as IF OU = Public Sector then OU else segment end. Until that expression lives in the model it is a derivation this board defines, and a definition living in the client has already started to drift."
                   },
                   {
                     "title": "Hierarchy is a rail, not a stack",
@@ -4056,31 +4059,32 @@
                   },
                   {
                     "title": "The whole is one tab away",
-                    "body": "There is no All Segments column here. That reading is the product tab in full, at two levels of the taxonomy, and both tabs resolve to the same certified ACV measure — so the knowledge graph links them rather than this matrix restating them in a fifth column."
+                    "body": "There is no All Segments column here. That reading is the product tab in full, at two levels of the taxonomy, and both tabs resolve to the same certified ACV measure — which is what makes a fifth column a restatement rather than a finding."
                   }
                 ]
               },
               "semantic": {
                 "metricName": "Matrix Reading Rules",
-                "definition": "The grain, containment, disclosure and scaling rules applied to every cell of the segment matrix.",
-                "sdm": "Analytics Revenue SDM",
+                "definition": "The grain, containment, disclosure and scaling rules applied to every cell of the segment matrix — including the one rule that is not the layer's yet: the four columns are a derived dimension coalescing an Operating Unit with a segment, not four values of one field.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded — the only model carrying SMB on Segment10, which is what forces the derivation onto this model and no other",
                 "measure": null,
-                "grain": "Applies to every cell on this tab",
+                "grain": "Applies to every cell on this tab: quarter × product line × the derived segment dimension.",
                 "lineage": [
-                  "Semantic Model Definition"
+                  "Semantic Model Definition",
+                  "Segment10 + <TBD: OU field apiName>"
                 ],
                 "rls": "Not scoped — rules apply to every viewer identically",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Jul 28, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Segment Performance",
-                "why": "A dense matrix is only readable if the reader can trust that every cell was made the same way. These rules are properties of the measure and its dimensions, so that trust is a property of the data rather than a promise made by the chart."
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "A dense matrix is only readable if every cell was made the same way, and every cell here is one certified ACV measure at one grain. The columns are the exception worth stating: PubSec is an Operating Unit rather than a segment peer, so the four-way split is a one-line derivation. Left out of the model, that line gets rewritten slightly differently by every analyst who needs it — one tests 'Public Sector', one tests 'Pub Sec', one forgets ESMB — and four breakouts that all look right disagree with no error anywhere. Put it in the model once and every consumer inherits the same answer, including the agent generating the SQL, which cannot infer a rule that lives in a workbook."
               },
               "directMode": {
                 "tier": "grey",
                 "candidates": [
                   "twenty-eight cells, no stated grain"
                 ],
-                "missing": "Any statement of the grain each cell was read at, or of which taxonomy the rows belong to",
+                "missing": "Any statement of the grain each cell was read at, of which taxonomy the rows belong to, or of how the four columns were derived",
                 "effect": "A matrix that can still be read cell by cell and can no longer be read across, because nothing asserts that two cells in a row were made the same way",
                 "thesisTag": "T3",
                 "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
@@ -4134,7 +4138,7 @@
                 "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
                 "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
                 "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
-                "why": "This tile is a commit, so it is deliberately not the ACV measure the Q2 tile and the five-year row share — the knowledge graph draws no edge to them, and binding it to ACV_clc to make one appear would be exactly the loose measure-identity claim this board argues against. The 87% of Product FinPlan under it has no denominator here either: no FinPlan object exists in either model, and the only governed targets are pipegen and Day-1 open pipe."
+                "why": "This tile is a commit, so it is deliberately not the ACV measure the Q2 tile and the five-year row share, and binding it to ACV_clc to make the three agree would be exactly the loose measure-identity claim this board argues against. The 87% of Product FinPlan under it has no denominator here either: no FinPlan object exists in either model, and the only governed targets are pipegen and Day-1 open pipe."
               },
               "directMode": {
                 "tier": "red",
@@ -4610,7 +4614,7 @@
               "id": "drivers",
               "kind": "driverRail",
               "label": "What is driving it",
-              "sublabel": "Hover a driver to light the metrics it explains",
+              "sublabel": "Hover or focus a driver to light the metrics it explains",
               "accent": "#2F5FA8",
               "metrics": {
                 "drivers": [
@@ -4619,8 +4623,10 @@
                     "title": "Product Transitions",
                     "affects": [
                       "trend-acv",
+                      "trend-attrition",
                       "trend-nnaov",
-                      "trend-aov"
+                      "trend-aov",
+                      "trend-revenue"
                     ]
                   },
                   {
@@ -4628,40 +4634,48 @@
                     "title": "Sales Capacity &amp; Model",
                     "affects": [
                       "trend-ae-capacity",
-                      "trend-ae-productivity"
+                      "trend-ae-productivity",
+                      "trend-acv"
                     ]
                   },
                   {
                     "n": 3,
                     "title": "Customer Confusion",
                     "affects": [
+                      "trend-acv",
+                      "trend-attrition",
                       "trend-nnaov",
-                      "trend-attrition"
+                      "trend-aov",
+                      "trend-revenue"
                     ]
                   },
                   {
                     "n": 4,
                     "title": "Rapidly Evolving Competitive Landscape",
                     "affects": [
-                      "trend-nnaov",
+                      "trend-acv",
                       "trend-attrition",
-                      "trend-acv"
+                      "trend-nnaov",
+                      "trend-aov",
+                      "trend-revenue"
                     ]
                   },
                   {
                     "n": 5,
                     "title": "Eroded Tableau motions: Partner, New Logo, Success",
                     "affects": [
+                      "trend-acv",
+                      "trend-attrition",
                       "trend-nnaov",
-                      "trend-attrition"
+                      "trend-aov",
+                      "trend-revenue"
                     ]
                   },
                   {
                     "n": 6,
                     "title": "Accounting treatment: 5pt headwind in FY27",
                     "affects": [
-                      "trend-revenue",
-                      "trend-acv"
+                      "trend-revenue"
                     ]
                   }
                 ]
@@ -4679,7 +4693,7 @@
                 "certifiedBy": "Analytics BU Chief of Staff, narrative owner",
                 "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
                 "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
-                "why": "The driver-to-measure mapping is what turns a list of causes into something checkable — hovering a driver lights exactly the metrics it claims. Three of the six reach at least one metric this layer has no measure for, and the mapping is what makes that visible rather than a claim that quietly passes."
+                "why": "The driver-to-measure mapping is what turns a list of causes into something checkable — hovering or focusing a driver lights exactly the metrics it claims, so an over-broad claim is visible as a driver that lights the whole tab and a narrow one as a driver that lights a single panel. As authored, four of the six reach the same five metrics: that is the leadership read and it renders as given rather than being tidied into something more discriminating. Every one of the six reaches at least one metric this layer has no measure for, and the mapping is what makes that visible rather than a claim that quietly passes."
               },
               "directMode": {
                 "tier": "grey",
@@ -5029,7 +5043,7 @@
                 ],
                 "goodDirection": "up",
                 "headline": "$3594 M",
-                "headlineNote": "FY27 H1 — a book balance, not a half-year flow",
+                "headlineNote": "FY27 H1 — a balance, not a flow",
                 "caption": "Still growing, but growth halved every two years"
               },
               "semantic": {
@@ -5156,8 +5170,8 @@
                     "diagram": "zeroBaseline"
                   },
                   {
-                    "title": "Polarity",
-                    "body": "Direction of good comes from the measure. Attrition declares lower-is-better, so its falling H1 figure reads as the only good news on the tab without anyone recolouring a cell."
+                    "title": "Additivity and period to date",
+                    "body": "Direction of good is a decision this board makes and states — no measure in this layer declares one, so attrition reading as lower-is-better is the tab's doing rather than the definition's. What the layer does guarantee is additivity, that a measure sums correctly across grains, and a period-to-date flag on the measures that accumulate. Without that flag a half year is compared against a full one, which is the comparison this tab exists to refuse."
                   },
                   {
                     "title": "Colour threshold",
@@ -5167,26 +5181,27 @@
               },
               "semantic": {
                 "metricName": "Presentation Rules",
-                "definition": "The comparability, scaling, polarity and threshold rules the semantic layer applies to every measure on this tab.",
-                "sdm": "Analytics Revenue SDM",
+                "definition": "The comparability, scaling and threshold rules applied to every panel on this tab. Two of the four are properties the layer publishes — an additivity classification on every measure, and a period-to-date flag on the measures that accumulate. Two are this board's own presentation decisions, stated here rather than left in the chart.",
+                "sdm": "Sls_Forecasting_Metrics_Expanded — the model behind every panel on this tab that has a measure at all",
                 "measure": null,
-                "grain": "Applies to all measures on this tab",
+                "grain": "Applies to all measures on this tab. The layer's half is readable off the model: businessPreferences via get_semantic_model, aggregationType via list_semantic_model_calculated_measures.",
                 "lineage": [
-                  "Semantic Model Definition"
+                  "Semantic Model Definition",
+                  "businessPreferences"
                 ],
                 "rls": "Not scoped — rules apply to every viewer identically",
-                "certifiedBy": "Analytics RevOps",
-                "freshness": "Jul 28, 2026 · 9:00 AM PT",
-                "dashboard": "Analytics Five Year Trend",
-                "why": "These rules are the semantic layer doing its job. They are properties of the measures, so every chart, export and agent reading those measures inherits them — nobody has to remember to apply them, and nobody can quietly not."
+                "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
+                "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
+                "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
+                "why": "Saying which of these rules is the layer's and which is the board's is the point of the card. Additivity and the period-to-date flag are real, named and discoverable, and a chart, an export or an agent reading the same measures inherits them without being told. Polarity is not: neither model carries a direction of good on any measure, so this tab states it rather than inheriting it. A rules card claiming the layer supplied it would be exactly the plausible-but-unsupported metadata this board exists to argue against."
               },
               "directMode": {
                 "tier": "grey",
                 "candidates": [
                   "rules live in each analyst's head"
                 ],
-                "missing": "Any place for a rule to live except the head of whoever built the chart",
-                "effect": "Four rules that have to be remembered, re-explained and re-applied by every person and every agent that touches these numbers",
+                "missing": "Any place for an additivity classification or a period-to-date flag to live except the head of whoever built the chart",
+                "effect": "Four rules that have to be remembered, re-explained and re-applied by every person and every agent that touches these numbers — and a half year quietly compared against a full one the first time anyone forgets",
                 "thesisTag": "T3",
                 "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
                 "risk": "Two analysts produce two defensible versions of the same tab",

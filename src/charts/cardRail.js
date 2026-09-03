@@ -94,9 +94,23 @@ export function mount(host, ctx) {
     marker.textContent = String(entry.n);
     li.appendChild(marker);
 
+    /* `railTitle` is the compact row's version of the title, authored only
+     * where the full one cannot fit at any width the rail can be given.
+     *
+     * Two of these ten needed it. "Scaled Proactive Customer Investment
+     * Motion" is 263px of a 207px row, and closing a 56px gap by widening the
+     * column would have taken the width out of the alluvial and the movement
+     * fan beside it — one of which has a caption that was clipped until this
+     * board's last pass. The other eight fit on the reclaimed width, which is
+     * the order these were resolved in: take the width first, shorten only
+     * what arithmetic says cannot be taken.
+     *
+     * `title` is untouched, and it is what the tooltip, the expanded card and
+     * the accessible name all use — so the short form is a display convenience
+     * on one surface rather than a rewrite of the claim. */
     const title = document.createElement("span");
     title.className = "rail-row-title";
-    title.innerHTML = entry.title;
+    title.innerHTML = entry.railTitle || entry.title;
     li.appendChild(title);
 
     /* The row carries the whole item in its tooltip, not just the part that
@@ -172,8 +186,11 @@ export function mount(host, ctx) {
     if (mark) ctx.tip(chip, label);
 
     if (!severed) {
-      const on = () => ctx.highlight([id], true);
-      const off = () => ctx.highlight([id], false);
+      // The rail joins its own highlight, or the dim that isolates the measure
+      // would also swallow the row the pointer is on.
+      const lit = [ctx.id, id];
+      const on = () => ctx.highlight(lit, true);
+      const off = () => ctx.highlight(lit, false);
       chip.addEventListener("pointerenter", (e) => {
         if (e.pointerType === "touch") return;
         on();

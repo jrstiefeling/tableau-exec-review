@@ -360,11 +360,19 @@
 
 /* ------------------------------- attention -------------------------------- */
 
-.stage.is-highlighting .portlet {
+/* Both rules are gated on `.is-entered`, and that is the veil contract showing
+   up at portlet level rather than at mark level. `.portlet` rests at opacity 0
+   until stage one reaches it; either of these selectors is more specific than
+   that, so without the gate a highlight raised mid-sweep — a driver hovered
+   while the board is still assembling — would pull an unbuilt shell to 0.34,
+   or an unbuilt *highlit* shell all the way to 1, and then the entrance would
+   arrive on top of something already on screen. Gated, a portlet the sweep has
+   not reached yet stays at zero and joins the highlight when it lands. */
+.stage.is-highlighting .portlet.is-entered {
   opacity: 0.34;
 }
 
-.stage.is-highlighting .portlet.is-highlit {
+.stage.is-highlighting .portlet.is-entered.is-highlit {
   opacity: 1;
 }
 
@@ -380,62 +388,6 @@
 
 .portlet.is-pulsing .portlet-front {
   animation: portletPulse 1.3s var(--ease-soft);
-}
-
-.stage.is-graphing .portlet[data-graph="isolated"] {
-  opacity: 0.38;
-}
-
-.stage.is-graphing .portlet[data-graph="linked"] .portlet-front {
-  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-}
-
-/* The jump badge is an overlay, so the card makes room for it rather than
-   letting it land on top of a caption. */
-.stage.is-graphing .portlet-front {
-  padding-bottom: 40px;
-}
-
-.graph-jump {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  z-index: 5;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  max-width: calc(100% - 20px);
-  padding: 5px 10px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
-  background: color-mix(in srgb, var(--accent) 16%, var(--surface-solid));
-  color: var(--ink);
-  font-size: 10.5px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  box-shadow: var(--shadow-card);
-}
-
-.graph-jump-arrow {
-  width: 12px;
-  height: 1.5px;
-  flex: none;
-  background: currentColor;
-  position: relative;
-}
-
-.graph-jump-arrow::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: -2.5px;
-  width: 6px;
-  height: 6px;
-  border-top: 1.5px solid currentColor;
-  border-right: 1.5px solid currentColor;
-  transform: rotate(45deg);
 }
 
 /* ------------------------------- provenance ------------------------------- */
@@ -1141,13 +1093,18 @@
    showed four of five: the scrollbar defect again, now with no scrollbar to
    admit to it. Centred, every box sits inside the tallest and the row is
    17px, which leaves the rail slack to spend rather than a row to lose. */
+/* The gaps and the right pad are 6/2 rather than 7/4, and the marker below is
+   14px rather than 15px. Six pixels, which is not much until you notice that
+   two of these titles were missing their last word by less than that. Row
+   furniture is the cheapest width on the board: it is a numeral the reader
+   counts and a dot they point at, neither of which is read. */
 .rail-row {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   min-width: 0;
-  padding: 1px 4px 1px 0;
+  padding: 1px 2px 1px 0;
   border-radius: 6px;
   opacity: 0;
   cursor: pointer;
@@ -1182,8 +1139,8 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--card-accent) 20%, transparent);
   border: 1px solid color-mix(in srgb, var(--card-accent) 58%, transparent);
@@ -1513,12 +1470,31 @@
   display: block;
 }
 
-/* Sizes are viewBox user units, not screen pixels — the whole panel scales
-   with the cell — so these are set against the 198-unit box and land at
-   roughly 5.5px on screen at 1024 and 8px at 1920. */
+/* Every size here is multiplied by --u, which the chart publishes as
+   user-units-per-CSS-pixel — so `9.5px * var(--u)` is 9.5px on screen no
+   matter what scale the cell imposes on the viewBox. See publishPixelUnit in
+   src/svg.js for the mechanism and the long note at the top of trendPanel.js
+   for why the axis type had to come out of the viewBox's units at all.
+
+   The short version: these were authored at 10 user units and rendered at
+   7.8px on the hero, 5.6px on five of the panels and 4.4px on AOV, because
+   seven cells of different heights gave the same viewBox seven different
+   scale factors. A reader's eye does not scale with the cell.
+
+   The one thing --u must not touch is anything that carries a comparison.
+   Stroke widths, dot radii and the deviation bars stay in user units, because
+   a small multiple is only a small multiple if its marks are drawn to one
+   scale. Only the furniture is pinned to the screen. */
+/* 8.5px and not 9.5px, and the constraint is horizontal rather than vertical.
+   "FY27 H1" is set bold to flag the column that is not comparable, which makes
+   it 35px wide against a 33.6px column pitch on the narrow cards. At 9.5px it
+   cleared "FY26" by 2.4px, which is a collision with a rounding error in it;
+   at 8.5px it clears by 5.4px. Every tick on the tab was between 4.4px and
+   7.8px before this, so 8.5px everywhere is still the legibility fix — it is
+   just also the largest size five labels fit on one line at. */
 .trend-tick {
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: calc(8.5px * var(--u, 1));
   font-weight: 600;
 }
 
@@ -1527,14 +1503,14 @@
 }
 
 .trend-zero {
-  font-size: 9px;
+  font-size: calc(7.5px * var(--u, 1));
   text-anchor: start;
 }
 
 .trend-partial-note,
 .trend-ghost-label {
   font-family: var(--font-body);
-  font-size: 8.5px;
+  font-size: calc(7.5px * var(--u, 1));
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1574,6 +1550,87 @@
   .trend-headnote {
     font-size: 9.5px;
   }
+}
+
+/* ------------------- five year: one head, one baseline ------------------- */
+
+/* The Five Year tab is seven cells of the same chart, and until this block it
+   was seven cells of the same chart at seven different sizes.
+
+   The cause was above the chart, not in it. Everything below the head is
+   `flex: none` and the SVG takes the remainder, so the head's height is the
+   chart's height, and the head was sized by its content: "AE PRODUCTIVITY"
+   wrapped to two lines where "ACV" did not, four subtitles needed two lines
+   where three needed one, "FY27 H1 — a book balance, not a half-year flow"
+   wrapped beside its headline where "FY26 — last full year" did not, and two
+   captions ran to one line where five ran to two. Twelve combinations of those
+   four, and the SVG absorbed every one: chart boxes from 87px to 137px in a
+   row of cells all 243px tall, headline baselines 31px out of line across a
+   row of four, and a viewBox scale that varied by a third from cell to cell.
+
+   So the head is composed to a fixed budget instead — one line of label, two
+   of subtitle, one of headline, one of note, two of caption — and every panel
+   on the tab gets an identical chart box whether it needs the whole budget or
+   not. Reserved, not merely capped: a card whose subtitle fits on one line
+   still holds the second, or the row goes ragged again on a re-word.
+
+   This is the ~24px the status bar gave back, spent. Two of the reservations
+   here — the second subtitle line and the second caption line — are height
+   the tab did not previously have, and they are what makes the alignment free
+   rather than something the chart pays for. */
+
+.band[data-layout="panels"] .portlet-titles {
+  /* Overrides the laptop tier's run-together row. On a 114px head the
+     subtitle drops to its own line anyway, so the row buys nothing here and
+     costs the certainty of knowing how many lines the label gets. */
+  display: block;
+}
+
+/* Down from 11px/0.1em, to buy "AE PRODUCTIVITY" a single line. It is the
+   longest label on the tab and it was the only one wrapping; the alternative
+   was reserving a second label line on all seven to hold one word on one
+   card, at 13px a cell. */
+.band[data-layout="panels"] .portlet-label {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.band[data-layout="panels"] .portlet-sublabel {
+  margin: 1px 0 0;
+  /* 2.6em is exactly two 1.3 line boxes. min-height reserves them, the clamp
+     caps them, and the pair is what makes the head a constant. */
+  min-height: 2.6em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* The note moves from beside the headline to under it. Beside it, it was a
+   wrapping flex item — one line on five panels and two on the other two, and
+   the wrap happened at a different width in every cell. Under it, it is one
+   line everywhere, and it also stops the note's own length from being able to
+   move a headline baseline. */
+.band[data-layout="panels"] .trend-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.band[data-layout="panels"] .trend-headnote {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Two lines held open. The clamp at the laptop tier already stopped a third;
+   this stops a first from being the whole row. */
+.band[data-layout="panels"] .trend-caption {
+  min-height: 2.64em;
 }
 
 /* ------------------------------- trend table ------------------------------ */
@@ -1818,6 +1875,12 @@
   -webkit-line-clamp: 8;
 }
 
+@media (max-height: 960px) {
+  .mix-insight {
+    -webkit-line-clamp: 2;
+  }
+}
+
 /* The laptop tier drops the caption and spends the row on the insight.
    The caption reads "FY26 Q2 $113.9M → FY27 Q2 $82M · column width is the
    total", and the chart prints both of those totals under the columns it
@@ -1842,15 +1905,31 @@
     display: none;
   }
 
+  /* Three lines, and this is where the status bar's height went on this tab.
+     The rule existed before and never applied: it sat after an identical
+     `-webkit-line-clamp: 2` at `max-height: 960px`, both match at 580px tall,
+     both are (0,1,0), and the later one wins — so the tier that had decided
+     the insight was worth three lines was silently getting two, and the
+     sentence stopped at "while Agentic fell $98.3M to…". The 960 tier is now
+     declared first, which is the order the tiers should have been in anyway:
+     broadest first, so the narrower one can override it.
+
+     The min-height is the other half of the fix and it is what makes the
+     clamp mean anything. `flex: 0 1 auto` let the row shrink to 36px while the
+     clamp said three lines, so the third line was drawn and then sliced in
+     half by the overflow — the exact defect the clamp exists to prevent. Held
+     open at three line boxes, the shrink lands on the alluvial above instead,
+     which is a shape and survives being 11px shorter far better than a
+     sentence survives losing its last figure. Between the footer's height and
+     a small reweight of the tab's middle row, most of those 11px are new.
+
+     This is the only text on the board carrying the $15.6M and $98.3M
+     movements at all — the chart states the totals and the shares, not the
+     deltas — so the line buys back a fact rather than a restatement. */
   .mix-insight {
     -webkit-line-clamp: 3;
     line-height: 1.36;
-  }
-}
-
-@media (max-height: 960px) {
-  .mix-insight {
-    -webkit-line-clamp: 2;
+    min-height: calc(3 * 1.36em);
   }
 }
 
@@ -1935,6 +2014,30 @@
 @media (min-height: 861px) and (max-height: 960px) {
   .stat[data-has-grid="true"] .stat-footnote {
     -webkit-line-clamp: 1;
+  }
+}
+
+/* Direct mode adds a line to this tile and nothing gives it one. The unit key
+   goes from "1 square = 25 AEs" to "1 square = 25 AEs · no prior-year count to
+   subtract from", which no longer fits beside the movement chip and takes a
+   row of its own, and the caption gains "As-of-today only · prior quarters
+   restate". Sixteen pixels more content in the same box, with the stat column
+   centred `safe`, which means it aligns to the top and hangs the last line
+   over the card's bottom edge to be clipped by the face.
+
+   So the footnote gives up its second line here and only here. It is the one
+   row on the tile that is a caveat about the basis rather than the reading,
+   and the caveat it carries — that the AE count is a 69% proportional cut of
+   the Apps team — is restated in full on the expanded card and on the
+   provenance face. Everything else on the tile is either the number or the
+   reason direct mode cannot support it. */
+@media (max-height: 700px) {
+  body.direct-mode .stat[data-has-grid="true"] .stat-footnote {
+    -webkit-line-clamp: 1;
+  }
+
+  body.direct-mode .stat[data-has-grid="true"] {
+    gap: 3px;
   }
 }
 
@@ -2128,8 +2231,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Sits on the marks rather than beside them, so it needs the paper back under
-   it — the same treatment the graph overlay's edge labels use. */
+/* Sits on the marks rather than beside them, so it needs the paper back
+   under it. */
 .fan-label[data-kind="median"] {
   align-items: flex-end;
   padding: 1px 4px;

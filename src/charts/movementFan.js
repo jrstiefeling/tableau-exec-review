@@ -655,7 +655,14 @@ export function mount(host, ctx) {
       ],
       [isDirect ? "cohort not conformed" : "no prior baseline · no index", "fan-label-sub"]
     ],
-    { left: "0", width: pctX(142), bottom: pctY(H - stubY + 5) }
+    /* 158 rather than 142, because direct mode's "18 rows · basis unverified"
+     * is the longest string this label ever carries and it was 8px wider than
+     * its own box at the 1024 floor. The label is nowrap and there is nothing
+     * to its right to paint over, so it never actually clipped — but a label
+     * whose declared width is narrower than its text reports as overflow, and
+     * this file's own note above says the reason these are edge-anchored is so
+     * that overflow here always means something. */
+    { left: "0", width: pctX(158), bottom: pctY(H - stubY + 5) }
   );
 
   /* The two group labels name a half of the frame rather than one mark, so

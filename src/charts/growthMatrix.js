@@ -717,7 +717,7 @@ export function mount(host, ctx) {
     let note = null;
     if (metrics.allSegmentsNote) {
       // What replaces the dropped reference column: both tabs resolve to the
-      // same certified measure, so the knowledge graph already links them.
+      // same certified measure, and each states so on its own provenance face.
       note = document.createElement("p");
       note.className = "growth-allnote";
       note.textContent = metrics.allSegmentsNote;

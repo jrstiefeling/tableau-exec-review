@@ -448,11 +448,6 @@ export class Portlet {
     this.el.classList.toggle("is-highlit", Boolean(on));
   }
 
-  setGraphState(state) {
-    if (state) this.el.dataset.graph = state;
-    else delete this.el.dataset.graph;
-  }
-
   destroy() {
     this.cancel();
     if (this.el && this.el.parentNode) this.el.parentNode.removeChild(this.el);

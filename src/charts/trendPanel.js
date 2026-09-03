@@ -38,7 +38,7 @@
 
 import {
   chartRoot, svgEl, group, text, linePath, smoothPath, linearScale, roundedRectPath, padHit,
-  verticalGradient
+  verticalGradient, publishPixelUnit
 } from "../svg.js";
 import { palette, toneOf, toneColor, tierMeta } from "../palette.js";
 import {
@@ -57,31 +57,86 @@ import {
  * its allocation.
  *
  * Two changes fix it, and they compound. The tab's grid now gives each panel
- * a cell of roughly 165x110 rather than 200x75 (four columns and two rows,
+ * a cell of roughly 169x109 rather than 200x75 (four columns and two rows,
  * with the rules card gone and the 3x3 fallback with it), and the viewBox is
- * re-proportioned to 300x198 — 1.52:1 — to sit inside that. The result draws
- * at essentially the full width of its box.
+ * re-proportioned to sit inside that. The result draws at essentially the full
+ * width of its box.
  *
  * WIDE is the hero's viewBox. ACV spans two columns on the tab, so its cell is
- * about 2.4:1, and a 1.52:1 viewBox in it would letterbox a third of the width
- * back off again — the same mistake one level up.
+ * about 3.4:1, and a narrow-card viewBox in it would letterbox a third of the
+ * width back off again — the same mistake one level up.
  *
  * The strip keeps its own band under the baseline rather than being overlaid
- * on the plot: the plot is 124 units deep and the strip 22, and both grew
- * in absolute terms because the cell did. */
-const H = 198;
-const W_NARROW = 300;
-const W_WIDE = 470;
-const PAD = { top: 18, right: 14, bottom: 56, left: 26 };
+ * on the plot: the plot is 132 units deep and the strip 26, and both grew
+ * in absolute terms because the cell did.
+ *
+ * ---------------------------------------------------------------------------
+ * Why the bottom of this viewBox is so tall, and why the type in it is not
+ * measured in user units
+ *
+ * A viewBox scales as one thing. That is the point of it for marks — a
+ * trajectory drawn at 300 units wide is the same trajectory in any box — and
+ * it is exactly wrong for type, because a reader's eye does not scale with the
+ * cell. The axis ticks were authored at 10 user units and rendered between
+ * 7.8px on the hero and 4.4px on AOV, which is not a font-size problem: it is
+ * the same 10 units multiplied by seven different scale factors.
+ *
+ * So the ticks, the zero label, the run-rate label and the partial note are
+ * sized in real pixels, against a --u custom property the chart publishes on
+ * its own root (see publishPixelUnit in svg.js) holding user-units-per-CSS-px.
+ * `font-size: calc(9.5px * var(--u))` is 9.5px on screen in every cell, at
+ * every viewport, whatever the scale underneath it. Nothing else in the panel
+ * changes: the marks still scale, because marks are the thing a small multiple
+ * is comparing.
+ *
+ * That has a consequence for the layout, and it is the reason the box is
+ * 348x224 rather than 300x198. Type that does not scale needs a band under
+ * the strip measured in pixels, and the number of user units a pixel costs is
+ * largest where the scale is smallest — the 1024x580 floor, where one pixel
+ * is about 2.06 units. Two lines of type and their leading need 50 units
+ * there, against a 28-unit budget before. PAD.bottom absorbs the difference,
+ * so the plot keeps its depth; at wider viewports the same two lines cost
+ * fewer units and the surplus reads as air under the note, which is what a
+ * chart composed at its own floor should do.
+ *
+ * Both boxes are then proportioned to the cell they land in at that floor —
+ * 348x224 is 1.55:1 against a 169x109 chart box, and 756x224 is 3.37:1
+ * against the hero's 367x109 — so `meet` has almost nothing to letterbox.
+ * That is worth stating because it is easy to get wrong in the other
+ * direction: a box left at 300 wide against a taller H would have thrown 57px
+ * off each side of the widest panel on the tab. The two widths also put the
+ * hero and the narrow cards at the same scale, which is what makes seven
+ * panels a small multiple rather than seven charts. */
+const H = 224;
+const W_NARROW = 348;
+const W_WIDE = 756;
+/* PAD.top is 10 rather than 18 because the y scale already carries 12%
+ * headroom above the largest value, so the top pad was padding padding. The
+ * eight units go to the plot, which is the only element on the tab whose job
+ * is the shape of a trend. */
+const PAD = { top: 10, right: 14, bottom: 82, left: 20 };
 
-const DEV = { top: 148, h: 22 };
+/* The plotted columns are inset from both edges by the half-width of the tick
+ * label centred on them, because the labels are now a fixed pixel size and
+ * the widest of them is wider than the column pitch. "FY27 H1" is 35px of a
+ * 169px card; centred on the old right-hand position it ran off the box, and
+ * an outermost <svg> clips. Left is PAD.left + 8, which puts "FY23" 2px inside
+ * the frame; right is 28 units in, which leaves the same margin. */
+const X_INSET_RIGHT = 28;
+
+const DEV = { top: 148, h: 26 };
 const DEV_ZERO = DEV.top + DEV.h / 2;
-/* 12, from 10. The strip is what carries thirty-five authored Y/Y figures
- * that appear nowhere else on the tab, and the reviewer could not see it at
- * all — so it takes the extra reach as well as the extra scale. */
-const DEV_REACH = 12;
-const LABEL_DY = 36;
-const NOTE_DY = 48;
+/* 14, from 12, on a band grown from 22 to 26. The strip carries thirty-five
+ * authored Y/Y figures that appear nowhere else on the tab, and it was the
+ * one mark on the panel the reviewer could not see at all. */
+const DEV_REACH = 14;
+/* Both measured down from the plot's baseline at H - PAD.bottom, and both set
+ * by the pixel budget rather than by eye: the tick baseline has to clear the
+ * strip's bottom edge by a 3px gap plus a 7px cap height, and the note's has
+ * to clear the tick's descender by the same kind of sum. At the 1024 floor
+ * that is 21 units and 21 more. */
+const LABEL_DY = 53;
+const NOTE_DY = 74;
 
 /* One bound for all seven panels, stated rather than derived per panel.
  * The authored magnitudes run 0% to 33% with a single outlier — NNAOV's -74%
@@ -135,7 +190,10 @@ export function mount(host, ctx) {
   const joinedCount = isFlow ? partialFrom : series.length;
 
   const maxValue = Math.max(...series, hasRunRate ? metrics.runRate : 0) || 1;
-  const x = linearScale([0, Math.max(1, series.length - 1)], [PAD.left + 8, W - PAD.right - 20]);
+  const x = linearScale(
+    [0, Math.max(1, series.length - 1)],
+    [PAD.left + 8, W - PAD.right - X_INSET_RIGHT]
+  );
   const y = linearScale([0, maxValue * 1.12], [H - PAD.bottom, PAD.top]);
 
   const points = series.map((value, i) => ({ x: x(i), y: y(value), value, i }));
@@ -161,6 +219,7 @@ export function mount(host, ctx) {
     label: `${ctx.label} FY23 to FY27 H1, with a year-on-year deviation strip beneath the trajectory on a shared ${DEV_BOUND}% scale`,
     class: "trend-svg"
   });
+  publishPixelUnit(svg);
   const marks = group();
   svg.appendChild(marks);
 
@@ -458,10 +517,14 @@ export function mount(host, ctx) {
   if (partialFrom < periods.length) {
     // Pulled back from the right edge so the note cannot run off the viewBox
     // on the panel whose last column it describes.
+    /* End-anchored on the plot's right edge rather than centred on the last
+     * column. At a fixed 8px it is wider than the column is, so centring it
+     * ran it off the box on the narrow cards; ending it where the plot ends
+     * keeps it under the H1 column it describes and inside the frame. */
     partialNote = text(isFlow ? "not comparable" : "point in time", {
-      x: Math.min(x(series.length - 1), W - PAD.right - 26),
+      x: W - PAD.right,
       y: H - PAD.bottom + NOTE_DY,
-      "text-anchor": "middle",
+      "text-anchor": "end",
       fill: p.inkDim,
       class: "trend-partial-note"
     });

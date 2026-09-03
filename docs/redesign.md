@@ -214,11 +214,9 @@ Implementation keeps the three `rulesCard` portlet specs in `board.json`
 **exactly as authored** — including the `semantic` and `directMode` blocks that
 were just corrected. `TabController` diverts portlets of that kind out of the
 band and into the tab's notes popover instead of mounting them in the grid.
-They are also kept out of `this.portlets` and `byTab`, which means:
-
-- they are not in the entrance sweep (they are not on screen at entrance);
-- `graph.js` already guards every lookup with `if (!a || !b) return`, so the
-  knowledge graph degrades to ignoring them rather than throwing.
+They are also kept out of `this.portlets` and `byTab`, which means they are not
+in the entrance sweep — they are not on screen at entrance — and nothing that
+walks the portlet registry can reach them.
 
 The popover builds its content on open with its own `AbortController` and
 re-primes (veils) on close, so the rules diagrams keep their draw-on and the
@@ -272,8 +270,8 @@ Sizes rebalance toward the roles that are currently unreadable on a laptop:
 | `.attain-axis` | 8.5px | 9.5px |
 | `.rail-copy` | 11.5px | 12px |
 | rules body (in flyover) | 10.5px | 12.5px |
-| `.trend-tick` | 9px | 10px |
-| `.trend-partial-note` | 7.5px | 8.5px |
+| `.trend-tick` | 9px | 10px (later pinned to 8.5px on screen — §12) |
+| `.trend-partial-note` | 7.5px | 8.5px (later pinned to 7.5px — §12) |
 | `.mmx-axis-tick` | 7.5px | 8.5px |
 | `.stat-footnote` | 9.5px | 10px |
 | `.trend-headline` | 17-24px | 15-21px (pays for the chart) |
@@ -303,9 +301,10 @@ Nothing else. No figure changes, no reconciliation UI, no new commentary.
 - Veil contract: every new mark joins its chart's veil list. `veil().hide()`
   is not undone anywhere.
 - Per-portlet provenance flip; global Knowledge Layer toggle with degraded
-  rendering; knowledge-graph overlay with cross-tab jump badges; keyboard
-  navigation across all five tabs; `prefers-reduced-motion` jumping to final
-  state; click-to-expand detail.
+  rendering; the per-tab (i) reading notes; narrative and driver tags that
+  light a measure on hover and reveal it on click; keyboard navigation across
+  all five tabs; `prefers-reduced-motion` jumping to final state;
+  click-to-expand detail.
 - `node scripts/sync-fallback.mjs` after every `board.json` edit.
 
 ## 11. Where the build departed from this plan
@@ -364,3 +363,115 @@ card and nothing on a wide one.
    recovers.
 8. **The Five Year caption's third line**, below 700px tall. Two lines is the
    floor: it can lose a restatement and cannot lose the sentence.
+
+## 12. The correctness-and-legibility pass
+
+A later pass, after the redesign was accepted. Four defects, three removals and
+two additions, and no figure or reconciliation surface changed by any of them.
+
+**The rules cards were making a claim the layer does not support.** The Five
+Year card said "direction of good comes from the measure. Attrition declares
+lower-is-better." Neither model carries a polarity property on any measure, so
+the sentence was the exact failure mode the board exists to argue against:
+plausible metadata, confidently attributed, unsupported. The rule is recast
+onto the two properties the layer does publish — an additivity classification
+per measure and a period-to-date flag on the measures that accumulate — and
+polarity is now named as the board's own decision. The Product card carries the
+additivity argument for the roll-up ("the partition closes by construction
+because the measure is classified additive, not because somebody checked"), and
+the Segment card carries the PubSec derivation with the model owner's actual
+expression, since PubSec is an Operating Unit rather than a segment peer and
+the four-way split is a one-line derivation that does not live in the model
+yet. All three provenance faces named an "Analytics Revenue SDM" that does not
+exist; they now name `Sls_Forecasting_Metrics_Expanded`, `businessPreferences`,
+and the `<TBD: …>` markers this board uses for facts the source documents do
+not contain.
+
+**The Five Year axis labels were illegible, and the cause was above the
+chart.** Everything below a panel's head is `flex: none` and the SVG takes the
+remainder, so the head's height *is* the chart's height — and the head was
+sized by its content. Twelve combinations of label wrap, subtitle wrap, headnote
+wrap and caption length gave seven cells of the same chart seven different
+chart boxes, from 87px to 137px inside cells all 243px tall, which gave one
+viewBox seven scale factors and one 10-unit tick label seven sizes between
+4.4px and 7.8px. Two changes, and they are independent:
+
+- The head is composed to a fixed budget — one line of label, two of subtitle,
+  one of headline, one of note, two of caption — and reserved rather than
+  merely capped, so a card that does not need the whole budget still holds it.
+  Every panel now gets an identical chart box and the headline baselines align
+  across each row, where they were 31px out.
+- The axis type comes out of the viewBox's units. `publishPixelUnit` in
+  `src/svg.js` publishes `--u`, the chart's user-units-per-CSS-pixel, via a
+  `ResizeObserver`, and the ticks ask for `calc(8.5px * var(--u))` — 8.5px on
+  screen in every cell at every viewport. Marks stay in user units, because a
+  small multiple is only a small multiple if its marks share a scale.
+
+The box grew from 300x198 to 348x224, and 756x224 for the hero. Type that does
+not scale needs a band under the deviation strip measured in pixels, and a
+pixel costs the most user units where the scale is smallest; the widths are
+then proportioned to the cells they land in at the 1024 floor, which also puts
+the hero and the narrow cards at the same scale for the first time.
+
+**Five of the ten exec rail titles were ellipsised mid-word.** Resolved in that
+order: take the width first, tighten the furniture, shorten only what
+arithmetic says cannot be taken. The narrative column's floor goes from 240px
+to 268px — 240 was measured against the longest title that *fits* rather than
+the longest title there is — the row's gaps and marker give back 6px, and the
+last two titles get a `railTitle` for the compact row while `title` stays
+authored for the tooltip, the expanded card and the accessible name.
+
+**The knowledge-graph overlay is removed** — button, module, styles, keybinding
+and the `+N` cross-tab jump badges. What it argued (that two portlets resolve to
+the same certified measure) is now carried where it is actually read: the
+provenance face states the measure and grain per tile, and the narrative and
+driver tags light the measure a claim rests on. `buildMeasureGraph` and
+`surviveDirectMode` go with it; `derivedFrom` stays, because the provenance
+faces use it.
+
+**The footer status bar is removed.** It stated the period, one board-level
+freshness string and one board-level RLS scope — all three of which vary by
+measure and are stated per portlet on the provenance face, which is the more
+useful place for them. `meta.generatedAt`, `meta.freshness` and `meta.scope`
+stay authored in `board.json`: every portlet's `semantic.freshness` derives from
+them, and deleting the model behind the bar would have broken provenance on all
+26 corrected portlets.
+
+That returned about 27px to every tab, and it is spent rather than left as
+padding:
+
+- On the Five Year tab it pays for the head equalisation above, so the
+  alignment fix costs the chart nothing — the cells went from 232px to 243px,
+  which is close to what the reserved subtitle and caption lines consume.
+- On the exec tab it restores **cut 6**, the mix insight's third line. That cut
+  turned out to be a cascade bug as much as a budget one: a `line-clamp: 3` at
+  `max-height: 700px` sat *after* an identical `line-clamp: 2` at
+  `max-height: 960px`, both match at 580px tall and both are (0,1,0), so the
+  tier that had decided the insight was worth three lines was silently getting
+  two and the sentence stopped at "while Agentic fell $98.3M to…". With the
+  tiers reordered, a `min-height` holding the three lines open, and 0.05fr
+  shifted from the tab's bottom row to its middle one, the sentence finishes
+  and the alluvial above it is not one pixel shorter than it was.
+
+Cuts 3, 4, 7 and 8 stand. 7 was a width cut and height does not buy it back;
+8 would cost the trajectory 5% to restore a restatement.
+
+**The brand mark is the Tableau logo**, hand-built as nine plus signs in
+thirty-four axis-aligned rectangles rather than the conic-gradient square it
+replaces. It does not take `--tab-accent`, because a logo that changes hue as
+you move across tabs has been mistaken for a reading, and it does not drain in
+direct mode: colour on this board is a governed reading and a product mark
+makes no claim about the data, so draining it would say the vendor is what
+became untrustworthy.
+
+**The driver rail's mapping is rewired**, and the count on each row is derived
+from it rather than authored beside it. Four of the six drivers reach the same
+five metrics, and that is the leadership read rendered as given — an over-broad
+claim reads as a driver that lights the whole tab, a narrow one as a driver
+that lights a single panel, and driver 6 (accounting treatment, a stated 5pt
+FY27 revenue headwind) lights exactly one. Both rails now include their own
+portlet in the highlight set, because `.stage.is-highlighting` dims every
+portlet outside it and the rail being pointed at was fading itself out. The dim
+and the lift are gated on `.is-entered`, which is the veil contract at portlet
+level: a highlight raised mid-sweep cannot pull an unbuilt shell onto the
+screen ahead of its own entrance.

@@ -179,7 +179,7 @@ body.direct-mode::before {
 
 /* Flex rather than grid rows: the notice bar is display:none most of the
    time, and a hidden grid item is simply not placed — which would silently
-   shift the stage and the status bar into each other's rows. */
+   shift the topbar and the stage into each other's rows. */
 .app {
   position: relative;
   z-index: 1;
@@ -246,19 +246,39 @@ button {
   min-width: 0;
 }
 
+/* The Tableau mark. Nine plus signs, thirty-four axis-aligned rectangles, no
+   raster asset and no second request — which is the whole reason to draw a
+   bar-built logo by hand rather than ship a PNG that has to be re-exported
+   for every density.
+
+   Three things are deliberate:
+
+   It does not take --tab-accent, the way the coloured square it replaces did.
+   A logo is not a reading, and a mark that shifts hue as you move across tabs
+   has been mistaken for one. The per-tab signal is carried three other ways
+   already — the indicator, the topbar hairline, and the kicker rule.
+
+   It does not drain in direct mode. Everything else on this board loses its
+   colour there because colour on this board is a governed reading, and a
+   reading with nothing behind it should not keep its confidence. A product
+   mark makes no claim about the data, so draining it would say something the
+   board does not mean: that the vendor is what became untrustworthy. The one
+   thing still coloured in direct mode is the tier saying a number cannot be
+   trusted — the mark sits outside that argument rather than joining it.
+
+   Sizes are set on the box rather than on the marks, so the whole thing is
+   one number to change and the geometry stays proportional at any size. */
 .topbar-mark {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   flex: none;
-  border-radius: 7px;
-  background: conic-gradient(from 140deg, var(--tab-accent), #6b4fbf, var(--pos), var(--tab-accent));
-  box-shadow: 0 0 0 1px rgba(23, 24, 28, 0.06);
-  transition: var(--theme-transition), filter 0.6s var(--ease);
+  display: block;
 }
 
-body.direct-mode .topbar-mark {
-  filter: grayscale(1) brightness(0.7);
-}
+.topbar-mark .mark-core { fill: #e8762d; }
+.topbar-mark .mark-axis { fill: #576eb2; }
+.topbar-mark .mark-side { fill: #4e79a7; }
+.topbar-mark .mark-corner { fill: #63a5b9; }
 
 /* The eyebrow and the name are two faces stacked with no rule between them,
    and at `line-height: normal` their line boxes are flush — measured, the
@@ -383,65 +403,6 @@ body.direct-mode .topbar-mark {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--tier-red) 22%, transparent);
 }
 
-/* --------------------------------- buttons -------------------------------- */
-
-.pill-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 15px;
-  border-radius: 999px;
-  border: 1px solid var(--line-strong);
-  background: var(--surface-raised);
-  color: var(--ink-soft);
-  font-size: 12.5px;
-  font-weight: 500;
-  white-space: nowrap;
-  transition: var(--theme-transition), transform 0.2s var(--ease);
-}
-
-.pill-btn:hover {
-  color: var(--ink);
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--line-strong));
-  transform: translateY(-1px);
-}
-
-.pill-btn[aria-pressed="true"] {
-  color: var(--ink);
-  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
-  background: color-mix(in srgb, var(--accent) 11%, var(--surface-solid));
-  box-shadow: var(--shadow-card);
-}
-
-.pill-btn-glyph {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  border: 1.5px solid currentColor;
-  position: relative;
-}
-
-.pill-btn-glyph::before,
-.pill-btn-glyph::after {
-  content: "";
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.pill-btn-glyph::before {
-  top: -4px;
-  left: -4px;
-}
-
-.pill-btn-glyph::after {
-  bottom: -4px;
-  right: -4px;
-}
-
-
 /* --------------------------------- notice --------------------------------- */
 
 .notice {
@@ -494,108 +455,6 @@ body.direct-mode .topbar-mark {
 .stage-scrim.is-visible {
   opacity: 1;
   pointer-events: auto;
-}
-
-/* ------------------------------ graph overlay ----------------------------- */
-
-.graph-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s var(--ease);
-}
-
-.graph-layer.is-visible {
-  opacity: 1;
-}
-
-.stage.is-inspecting .graph-layer {
-  opacity: 0;
-}
-
-/* A glow would be invisible against paper, so the line itself has to do the
-   separating: a touch heavier, and drawn at close to full strength. */
-.graph-edge {
-  stroke: var(--accent);
-  stroke-width: 1.9;
-  stroke-linecap: round;
-  opacity: 0.9;
-}
-
-.graph-edge-lineage {
-  stroke: var(--ink-dim);
-  stroke-width: 1;
-  stroke-dasharray: 3 6;
-  filter: none;
-  opacity: 0.75;
-}
-
-.graph-edge-derived {
-  stroke: #6b4fbf;
-  stroke-dasharray: 7 4;
-}
-
-.graph-edge-broken {
-  stroke: var(--tier-red);
-  stroke-width: 1.6;
-  stroke-dasharray: 4 5;
-  filter: none;
-  opacity: 0.85;
-}
-
-.graph-edge-broken-mark {
-  fill: var(--tier-red);
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 700;
-  opacity: 0.9;
-}
-
-.graph-edge-label {
-  fill: var(--ink-soft);
-  font-family: var(--font-body);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  paint-order: stroke;
-  /* These labels land on top of cards far more often than on bare page, so
-     the halo is card white rather than paper. */
-  stroke: var(--surface-solid);
-  stroke-width: 4px;
-  stroke-linejoin: round;
-}
-
-/* ------------------------------- status bar ------------------------------- */
-
-.statusbar {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 5px clamp(16px, 2.4vw, 32px);
-  border-top: 1px solid var(--line);
-  font-size: 10.5px;
-  color: var(--ink-dim);
-  letter-spacing: 0.02em;
-  transition: var(--theme-transition);
-}
-
-.statusbar-sep {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.5;
-}
-
-.statusbar-spacer {
-  margin-left: auto;
-}
-
-.statusbar-hint {
-  opacity: 0.72;
 }
 
 /* --------------------------------- tooltip -------------------------------- */
