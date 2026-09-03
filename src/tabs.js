@@ -23,9 +23,21 @@
  * can be swapped without touching anything here. */
 
 import { Portlet } from "./portlet.js";
+import { TabNotes } from "./notes.js";
 import { setMotionScale, reducedMotion } from "./anim.js";
 
 const ENTRANCES = ["rise", "left", "right"];
+
+/* Portlet kinds that are chrome rather than content: authored as portlets,
+ * carrying their own semantic block like everything else, but read once and
+ * therefore not worth a permanent grid slot. They are diverted into the panel
+ * head's (i) flyover instead of being mounted into a band — see notes.js for
+ * why that is a second affordance and not the provenance dot.
+ *
+ * Diverting rather than deleting matters: the specs stay in board.json exactly
+ * as authored, semantic and directMode blocks included, and the only thing
+ * that changes is where the renderer's output is parented. */
+const FLYOVER_KINDS = new Set(["rulesCard"]);
 
 /* shellStep/bandStep pace stage one; settle is the gap between the last shell
  * starting and the first chart drawing; sweep is how long the left-to-right
@@ -64,6 +76,7 @@ export class TabController {
     this.buttons = new Map();
     this.portlets = new Map();
     this.byTab = new Map();
+    this.notes = new Map();
     this.seen = new Set();
     this.activeId = null;
     this.enterTimers = [];
@@ -148,16 +161,25 @@ export class TabController {
     panel.appendChild(bands);
 
     const list = [];
+    const noteSpecs = [];
     let ordinal = 0;
 
     (tab.bands || []).forEach((bandSpec, bandIndex) => {
+      // A band whose every portlet is chrome would otherwise be an empty grid
+      // cell holding a row open, so it is never created.
+      const content = (bandSpec.portlets || []).filter((spec) => !FLYOVER_KINDS.has(spec.kind));
+      (bandSpec.portlets || []).forEach((spec) => {
+        if (FLYOVER_KINDS.has(spec.kind)) noteSpecs.push(spec);
+      });
+      if (!content.length) return;
+
       const band = document.createElement("div");
       band.className = "band";
       band.dataset.band = bandSpec.id;
       band.dataset.layout = bandSpec.layout || "row";
       bands.appendChild(band);
 
-      (bandSpec.portlets || []).forEach((spec, i) => {
+      content.forEach((spec, i) => {
         const portlet = new Portlet(spec, {
           ...this.deps,
           tab
@@ -174,9 +196,37 @@ export class TabController {
       });
     });
 
+    // A tab can borrow another tab's notes by id. The product tab's rules card
+    // says in its own subtitle that it governs the outlook tab too, so that
+    // tab points at it rather than restating four rules a second time.
+    (tab.notesRef || []).forEach((id) => {
+      const spec = this.deps.specFor ? this.deps.specFor(id) : null;
+      if (spec && !noteSpecs.some((s) => s.id === id)) noteSpecs.push(spec);
+    });
+
+    if (noteSpecs.length) {
+      const notes = new TabNotes({ tab, specs: noteSpecs, deps: this.deps });
+      notes.mount(panel, head);
+      this.notes.set(tab.id, notes);
+    }
+
     this.byTab.set(tab.id, list);
     this.stage.appendChild(panel);
     return panel;
+  }
+
+  /* The notes sheet for the tab on screen, or null. main.js reaches for this
+   * to bind the `i` shortcut and to put the sheet on the Escape ladder. */
+  activeNotes() {
+    return this.notes.get(this.activeId) || null;
+  }
+
+  closeNotes() {
+    this.notes.forEach((notes) => notes.set(false));
+  }
+
+  rerenderNotes() {
+    this.notes.forEach((notes) => notes.render());
   }
 
   navigate(id) {
@@ -198,7 +248,15 @@ export class TabController {
     }
 
     this.deps.inspector.closeNow();
+    this.closeNotes();
     this.clearTimers();
+
+    /* The panel already carries --tab-accent; body needs it too, because the
+     * paper wash is painted by body::before and cannot reach into a
+     * descendant's custom property. This is what makes a tab switch change
+     * the colour temperature of the page rather than only of the chrome. */
+    const tab = this.tabs.find((t) => t.id === id);
+    if (tab && tab.accent) document.body.style.setProperty("--tab-accent", tab.accent);
 
     this.buttons.forEach((button, tabId) => {
       const on = tabId === id;

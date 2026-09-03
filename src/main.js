@@ -94,6 +94,9 @@ function boot({ board, fellBack }) {
       tip: (node, text) => tooltip.bind(node, text),
       highlight,
       labelFor: (id) => labelOf.get(id),
+      // Lets a tab borrow another tab's reading notes by portlet id, without
+      // the rules being authored twice.
+      specFor: (id) => allPortlets.find((p) => p.id === id) || null,
       note,
       reveal,
       onTabChange: () => {
@@ -118,6 +121,10 @@ function boot({ board, fellBack }) {
 
   controller.init();
   dom.scrim.addEventListener("click", () => inspector.close());
+  // Clicking anywhere off the reading-notes sheet closes it. The sheet itself
+  // stops propagation, and so does its trigger, so this only ever sees clicks
+  // that genuinely landed elsewhere.
+  document.addEventListener("click", () => controller.closeNotes());
 
   /* ------------------------------- controls ------------------------------- */
 
@@ -135,12 +142,22 @@ function boot({ board, fellBack }) {
     const tag = (e.target.tagName || "").toLowerCase();
     if (tag === "input" || tag === "textarea" || e.target.isContentEditable) return;
 
+    /* One Escape ladder, innermost first: the expanded portlet, then the
+     * reading-notes sheet, then the graph overlay. */
     if (e.key === "Escape") {
       if (inspector.isOpen()) inspector.close();
-      else if (graph.isOn()) {
+      else if (controller.activeNotes() && controller.activeNotes().isOpen()) {
+        controller.closeNotes();
+      } else if (graph.isOn()) {
         graph.set(false);
         dom.graphToggle.setAttribute("aria-pressed", "false");
       }
+      return;
+    }
+    if (e.key === "i" || e.key === "I") {
+      const notes = controller.activeNotes();
+      if (notes) notes.toggle();
+      else note("This tab states no reading rules of its own.", 3200);
       return;
     }
     if (e.key === "g" || e.key === "G") {
@@ -197,7 +214,11 @@ function boot({ board, fellBack }) {
     inspector.closeNow();
     // Rebuild from the effective data, then re-run the entrance — so the
     // board is visibly rebuilt in the new mode rather than silently swapped.
+    // The reading notes go through the same path: their two diagrams collapse
+    // into the same picture in direct mode, which is the degradation stated as
+    // geometry, and it has to happen on the toggle rather than on next open.
     controller.rerenderAll();
+    controller.rerenderNotes();
     controller.replayActive();
     graph.redraw();
   }
