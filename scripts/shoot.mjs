@@ -28,6 +28,12 @@ const PROFILE = `/tmp/chrome-shoot-${process.pid}`;
 const [urlPath, size, name, ...rest] = process.argv.slice(2);
 const [width, height] = size.split("x").map(Number);
 const direct = rest.includes("--direct");
+/* --reduced emulates prefers-reduced-motion: reduce. The board's contract for
+ * that state is that it jumps to the final frame rather than animating to it,
+ * which is a thing that can only be checked with the media feature actually
+ * set — and nothing in the tree could set it before, so it had never been
+ * checked in a rendered frame. */
+const reduced = rest.includes("--reduced");
 const atIndex = rest.indexOf("--at");
 const at = atIndex >= 0 ? Number(rest[atIndex + 1]) : null;
 const probeIndex = rest.indexOf("--probe");
@@ -122,6 +128,13 @@ await send("Log.enable", {}, sessionId);
 await send("Emulation.setDeviceMetricsOverride", {
   width, height, deviceScaleFactor: 2, mobile: false
 }, sessionId);
+
+// Set before navigate, so the first frame the board ever paints already knows.
+if (reduced) {
+  await send("Emulation.setEmulatedMedia", {
+    features: [{ name: "prefers-reduced-motion", value: "reduce" }]
+  }, sessionId);
+}
 
 // A full URL passes through, so the same audit can be run against the deployed
 // board rather than only against the local server.
