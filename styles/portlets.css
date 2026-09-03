@@ -4287,18 +4287,30 @@
  * added here deliberately — an audit pass that silently skips a figure is
  * worse than one that visibly does not cover it.
  *
- * It has to skip a figure that did not move, though, and the sufficiency panel
- * is where that bites. Its coverage and velocity readings are identical in
- * both modes; what moved is the benchmark underneath them and therefore the
- * verdict. Striking the readings would contradict that panel's own audit line,
- * which says in words that the readings are unchanged — so the verdict and the
- * benchmark are struck and the reading is left alone. */
+ * It has to skip a figure that did not move, though, and two portlets on the
+ * Q3 tab are where that bites.
+ *
+ * The sufficiency panel's coverage and velocity readings are identical in both
+ * modes; what moved is the benchmark underneath them and therefore the verdict.
+ * Striking the readings would contradict that panel's own audit line, which
+ * says in words that the readings are unchanged — so the verdict and the
+ * benchmark are struck and the reading is left alone.
+ *
+ * The deals rail is the same problem one level down: three of its five amounts
+ * are identical in both modes, and what the missing layer costs it is the
+ * ORDER. Its audit line counts the reorder, not the deals. So the rail marks
+ * each amount with whether it moved and the pass honours the mark — which is
+ * why those three selectors are qualified and the rest are not. The qualifier
+ * is :not([data-moved="false"]) rather than [data-moved="true"] so that any
+ * other chart reusing these classes, and not authoring the attribute at all,
+ * keeps the covered-by-default behaviour every other numeral here has. */
 body.auditing .portlet[data-detect="silent"] :is(
     .stat-value, .attain-value, .attain-pct, .attain-yoy-label,
     .fan-headline, .fan-share, .trend-headline,
     .gln-keyval, .gln-rolllab b, .gln-rolllab span,
     .gln-dotlab b, .gln-dotlab em,
-    .deal-value, .deals-value, .deals-sumtotal,
+    .deals-sumtotal,
+    :is(.deal-value, .deals-value, .deals-seglabel):not([data-moved="false"]),
     .growth-row-value, .growth-rollup-total,
     .movement-net, .bxa-verdict, .bxa-base
   ),
@@ -4307,7 +4319,8 @@ body.auditing .portlet[data-detect="catchable"] :is(
     .fan-headline, .fan-share, .trend-headline,
     .gln-keyval, .gln-rolllab b, .gln-rolllab span,
     .gln-dotlab b, .gln-dotlab em,
-    .deal-value, .deals-value, .deals-sumtotal,
+    .deals-sumtotal,
+    :is(.deal-value, .deals-value, .deals-seglabel):not([data-moved="false"]),
     .growth-row-value, .growth-rollup-total,
     .movement-net, .bxa-verdict, .bxa-base
   ) {

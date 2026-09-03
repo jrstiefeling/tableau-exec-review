@@ -74,6 +74,28 @@ export function mount(host, ctx) {
   const rankIsVoid = false;
   const tint = ctx.accent;
 
+  /* Which amounts actually moved, for the audit pass to strike.
+   *
+   * Three of these five are identical in both modes. What the missing layer
+   * costs this rail is its ORDER — the distance between third and fifth place
+   * is smaller than the distance between the four candidate amount columns —
+   * and the portlet's audit line says exactly that, counting the reorder
+   * rather than the deals. A pass that struck all five amounts would be
+   * contradicting the sentence printed underneath it.
+   *
+   * Matched on the deal's identity rather than its position, because position
+   * is the thing under suspicion here: row three holds a different account in
+   * the two modes, so comparing row three to row three would report a move for
+   * an amount that never changed and miss one that did.
+   *
+   * Governed mode marks nothing. There is no second reading to have moved
+   * from, and the pass does not run there anyway. */
+  const wasDisplay = new Map(
+    (((ctx.portlet || {}).metrics || {}).deals || []).map((d) => [d.id || d.account, d.display])
+  );
+  const moved = (deal) =>
+    isDirect && wasDisplay.size > 0 && wasDisplay.get(deal.id || deal.account) !== deal.display;
+
   const wrap = document.createElement("div");
   wrap.className = "deals";
   wrap.style.setProperty("--deal-tint", tint);
@@ -134,6 +156,7 @@ export function mount(host, ctx) {
 
     const value = document.createElement("span");
     value.className = "deal-value";
+    value.dataset.moved = String(moved(deal));
     head.appendChild(value);
     row.appendChild(head);
 
@@ -282,6 +305,7 @@ export function mount(host, ctx) {
 
       const segLabel = document.createElement("span");
       segLabel.className = "deals-seglabel";
+      segLabel.dataset.moved = String(moved(deal));
       segLabel.textContent = deal.display || "";
       seg.appendChild(segLabel);
 
@@ -319,6 +343,7 @@ export function mount(host, ctx) {
 
       const value = document.createElement("span");
       value.className = "deals-value";
+      value.dataset.moved = String(moved(deal));
       li.appendChild(value);
 
       list.appendChild(li);
