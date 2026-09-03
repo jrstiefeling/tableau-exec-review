@@ -3079,97 +3079,104 @@
 }
 
 
-/* ------------------- outlook matrix and deal rail ------------------- */
+/* -------------------- growth lanes and deal rail -------------------- */
 
-/* Q3 Outlook — the metric matrix and the top-deal rail.
+/* Q3 Outlook — the growth lanes and the top-deal rail.
  *
  * Concatenated into portlets.css at integration; it carries no @import and no
  * <link> of its own. Every colour that means something is painted from
  * palette() at render time, so the Knowledge Layer toggle repaints through one
  * path; the rules here only ever reach for tokens, never for a literal. */
 
-/* ------------------------------ metric matrix ----------------------------- */
+/* ------------------------------ growth lanes ------------------------------ */
 
-.mmx {
+/* Three lanes, three subjects on each, and the axis turned per lane so that
+   favourable is always to the right. The renderer's own header carries the
+   argument for the form; these rules carry the two decisions it depends on.
+
+   One: nothing centres itself with a transform. Every mark hangs off a
+   zero-width pin at its own x and offsets itself with margins, because the
+   animation primitives own `style.transform` for the length of a build — a
+   mark that needed one for its geometry would sit half a mark off-centre
+   until the build finished and then snap into place. The tick strip is the
+   same rule at a different size: fixed-width labels with a negative margin,
+   not translateX(-50%).
+
+   Two: the label gutter and the tick strip share one width token. The strip
+   is the ruler for marks in the column beside it, and a ruler that can drift
+   out of alignment with what it measures is worse than no ruler. */
+
+.gln {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(3px, 0.6vh, 8px);
-  /* The marks are capped independently of their column, and the cap is a
-     share of the viewport *height* rather than its width. Every mark in a cell
-     is a fixed-ratio SVG, so widening it makes it taller — and height is the
-     scarce dimension on this portlet, not width. Left to fill the column, the
-     marks would grow tallest exactly where the band has least room to give.
-     Under the cap they track the row height instead, and the width a wide
-     breakpoint frees up goes to the label gutter and the gaps. */
-  --mmx-mark: clamp(90px, 11vh, 190px);
+  gap: clamp(4px, 0.8vh, 10px);
+  /* The one width both the lanes and their shared ruler are laid out on. */
+  --gln-lab: clamp(92px, 10.5vw, 150px);
+  --gln-gap: clamp(8px, 1vw, 16px);
+  --gln-row: 62px;
 }
 
-.mmx-grid {
-  flex: 1;
-  min-height: 0;
+/* -------------------------------- the key --------------------------------- */
+
+/* Weight, read once, at the top. Each item carries the glyph of the mark that
+   stands for it on the lanes below — a dot for a subject, a rule for the
+   roll-up — so this is a legend for marks already on the page and not a
+   fourth column repeated three times. */
+.gln-key {
+  flex: none;
   display: grid;
-  grid-template-columns:
-    clamp(22px, 2.2vw, 30px)
-    minmax(96px, 168px)
-    repeat(var(--mmx-cols, 3), minmax(0, 1fr));
-  /* Three authored rows. The row gap is zero on purpose: the containment rail
-     spans the data rows as one stretched SVG, and only contiguous rows let its
-     row centres land exactly rather than approximately. Rows are separated by
-     a hairline and their own padding instead. */
-  grid-template-rows: auto repeat(3, minmax(88px, 1fr)) auto;
-  column-gap: clamp(5px, 0.7vw, 12px);
-  row-gap: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: clamp(10px, 1.6vw, 28px);
+  row-gap: 3px;
+  padding-bottom: clamp(4px, 0.7vh, 9px);
+  border-bottom: 1px solid var(--line);
 }
 
-.mmx-rail {
-  grid-column: 1;
-  grid-row: 2 / span var(--mmx-rows, 3);
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.mmx-colhead {
-  grid-row: 1;
-  grid-column: var(--mmx-col);
-  margin: 0 0 4px;
-  font-size: clamp(8.5px, 0.65vw, 9.5px);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-  white-space: nowrap;
-}
-
-/* The type hierarchy reinforces the rail; the rail does the work. */
-.mmx-rowlabel {
-  grid-column: 2;
-  grid-row: var(--mmx-row);
+.gln-keyitem {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1px;
-  padding: clamp(3px, 0.5vh, 7px) 0;
-  padding-left: calc(2px + var(--level, 0) * 9px);
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 6px;
+  align-items: center;
 }
 
-.mmx-cell:not([data-row-index="0"]),
-.mmx-rowlabel:not([data-row-index="0"]) {
-  border-top: 1px solid var(--line);
+.gln-keyglyph {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  justify-self: center;
+  background: var(--row-tint, var(--accent));
 }
 
-.mmx-rowname {
+.gln-keyglyph[data-kind="dot"] {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.gln-keyglyph[data-kind="rule"] {
+  width: 3px;
+  height: 14px;
+  border-radius: 1.5px;
+}
+
+.gln-keyname {
+  grid-column: 2;
+  grid-row: 1;
   margin: 0;
-  font-size: clamp(9.5px, 0.75vw, 11px);
-  line-height: 1.22;
-  color: var(--ink);
+  font-size: clamp(9px, 0.7vw, 10.5px);
+  line-height: 1.2;
   font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.mmx-rowlabel[data-level="0"] .mmx-rowname {
+.gln-keyitem[data-level="0"] .gln-keyname {
+  font-size: clamp(8.5px, 0.63vw, 9.5px);
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -3177,404 +3184,277 @@
   transition: color 0.5s var(--ease);
 }
 
-.mmx-rowsub {
-  margin: 0;
-  font-size: clamp(8.5px, 0.62vw, 9.5px);
-  line-height: 1.2;
-  font-weight: 500;
-  color: var(--ink-dim);
-}
-
-.mmx-cell {
-  grid-column: var(--mmx-col);
-  grid-row: var(--mmx-row);
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: safe center;
-  gap: clamp(1px, 0.3vh, 4px);
-  padding: clamp(3px, 0.5vh, 7px) 0;
-}
-
-/* Rank 1. No graphical channel: three measures at three magnitudes are not
-   commensurable, and any scale shared across them would assert something
-   false. Kept to one line so a scrambling numeral cannot push the cell
-   taller than its row. */
-.mmx-value {
-  flex: none;
-  font-family: var(--font-display);
-  font-size: clamp(17px, 1.5vw, 23px);
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 1.18;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* A contested figure is cycling through phrases rather than settling on a
-   numeral, so it drops a step in size to stay legible while it does. */
-.mmx-value[data-contested="true"] {
-  font-size: clamp(13px, 1.15vw, 17px);
-  letter-spacing: -0.01em;
-}
-
-/* Rank 2 — the Y/Y stub and its chip. The first track is the mark's own width
-   rather than a fraction of the column, so the numeral sits beside the mark it
-   reads instead of drifting to the far edge of the cell. */
-.mmx-stub-row {
-  display: grid;
-  grid-template-columns: minmax(0, var(--mmx-mark)) max-content;
-  align-items: center;
-  column-gap: clamp(3px, 0.4vw, 7px);
-}
-
-.mmx-stub {
-  display: block;
-  width: 100%;
-  max-width: var(--mmx-mark);
-  height: auto;
-}
-
-.mmx-chip {
-  font-size: clamp(9px, 0.75vw, 11px);
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--delta-tint, var(--ink-soft));
-  font-variant-numeric: tabular-nums;
-  transition: color 0.5s var(--ease);
-}
-
-/* The second stated basis: a secondary numeral in the same register as the
-   ghost tick it names. No badge and no tone — it is a reading, not a flag. */
-.mmx-alt {
-  margin: 0;
-  font-size: clamp(8.5px, 0.62vw, 9.5px);
-  font-weight: 500;
-  line-height: 1.24;
-  color: var(--ink-dim);
-}
-
-/* Rank 3 — the FinPlan bullet, with its label alongside rather than beneath:
-   the same arrangement `.attain-row` uses on the exec hero cards, and the one
-   that keeps the whole rank to a single line of the cell's height budget. */
-.mmx-plan-row {
-  display: grid;
-  grid-template-columns: minmax(0, var(--mmx-mark)) auto;
-  align-items: center;
-  column-gap: clamp(3px, 0.4vw, 7px);
-  min-width: 0;
-}
-
-.mmx-bullet {
-  display: block;
-  width: 100%;
-  max-width: var(--mmx-mark);
-  height: auto;
-}
-
-.mmx-plan-label {
-  font-size: clamp(8.5px, 0.62vw, 9.5px);
-  font-weight: 600;
-  line-height: 1.22;
-  color: var(--ink-soft);
-  white-space: nowrap;
-}
-
-/* "no plan basis" is words where the others are a percentage, so it takes the
-   register of an absence rather than of a reading. */
-.mmx-plan-label[data-void="true"] {
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-}
-
-/* Rank 4 — the paired comparisons. Reading and benchmark share one caption
-   line above the mark: the column is too narrow to carry a label, a track and
-   a benchmark side by side, and the mark is what has to stay wide enough to
-   separate two dots that can be a single unit apart. */
-.mmx-pairs {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1px, 0.25vh, 4px);
-}
-
-/* The caption spans the cell; only the mark is capped. Capping the caption to
-   the mark's width would truncate a benchmark that has room to be read. */
-.mmx-pair {
-  display: grid;
-  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
-  align-items: baseline;
-  column-gap: 5px;
-}
-
-.mmx-pair-label {
-  grid-column: 1;
-  grid-row: 1;
-  font-size: clamp(8.5px, 0.62vw, 9.5px);
-  font-weight: 600;
-  line-height: 1.24;
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-.mmx-pair-hist-label {
+.gln-keybar {
   grid-column: 2;
-  grid-row: 1;
-  font-size: clamp(8.5px, 0.62vw, 9.5px);
-  font-weight: 500;
-  line-height: 1.24;
-  color: var(--ink-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.mmx-pair-svg {
-  grid-column: 1 / -1;
   grid-row: 2;
-  justify-self: start;
-  display: block;
-  width: 100%;
-  max-width: var(--mmx-mark);
-  height: auto;
-}
-
-/* Rank 5 — the authored week-over-week note, on the two cells that carry one.
-   Bottom-right, so its rarity reads as a footnote rather than as a field the
-   other seven cells are missing. */
-.mmx-note {
-  margin: auto 0 0 auto;
-  padding-top: 2px;
-  font-size: clamp(8px, 0.6vw, 9px);
-  font-weight: 500;
-  line-height: 1.2;
-  text-align: right;
-  color: var(--ink-dim);
-}
-
-/* The axis strip: drawn once, under the leftmost data column, rather than
-   repeated in nine cells. */
-/* The strip is exactly as wide as the marks it labels, so its ticks sit under
-   the gridlines they name. That width will not carry five labels on one line
-   at any breakpoint, so the two decades stagger onto a second line rather than
-   colliding — the standard fix for a dense tick strip, and cheaper in height
-   than the alternative of dropping half the legend. */
-.mmx-axis {
-  grid-column: var(--mmx-col, 3);
-  grid-row: var(--mmx-row);
   position: relative;
-  max-width: var(--mmx-mark);
-  height: 22px;
-  margin-top: 3px;
+  margin: 3px 0 0;
+  height: 6px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ink-dim) 16%, transparent);
+  overflow: hidden;
 }
 
-.mmx-axis-core {
+.gln-keybar i {
   position: absolute;
-  left: var(--core-from);
-  right: calc(100% - var(--core-to));
+  left: 0;
   top: 0;
-  height: 3px;
-  border-radius: 1px;
-  background: var(--core-tint);
-  opacity: 0.28;
-}
-
-.mmx-axis-tick {
-  position: absolute;
-  left: var(--tick-x);
-  transform: translateX(-50%);
-  line-height: 1;
-  font-size: 7.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--ink-dim);
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.mmx-axis-tick[data-kind="inner"],
-.mmx-axis-tick[data-kind="zero"] { top: 5px; }
-.mmx-axis-tick[data-kind="outer"] { top: 14px; opacity: 0.8; }
-
-/* The decade labels name the strip's own ends, so they are anchored inside it
-   rather than centred on a gridline that has no room either side of it. */
-.mmx-axis-tick[data-edge="start"] { left: 0; transform: none; }
-.mmx-axis-tick[data-edge="end"] { left: auto; right: 0; transform: none; }
-
-.mmx-foot {
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.mmx-axisnote {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex-wrap: wrap;
-  font-size: clamp(8.5px, 0.65vw, 10px);
-  line-height: 1.3;
-  color: var(--ink-dim);
-}
-
-/* The core band is the same region as the board's one stated colour
-   threshold, so the chip is tinted with the band rather than describing it. */
-.mmx-core-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 1px 5px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--core-tint) 34%, transparent);
-  background: color-mix(in srgb, var(--core-tint) 8%, transparent);
-  font-size: 8px;
-  font-weight: 600;
-  white-space: nowrap;
-  color: var(--ink-soft);
-}
-
-.mmx-caption {
-  margin: 0;
-  font-size: clamp(9px, 0.7vw, 10.5px);
-  line-height: 1.34;
-  color: var(--ink-dim);
-}
-
-/* ------------------------- the plan landscape ----------------------------- */
-
-/* One column of the matrix leaves the cell grid and becomes two: a bar on a
-   shared dollar scale, and the readout beside it. The template widens to hold
-   both, and every other rule above still applies — same rail, same row rules,
-   same label gutter, because these are the same rows. */
-.mmx[data-landscape="true"] .mmx-grid {
-  grid-template-columns:
-    clamp(20px, 2vw, 28px)
-    minmax(112px, 190px)
-    minmax(0, 2.1fr)
-    clamp(112px, 11.4vw, 154px)
-    repeat(var(--mmx-cols, 2), minmax(0, 1fr));
-}
-
-.mmx-plot,
-.mmx-read {
-  grid-column: var(--mmx-col);
-  grid-row: var(--mmx-row);
-  min-width: 0;
-  padding: clamp(3px, 0.5vh, 7px) 0;
-}
-
-.mmx-plot:not([data-row-index="0"]),
-.mmx-read:not([data-row-index="0"]) {
-  border-top: 1px solid var(--line);
-}
-
-/* The plot is its own positioning context: the tick label and the alternate
-   basis are DOM placed over the SVG off the same scale the marks were drawn
-   with, so neither has to measure anything. Centred rather than stretched,
-   because the bullet fits its box by ratio and the row is taller than it. */
-.mmx-plot {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.mmx-landbullet {
+  bottom: 0;
   display: block;
-  width: 100%;
-  height: auto;
+  border-radius: 3px;
+  background: var(--row-tint, var(--accent));
 }
 
-.mmx-landbullet.is-void {
-  opacity: 0.6;
-}
-
-/* The target's own label, over the bar rather than under it, so three of them
-   never queue up against the tick strip at the foot. It flips to the left of
-   its tick past the midpoint: at $120.7M on a $125M scale a right-hand label
-   would hang off the column. */
-.mmx-landticklab {
-  position: absolute;
-  top: 0;
-  left: var(--tick-x);
-  margin-left: 5px;
-  font-size: clamp(8px, 0.62vw, 9.5px);
+/* Outside the bar, not inside it. Inside is where this was first, and the
+   smallest of the three subjects is about a sixth of the largest — at 1024
+   that bar is under thirty pixels and the numeral was clipped by its own
+   mark. */
+.gln-keyval {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-size: clamp(11px, 0.95vw, 14px);
   font-weight: 700;
   line-height: 1.1;
   color: var(--ink);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.gln-keynote {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  font-size: clamp(8px, 0.6vw, 9.5px);
+  line-height: 1.28;
+  color: var(--ink-dim);
+}
+
+/* ------------------------------- the lanes -------------------------------- */
+
+.gln-lanes {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: repeat(3, minmax(var(--gln-row), 1fr));
+  row-gap: 0;
+}
+
+.gln-lane {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--gln-lab) minmax(0, 1fr);
+  column-gap: var(--gln-gap);
+  align-items: center;
+  padding: clamp(2px, 0.5vh, 6px) 0;
+}
+
+.gln-lane + .gln-lane {
+  border-top: 1px solid var(--line);
+}
+
+.gln-lanelab {
+  min-width: 0;
+}
+
+.gln-lanename {
+  margin: 0;
+  font-size: clamp(9.5px, 0.8vw, 12px);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* The polarity, and on a mirrored lane the fact of the mirror. Stated on the
+   lane it applies to, because a legend for a thing that is true of one lane
+   out of three is a lookup no reader performs. */
+.gln-lanepol {
+  margin: 1px 0 0;
+  font-size: clamp(8px, 0.6vw, 9.5px);
+  line-height: 1.24;
+  font-weight: 500;
+  color: var(--ink-dim);
+}
+
+.gln-lane[data-mirrored="true"] .gln-lanepol {
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.gln-plotwrap {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+  min-height: 52px;
+}
+
+/* The furniture only. It stretches, which is right for a rule and wrong for
+   a dot, so the dots are not in here. */
+.gln-plot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Two words, one at each end, and they are the mirror's entire user
+   interface: on the mirrored lane "better" still sits right and the tick
+   below it still reads negative, which is the reading the lane asks for and
+   the point at which a reader either takes it or does not. Set just above
+   the baseline so they do not print on it. */
+.gln-end {
+  position: absolute;
+  bottom: calc(50% + 3px);
+  font-size: clamp(7px, 0.55vw, 8.5px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--ink-dim);
+  opacity: 0.75;
   pointer-events: none;
 }
 
-.mmx-landticklab[data-flip="true"] {
-  margin-left: 0;
-  transform: translateX(-100%);
-  padding-right: 5px;
+.gln-end[data-side="worse"] { left: 0; }
+.gln-end[data-side="better"] { right: 0; }
+
+/* ------------------------------- the marks -------------------------------- */
+
+/* A zero-width column at one position on a lane. Everything that belongs to
+   that position hangs off this. */
+.gln-pin {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
 }
 
-.mmx-landticklab em,
-.mmx-readgap em {
-  font-style: normal;
-  font-weight: 500;
-  font-size: 0.82em;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-  margin-left: 4px;
-}
-
-/* The alternate basis on the dollar axis. A hollow diamond, not a second bar:
-   it is a second stated reading of the same measure, and giving it a length
-   would make it a competing quantity rather than a competing basis. */
-.mmx-landalt {
+.gln-dot {
   position: absolute;
   top: 50%;
-  left: var(--alt-x);
+  left: 0;
   width: 11px;
   height: 11px;
   margin: -5.5px 0 0 -5.5px;
-  transform: rotate(45deg);
-  border: 1.6px solid var(--ink-dim);
-  background: var(--surface);
-  border-radius: 1.5px;
+  border-radius: 50%;
+  background: var(--row-tint, var(--accent));
+  box-shadow: 0 0 0 2px var(--surface);
 }
 
-/* In landscape the growth strip rules two columns rather than one, so it
-   spans them and drops the mark-width cap it wears in the square matrix. That
-   buys back the ±100% labels the short tiers otherwise have to drop, and it
-   stops the strip reading as a stray mark under one column when it is the
-   ruler for both. */
-.mmx[data-landscape="true"] .mmx-axis {
-  grid-column: var(--mmx-col) / -1;
-  max-width: none;
-}
-
-.mmx[data-landscape="true"] .mmx-axis-tick[data-kind="inner"] {
-  display: inline;
-}
-
-/* The dollar strip, under the column it is the ruler for. */
-.mmx-landaxis {
-  grid-column: 3;
-  grid-row: var(--mmx-row);
-  position: relative;
-  height: 14px;
-  margin-top: 3px;
-}
-
-.mmx-landtick {
+/* The roll-up is a reference, not a peer: a rule the children are read
+   against rather than a third dot competing with them on the same lane. */
+.gln-roll {
   position: absolute;
-  top: 2px;
-  left: var(--tick-x);
-  transform: translateX(-50%);
+  top: 3px;
+  bottom: 3px;
+  left: -1.5px;
+  width: 3px;
+  border-radius: 1.5px;
+  background: var(--row-tint, var(--ink));
+}
+
+.gln-ghost {
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: -1px;
+  width: 2px;
+  background: repeating-linear-gradient(
+    180deg,
+    var(--line-strong) 0 2px,
+    transparent 2px 4px
+  );
+}
+
+/* The separation, drawn. Its length is the finding — how far apart the
+   subjects have moved on this measure — so it is an interval rather than a
+   gap the reader is left to measure between two dots. */
+.gln-spread {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  margin-top: -1.5px;
+  border-radius: 1.5px;
+  background: color-mix(in srgb, var(--ink-soft) 32%, transparent);
+}
+
+.gln-rolllab {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+  font-size: clamp(8px, 0.6vw, 9.5px);
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--ink-dim);
+}
+
+.gln-rolllab[data-side="l"] { right: 7px; }
+.gln-rolllab[data-side="r"] { left: 7px; }
+
+.gln-rolllab b {
+  font-size: clamp(9.5px, 0.74vw, 11.5px);
+  font-weight: 700;
+  color: var(--mark-tint, var(--ink));
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sided by rank within the lane rather than against the roll-up: both
+   children can land the same side of their parent, and in direct mode on one
+   of these lanes both do. */
+.gln-dotlab {
+  position: absolute;
+  top: calc(50% + 8px);
+  display: flex;
+  flex-direction: column;
+  line-height: 1.16;
+  white-space: nowrap;
+}
+
+.gln-dotlab[data-side="l"] { right: 8px; align-items: flex-end; }
+.gln-dotlab[data-side="r"] { left: 8px; align-items: flex-start; }
+
+.gln-dotlab b {
+  font-size: clamp(10px, 0.82vw, 12.5px);
+  font-weight: 700;
+  color: var(--mark-tint, var(--ink));
+  font-variant-numeric: tabular-nums;
+}
+
+.gln-dotlab em {
+  font-style: normal;
+  font-size: clamp(8px, 0.6vw, 9.5px);
+  font-weight: 500;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------ the ruler --------------------------------- */
+
+/* One strip for all three lanes, in the same grid column as the plots. Ticks
+   are fixed-width and pulled back by half rather than translated, for the
+   reason at the top of this block. */
+.gln-striprow {
+  flex: none;
+  display: grid;
+  grid-template-columns: var(--gln-lab) minmax(0, 1fr);
+  column-gap: var(--gln-gap);
+}
+
+.gln-strip {
+  position: relative;
+  height: 12px;
+}
+
+.gln-tick {
+  position: absolute;
+  top: 0;
+  width: 52px;
+  margin-left: -26px;
+  text-align: center;
   line-height: 1;
   font-size: 7.5px;
   font-weight: 600;
@@ -3584,128 +3464,62 @@
   font-variant-numeric: tabular-nums;
 }
 
-.mmx-landtick[data-edge="start"] { left: 0; transform: none; }
-.mmx-landtick[data-edge="end"] { left: auto; right: 0; transform: none; }
-
-/* The readout. Four facts on three lines: the figure and its Y/Y share one,
-   because a rate is a property of the figure it qualifies. */
-.mmx-read {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1px;
-}
-
-.mmx-readvalue {
-  margin: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  min-width: 0;
-}
-
-.mmx-readnum {
-  font-family: var(--font-display);
-  font-size: clamp(16px, 1.44vw, 23px);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: var(--lh-display-num);
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.mmx-readnum[data-contested="true"] {
-  font-size: clamp(12px, 1.05vw, 15px);
-  letter-spacing: -0.01em;
-}
-
-.mmx-readyoy {
-  font-size: clamp(8.5px, 0.64vw, 10px);
+.gln-tick[data-kind="zero"] {
   font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--delta-tint, var(--ink-soft));
-  font-variant-numeric: tabular-nums;
-  transition: color 0.5s var(--ease);
+  color: var(--ink-soft);
 }
 
-.mmx-readplan,
-.mmx-readgap {
-  margin: 0;
-  font-size: clamp(8.5px, 0.64vw, 10px);
-  font-weight: 700;
-  line-height: 1.26;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.mmx-readplan { color: var(--plan-tint, var(--ink-soft)); }
-.mmx-readgap { color: var(--gap-tint, var(--ink-soft)); }
-
-.mmx-readplan[data-void="true"] {
-  color: var(--ink-dim);
-  font-weight: 500;
-  font-style: italic;
-}
+.gln-tick[data-edge="start"] { left: 0 !important; margin-left: 0; text-align: left; }
+.gln-tick[data-edge="end"] { left: auto !important; right: 0; margin-left: 0; text-align: right; }
 
 /* --------------------- the alternate basis, named ------------------------- */
 
-/* A second stated value for the same measure was being carried in 8px grey
-   inside a cell. It is a finding about measure identity, which is the argument
-   the whole board is making, so it gets a strip and a readable size. Each
-   entry carries the glyph of the mark that holds it, so the strip is a legend
-   for marks already on the page rather than a restatement of them. */
-.mmx-altstrip {
+/* A second stated value for the same measure. It is a finding about measure
+   identity, which is the argument the whole board is making, so it gets a
+   strip and a readable size rather than 8px of grey inside a mark. Each entry
+   carries the glyph of the tick that holds it on the lane above.
+
+   The void state is why this is a strip and not a conditional: in direct mode
+   there is no second basis to name, and a strip that vanishes is a strip
+   nobody notices went. */
+.gln-alt {
   flex: none;
   margin: 0;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  column-gap: clamp(10px, 1.3vw, 22px);
+  column-gap: clamp(8px, 1.1vw, 18px);
   row-gap: 2px;
   padding-top: 5px;
   border-top: 1px solid var(--line);
-  font-size: clamp(9px, 0.7vw, 10.5px);
+  font-size: clamp(8.5px, 0.66vw, 10px);
   line-height: 1.3;
   color: var(--ink-soft);
 }
 
-.mmx-altstrip-label {
-  font-size: clamp(8px, 0.6vw, 9px);
+.gln-alt > b {
+  font-size: clamp(7.5px, 0.58vw, 9px);
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--ink-dim);
 }
 
-.mmx-altitem {
+.gln-altitem {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   white-space: nowrap;
 }
 
-.mmx-altitem b {
+.gln-altitem b {
   font-weight: 700;
   color: var(--ink);
 }
 
-.mmx-altglyph {
+.gln-altglyph {
   flex: none;
   display: block;
-}
-
-.mmx-altglyph[data-kind="diamond"] {
-  width: 9px;
-  height: 9px;
-  transform: rotate(45deg);
-  border: 1.6px solid var(--ink-dim);
-  background: var(--surface);
-  border-radius: 1px;
-}
-
-.mmx-altglyph[data-kind="tick"] {
   width: 2px;
   height: 11px;
   background: repeating-linear-gradient(
@@ -3713,6 +3527,18 @@
     var(--line-strong) 0 2px,
     transparent 2px 4px
   );
+}
+
+.gln-altvoid {
+  font-style: italic;
+  color: var(--ink-dim);
+}
+
+.gln-alt > em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: clamp(8px, 0.6vw, 9.5px);
+  color: var(--ink-dim);
 }
 
 /* ---------------------------- benchmark axes ------------------------------ */
@@ -4317,53 +4143,30 @@
 
    Every figure the tab printed at 768 tall it still prints at 580. */
 @media (max-height: 860px) {
-  .mmx {
-    gap: 3px;
-    /* Height is the scarce dimension here and every mark is a fixed-ratio
-       SVG, so the cap on their width is the lever on their height: the bullet
-       track is 148x22 and the Y/Y stub 132x18, which is about 2px of height
-       each per 12px of width. */
-    --mmx-mark: clamp(78px, 11vh, 190px);
+  .gln {
+    gap: 4px;
+    /* Height is the scarce dimension. A lane needs room for a roll-up label
+       above the axis and a two-line subject label below it, and 54px is where
+       those three stop having any air between them — below that the labels
+       start touching rather than the type shrinking. */
+    --gln-row: 54px;
   }
 
-  .mmx-grid {
-    grid-template-rows: auto repeat(3, minmax(80px, 1fr)) auto;
+  .gln-key {
+    padding-bottom: 4px;
   }
 
-  /* The landscape rows carry a bar, a tick label over it and a three-line
-     readout beside it, which is a shorter stack than the four-rank cell this
-     replaced — so the floor comes down with it rather than holding the rows
-     apart at a height none of them needs. */
-  .mmx[data-landscape="true"] .mmx-grid {
-    grid-template-rows: auto repeat(3, minmax(54px, 1fr)) auto;
+  .gln-keynote {
+    margin-top: 1px;
   }
 
-  .mmx-altstrip {
+  .gln-lane {
+    padding: 2px 0;
+  }
+
+  .gln-alt {
     padding-top: 4px;
     column-gap: clamp(8px, 1.1vw, 16px);
-  }
-
-  /* The origin, and nothing else.
-     The strip is as wide as the marks it names and the marks are capped at
-     78px here, so five labels on two lines was never going to work — and
-     three on one line does not either: "−1000%", "0" and "+1000%" want about
-     94px and print as "−1000%0+1000%" in 78. The decades keep their dashed
-     gridlines inside every cell and the note under the grid states the rule
-     in words, with the core band's own tint on the chip beside it. The origin
-     is the one position that cannot be recovered from either, so it is the
-     one label that stays. */
-  .mmx-axis {
-    height: 12px;
-    margin-top: 2px;
-  }
-
-  .mmx-axis-tick[data-kind="inner"],
-  .mmx-axis-tick[data-kind="outer"] {
-    display: none;
-  }
-
-  .mmx-axis-tick[data-kind="zero"] {
-    top: 4px;
   }
 }
 
@@ -4372,29 +4175,19 @@
    on the strength of the floor alone. Row 1 still sets its own height: it is
    the only row carrying an alternate basis, and `1fr` lets it. */
 @media (max-height: 700px) {
-  .mmx {
-    gap: 2px;
-    /* The last 6px, and the marks give it up rather than the type: 72px still
-       resolves every bullet track to a length a reader can compare, and the
-       alternative was a cell whose coverage line printed over the row rule
-       under it. */
-    --mmx-mark: clamp(72px, 11vh, 190px);
+  .gln {
+    gap: 3px;
+    /* The last of it, and the lanes give it up rather than the type. Every
+       figure the tab printed at 768 tall it still prints at 580. */
+    --gln-row: 46px;
   }
 
-  .mmx-grid {
-    grid-template-rows: auto repeat(3, minmax(68px, 1fr)) auto;
+  .gln-keynote {
+    display: none;
   }
 
-  .mmx[data-landscape="true"] .mmx-grid {
-    grid-template-rows: auto repeat(3, minmax(46px, 1fr)) auto;
-  }
-
-  .mmx-foot {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: baseline;
-    column-gap: clamp(12px, 1.6vw, 26px);
-    row-gap: 1px;
+  .gln-dotlab {
+    top: calc(50% + 7px);
   }
 
   /* The band below the hero is two portlets of about five short rows each, so
@@ -4499,14 +4292,14 @@
 body.auditing .portlet[data-detect="silent"] :is(
     .stat-value, .attain-value, .attain-pct, .attain-yoy-label,
     .fan-headline, .fan-share, .trend-headline,
-    .mmx-value, .mmx-readnum, .mmx-readvalue, .mmx-readyoy, .mmx-chip,
+    .gln-keyval, .gln-rolllab b, .gln-dotlab b,
     .deal-value, .deals-value, .growth-row-value, .growth-rollup-total,
     .movement-net, .bxa-read
   ),
 body.auditing .portlet[data-detect="catchable"] :is(
     .stat-value, .attain-value, .attain-pct, .attain-yoy-label,
     .fan-headline, .fan-share, .trend-headline,
-    .mmx-value, .mmx-readnum, .mmx-readvalue, .mmx-readyoy, .mmx-chip,
+    .gln-keyval, .gln-rolllab b, .gln-dotlab b,
     .deal-value, .deals-value, .growth-row-value, .growth-rollup-total,
     .movement-net, .bxa-read
   ) {

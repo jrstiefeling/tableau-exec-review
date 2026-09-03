@@ -9,6 +9,10 @@
  * growth.js is imported by three of these and is deliberately not registered:
  * it carries the shared symlog scale, not a renderer. */
 
+/* growthLanes replaced metricMatrix, which was deleted with it. The module had
+ * exactly one caller — q3-outlook's hero — and the Segment tab's seg-matrix,
+ * which older notes name as a second caller, renders through growthMatrix. */
+
 import { mount as attainment } from "./attainment.js";
 import { mount as mixBar } from "./mixBar.js";
 import { mount as statTile } from "./statTile.js";
@@ -19,7 +23,7 @@ import { mount as rulesCard } from "./rulesCard.js";
 import { mount as movementFan } from "./movementFan.js";
 import { mount as growthMatrix } from "./growthMatrix.js";
 import { mount as groupMovement } from "./groupMovement.js";
-import { mount as metricMatrix } from "./metricMatrix.js";
+import { mount as growthLanes } from "./growthLanes.js";
 import { mount as benchmarkAxis } from "./benchmarkAxis.js";
 import { mount as dealRail } from "./dealRail.js";
 
@@ -34,7 +38,7 @@ export const CHARTS = {
   movementFan,
   growthMatrix,
   groupMovement,
-  metricMatrix,
+  growthLanes,
   benchmarkAxis,
   dealRail
 };

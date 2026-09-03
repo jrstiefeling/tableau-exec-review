@@ -4932,26 +4932,30 @@ export const FALLBACK_BOARD = {
           "portlets": [
             {
               "id": "outlook-matrix",
-              "kind": "metricMatrix",
-              "label": "Q3 outlook against plan",
-              "sublabel": "Commit, derived plan and the gap on one dollar scale, with the other two measures year over year",
+              "kind": "growthLanes",
+              "label": "Q3 growth by motion",
+              "sublabel": "Year over year for three measures, each lane turned so favourable is to the right",
               "accent": "#92640A",
               "metrics": {
                 "columns": [
                   {
                     "id": "acv",
                     "label": "ACV",
-                    "goodDirection": "up"
+                    "goodDirection": "up",
+                    "polarityWord": "higher is better"
                   },
                   {
                     "id": "attrition",
                     "label": "Attrition",
-                    "goodDirection": "down"
+                    "goodDirection": "down",
+                    "polarityWord": "lower is better",
+                    "mirrorNote": "axis mirrored"
                   },
                   {
                     "id": "nnaov",
                     "label": "NNAOV",
-                    "goodDirection": "up"
+                    "goodDirection": "up",
+                    "polarityWord": "higher is better"
                   }
                 ],
                 "rows": [
@@ -4969,9 +4973,6 @@ export const FALLBACK_BOARD = {
                         "display": "$105M",
                         "yoy": -6,
                         "yoyDisplay": "-6% Y/Y",
-                        "plan": 87,
-                        "planDisplay": "87% of Product FinPlan",
-                        "planGoodDirection": "up",
                         "altBasis": {
                           "label": "OU Roll-up",
                           "display": "$100M",
@@ -5016,10 +5017,7 @@ export const FALLBACK_BOARD = {
                         "value": 75.5,
                         "display": "$75.5M",
                         "yoy": -15,
-                        "yoyDisplay": "-15% Y/Y",
-                        "plan": 78,
-                        "planDisplay": "78% of Product FinPlan",
-                        "planGoodDirection": "up"
+                        "yoyDisplay": "-15% Y/Y"
                       },
                       {
                         "id": "platform-attrition",
@@ -5050,10 +5048,7 @@ export const FALLBACK_BOARD = {
                         "value": 29.5,
                         "display": "$29.5M",
                         "yoy": 32,
-                        "yoyDisplay": "+32% Y/Y",
-                        "plan": 128,
-                        "planDisplay": "128% of Product FinPlan",
-                        "planGoodDirection": "up"
+                        "yoyDisplay": "+32% Y/Y"
                       },
                       {
                         "id": "embedded-attrition",
@@ -5072,53 +5067,56 @@ export const FALLBACK_BOARD = {
                     ]
                   }
                 ],
-                "axisNote": "Y/Y — the same growth axis as the product and segment tabs",
-                "caption": "Plan is derived per row from the authored commit and the authored attainment percentage. The three derived plans are never summed.",
-                "landscape": {
-                  "column": "acv",
+                "axisNote": "Same symlog growth axis as the product and segment tabs",
+                "caption": "Every figure is authored. No prior-year dollars are shown: the Y/Y rates are stated to the integer, so a prior-year amount reconstructed from one would be an estimate, and this board does not estimate. Attrition's lane is mirrored so that favourable is to the right on all three; the signs printed on the marks are unchanged.",
+                "altBasisLabel": "Second stated basis, Analytics roll-up",
+                "subjectWord": "motion",
+                "rollup": "analytics",
+                "key": {
+                  "columnId": "acv",
                   "domainMax": 125,
-                  "ticks": [
-                    {
-                      "value": 0,
-                      "label": "$0"
-                    },
-                    {
-                      "value": 25,
-                      "label": "$25M"
-                    },
-                    {
-                      "value": 50,
-                      "label": "$50M"
-                    },
-                    {
-                      "value": 75,
-                      "label": "$75M"
-                    },
-                    {
-                      "value": 100,
-                      "label": "$100M"
-                    },
-                    {
-                      "value": 125,
-                      "label": "$125M"
-                    }
-                  ],
-                  "format": {
-                    "prefix": "$",
-                    "suffix": "M",
-                    "decimals": 1
-                  },
-                  "plotLabel": "ACV — commit, derived plan and the gap",
-                  "readLabel": "ACV attainment",
-                  "targetWord": "plan",
-                  "gapWord": "gap",
-                  "overWord": "over"
+                  "tipLabel": "Q3 ACV commit",
+                  "label": "Q3 ACV commit, on one $0–$125M scale. Positions, not a composition — Attrition's children do not sum to their parent."
                 },
-                "altBasisLabel": "Second stated basis, Analytics roll-up"
+                "axisTicks": [
+                  {
+                    "value": -1000,
+                    "label": "-1000%"
+                  },
+                  {
+                    "value": -100,
+                    "label": "-100%"
+                  },
+                  {
+                    "value": -10,
+                    "label": "-10%"
+                  },
+                  {
+                    "value": 0,
+                    "label": "0"
+                  },
+                  {
+                    "value": 10,
+                    "label": "+10%"
+                  },
+                  {
+                    "value": 100,
+                    "label": "+100%"
+                  },
+                  {
+                    "value": 1000,
+                    "label": "+1000%"
+                  }
+                ],
+                "endLabels": {
+                  "worse": "worse",
+                  "better": "better"
+                },
+                "altBasisVoidNote": null
               },
               "semantic": {
-                "metricName": "Q3 Outlook by Product and Measure",
-                "definition": "Three commit measures for the in-flight quarter at motion grain — Current_Commit_clc, Attrition_Commit_clc and NNAOV_Commit_clc — with the ACV commit read against a plan derived from its authored attainment percentage.",
+                "metricName": "Q3 Growth by Product and Measure",
+                "definition": "Three commit measures for the in-flight quarter at motion grain — Current_Commit_clc, Attrition_Commit_clc and NNAOV_Commit_clc — each with its authored year-over-year rate and its authored good direction.",
                 "sdm": "Sls_Forecasting_Metrics_Expanded",
                 "measure": null,
                 "grain": "Row: metric × opportunity × user in the hierarchy. Presented: fiscal quarter × product motion × measure.",
@@ -5132,23 +5130,23 @@ export const FALLBACK_BOARD = {
                 "certifiedBy": "Casey O'Donnell, document owner — the SDM has no certifier property",
                 "freshness": "Jul 28, 2026 · 9:00 AM PT — SDM checked hourly over a daily ~8 AM PT extract",
                 "dashboard": "<TBD: no dashboard named in the source docs — resolve via list_dashboards>",
-                "why": "Three measures, so the portlet claims none of them as its own. The plan bar and the gap beside it are derived here, exactly, from two authored figures — but the denominator underneath them is the tab's one unsourceable quantity: there is no FinPlan object anywhere in the layer, so 87%, 78% and 128% have no governed basis and neither does anything derived from them. See tableau-source-catalog.json gaps.planAttainment and portlets['outlook-matrix'].derivedFromUnsourceablePlan. Velocity and coverage have moved to their own portlet, where they are real, governed and non-additive — which is why they are never rolled up the motion rail."
+                "why": "Three measures, so the portlet claims none of them as its own. Every figure on it is authored and certified: the plan column that used to sit here was derived from an attainment percentage with no FinPlan object anywhere in the layer, and it has been removed rather than qualified. See tableau-source-catalog.json gaps.planAttainment. Velocity and coverage have moved to their own portlet, where they are real, governed and non-additive — which is why they are never rolled up the motion rail."
               },
               "directMode": {
-                "provenance": "supplemented",
+                "provenance": "certified",
                 "tier": "red",
                 "detectability": "silent",
-                "groundedIn": "ACV/Attrition certified; merged plan column has no target (§3.2)",
+                "groundedIn": "ACV, Attrition and NNAOV commits, all certified (§3.2)",
                 "candidates": [
-                  "87% of a plan version nobody named",
-                  "78% or 91% or 64%, by vintage"
+                  "attrition improving 20% or worsening 20%, by date anchor",
+                  "NNAOV growing 6% or falling 43%, by new-logo test"
                 ],
-                "missing": "FinPlan itself and the mapping into it — plan targets live in the planning system at OU and product-family grain, are re-versioned at every reforecast, and no version of them reaches the semantic layer either, where the only governed targets are pipegen and Day-1 open pipe",
-                "effect": "Every attainment loses its denominator, so the plan bar and its target tick drop entirely rather than being drawn against one of three candidate commits — a gap derived from a contested numerator would be three different gaps stated as one. The commit bar survives, because a length is arithmetic.",
+                "missing": "The date anchor on the attrition commit and the new-logo test underneath NNAOV — the two business rules that decide which direction each of those measures is moving",
+                "effect": "Four of the nine rates change sign, and two whole lanes invert: attrition goes from two motions worsening to all three improving, and NNAOV from a decline to growth. The chart draws the inverted lanes with exactly the confidence it draws the governed ones, because a mirrored axis is only as honest as the polarity underneath it.",
                 "thesisTag": "T3",
                 "thesis": "Business rules that shape a measure are the measure — leaving them in query code means every author reimplements them slightly differently.",
-                "risk": "Report 128% of plan against the original FinPlan and 96% against the current one in the same week",
-                "trustCost": "An attainment with no stated denominator is a ratio with an opinion in it",
+                "risk": "Tell the board attrition improved across every motion in the quarter it worsened in two of three",
+                "trustCost": "A polarity you cannot source is a direction you cannot state",
                 "metrics": {
                   "rows": {
                     "0": {
@@ -5158,8 +5156,6 @@ export const FALLBACK_BOARD = {
                           "display": "$95M",
                           "yoy": -15,
                           "yoyDisplay": "-15% Y/Y",
-                          "plan": null,
-                          "planDisplay": "no plan basis",
                           "altBasis": null
                         },
                         "1": {
@@ -5183,9 +5179,7 @@ export const FALLBACK_BOARD = {
                           "value": 68.1,
                           "display": "$68.1M",
                           "yoy": -23,
-                          "yoyDisplay": "-23% Y/Y",
-                          "plan": null,
-                          "planDisplay": "no plan basis"
+                          "yoyDisplay": "-23% Y/Y"
                         },
                         "1": {
                           "value": 49,
@@ -5207,9 +5201,7 @@ export const FALLBACK_BOARD = {
                           "value": 26.6,
                           "display": "$26.6M",
                           "yoy": 19,
-                          "yoyDisplay": "+19% Y/Y",
-                          "plan": null,
-                          "planDisplay": "no plan basis"
+                          "yoyDisplay": "+19% Y/Y"
                         },
                         "1": {
                           "value": 4,
@@ -5226,15 +5218,16 @@ export const FALLBACK_BOARD = {
                       }
                     }
                   },
-                  "axisNote": "Y/Y on a stated scale — with no plan to read attainment against",
-                  "caption": "Every cell agrees with the exec tab. Both are wrong by the same multiplier."
+                  "axisNote": "Same symlog growth axis — every rate inferred",
+                  "caption": "Every rate agrees with the exec tab. Both are wrong by the same multiplier.",
+                  "altBasisVoidNote": "no second basis survives — both readings are inferred, so there is nothing left to arbitrate between"
                 },
                 "hazard": "mixed",
-                "shownFrom": "Each column inherits the hazard of its own measure, at the same multipliers the exec cards use: ACV × 0.902 for the four coexisting amount columns, attrition × 2/3 for the month of arrears, NNAOV × 1.867 for the most permissive new-logo test. Analytics ACV reads $94.7M rather than $105M. The plan channel drops entirely rather than rendering against a candidate: FinPlan lives in the planning system at OU and product-family grain, is re-versioned at every reforecast, and reaches neither model — the only governed targets are pipegen and Day-1 open pipe. The alternative-basis figures go with it, there being nothing left to arbitrate between.",
-                "wouldYouNotice": "No, and the way you would fail to notice is instructive: this tab now AGREES with the exec tab, cell for cell, because both applied the same wrong multiplier to the same measure. Two surfaces reconciling is the check most people run, and it passes. What it demonstrates is that consistency is not correctness — the layer is what makes cross-tab agreement mean something.",
-                "certifiedDelta": "every cell moved · every plan track gone",
-                "layerProvides": "Three certified measures with declared grains and date anchors, and the additivity classification that lets the three rows tile each other.",
-                "layerDoesNotProvide": "Any plan basis for these three measures, and no FinPlan object of any kind. Attainment exists only for pipegen and Day-1 open pipe."
+                "shownFrom": "Each measure inherits the hazard of its own definition, at the same multipliers the exec cards use: ACV × 0.902 for the four coexisting amount columns, attrition × 2/3 for the month of arrears, NNAOV × 1.867 for the most permissive new-logo test. Analytics ACV reads $94.7M rather than $105M. The alternative-basis ghosts go entirely, there being nothing left to arbitrate between once both readings are inferred.",
+                "wouldYouNotice": "No, and the way you would fail to notice is instructive: this tab now AGREES with the exec tab, rate for rate, because both applied the same wrong multiplier to the same measure. Two surfaces reconciling is the check most people run, and it passes. What it demonstrates is that consistency is not correctness — and here the inconsistency it hides is a change of direction, not of magnitude.",
+                "certifiedDelta": "every rate moved · four of nine change sign",
+                "layerProvides": "Three certified measures with declared grains and date anchors, and the authored polarity that says which way each of them is good.",
+                "layerDoesNotProvide": "Any second reading to check a rate against, and any statement of which basis a Y/Y was struck on."
               }
             }
           ]
