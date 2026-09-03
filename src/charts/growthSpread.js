@@ -33,8 +33,25 @@ import { strokeDraw, dashDraw, fadeIn, stagger, wait, veil } from "../anim.js";
 
 /* Width and padding come from the compact cell, so the axis is the same shape
  * it is in a matrix cell; only the row's own height budget differs. */
+/* Two plot boxes, chosen by row count, and the aspect ratio is the point.
+ *
+ * `preserveAspectRatio` fits an SVG by its limiting dimension, so a viewBox
+ * that does not match the shape of the box it lands in gives away the
+ * difference as letterboxing — the same arithmetic that had the Five Year
+ * trajectories drawing at a quarter of their allocation. These two are sized
+ * against the two shapes this panel actually occupies:
+ *
+ *   PLOT_WIDE (5.5:1) — the Product tab's two rows, now side by side in a
+ *     short wide strip under the matrix, each about 470x85 at 1024;
+ *   PLOT_SHORT (10:1) — the Segment tab's five rows stacked in a tall narrow
+ *     side column, each about 250x25.
+ *
+ * Every mark scales off box.h, so the wide box is also the bolder one: at
+ * 470px of render width one unit is 1.57px, which puts the stem at 5px and
+ * the end dots at 8px where the old 300x76 box in a 250px column drew them at
+ * 3.8px and 6px. Flatter on paper, larger on screen. */
 const PLOT_W = 300;
-const PLOT_TALL = 76;
+const PLOT_WIDE = 54;
 const PLOT_SHORT = 30;
 
 export function mount(host, ctx) {
@@ -52,7 +69,7 @@ export function mount(host, ctx) {
 
   const box = {
     w: PLOT_W,
-    h: rows.length > 3 ? PLOT_SHORT : PLOT_TALL,
+    h: rows.length > 3 ? PLOT_SHORT : PLOT_WIDE,
     pad: cellBox(5).pad
   };
   const ax = cellAxis(box);
@@ -66,6 +83,20 @@ export function mount(host, ctx) {
 
   const wrap = document.createElement("div");
   wrap.className = "spread";
+
+  /* The rows get a box of their own inside the panel.
+   *
+   * They used to be direct children of `.spread` alongside the footnotes,
+   * which meant their axis was the panel's axis: whichever way the panel
+   * stacked, the rows stacked. That was fine while this panel only ever lived
+   * in a tall narrow side column. It stopped being fine on the Product tab,
+   * where the panel is now a short wide strip under the matrix and the two
+   * rows want to sit side by side while the footnotes stay underneath them
+   * both. One container, two axes, and the tab picks which. */
+  const rowsEl = document.createElement("div");
+  rowsEl.className = "spread-rows";
+  rowsEl.dataset.count = String(rows.length);
+  wrap.appendChild(rowsEl);
 
   const built = rows.map((row, i) => buildRow(row, i));
 
@@ -252,7 +283,7 @@ export function mount(host, ctx) {
     plot.appendChild(highEl);
 
     rowEl.appendChild(plot);
-    wrap.appendChild(rowEl);
+    rowsEl.appendChild(rowEl);
 
     function stem(from, to) {
       const node = svgEl("path", {

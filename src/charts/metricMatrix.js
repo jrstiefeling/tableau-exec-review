@@ -206,7 +206,13 @@ export function mount(host, ctx) {
   const axisTicks = [-1000, -100, 0, 100, 1000].map((v) => {
     const el = document.createElement("span");
     el.className = "mmx-axis-tick";
-    el.dataset.kind = Math.abs(v) >= 1000 ? "outer" : "inner";
+    /* Three kinds, not two. Zero is separated out from the ±100% pair because
+     * the laptop tier drops the pair and keeps zero: the strip is 90px wide
+     * there, which is not enough for five labels on two lines — they were
+     * overrunning the strip's own 22px and printing over the footnote below
+     * it. Zero is the one label that cannot be inferred from the note, since
+     * the note names the rule and the decades but not where the origin is. */
+    el.dataset.kind = v === 0 ? "zero" : Math.abs(v) >= 1000 ? "outer" : "inner";
     if (v === -1000) el.dataset.edge = "start";
     if (v === 1000) el.dataset.edge = "end";
     el.style.setProperty("--tick-x", `${stubPercent(v)}%`);
