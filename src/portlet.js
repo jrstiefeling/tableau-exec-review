@@ -166,6 +166,13 @@ export class Portlet {
     this.el.dataset.tier = tier;
     this.el.style.setProperty("--accent", accent);
     this.el.style.setProperty("--tier-color", meta.color);
+    /* Cleared before the chart mounts, not after. A chart whose surface is
+       tinted by its own sentiment writes --tone-color and data-surface on this
+       element (the attainment cards do, and the two narrative rails); every
+       other chart must not inherit whatever the last render left behind, and a
+       mode toggle re-renders all of them. */
+    this.el.style.removeProperty("--tone-color");
+    delete this.el.dataset.surface;
 
     this.trustDot.dataset.tier = tier;
     this.trustDot.setAttribute(

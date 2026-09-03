@@ -29,20 +29,31 @@ import { chartRoot, svgEl, group, linearScale } from "../svg.js";
 import { palette, toneOf, planTone, planBands, toneColor, tierMeta, PLAN_DOMAIN } from "../palette.js";
 import { countUp, scramble, strokeDraw, dashDraw, fadeIn, stagger, wait, veil } from "../anim.js";
 
+/* The track's own units, and the one place on this card where the reviewer's
+ * "the attainment tracks are cramped" is actually fixed.
+ *
+ * The viewBox was 210x44 and the card is now 30% taller than it was, so the
+ * whole track grows into the height the layout gave back: 44 -> 54 units, the
+ * qualitative bands 16 -> 21, the delivered bar 12 -> 16, the over-plan cap
+ * 24 -> 30. Because the SVG is width-driven (`width: 100%; height: auto`), a
+ * taller viewBox is a taller mark on screen at the same card width — the
+ * geometry all scales together and x(100) still lands at the same fraction of
+ * the track on all four cards, which is the property the whole form rests on. */
 const W = 210;
-const H = 44;
+const H = 54;
 const TRACK = { x: 8, w: 194 };
-const CY = 19;
-const BAR_H = 12;
-const CAP_H = 24;
-const BAND_H = 16;
+const CY = 23;
+const BAR_H = 16;
+const CAP_H = 30;
+const BAND_H = 21;
 /* The risk region spans 0-85% of plan, which is 77% of the track, so the
  * hatching has to be open enough not to read as a solid fill at 1024 while
- * still being unmistakably a texture rather than a tint. */
-const RULE_STEP = 9;
+ * still being unmistakably a texture rather than a tint. Widened with the
+ * band, so the texture keeps the same density at the larger size. */
+const RULE_STEP = 10.5;
 
 const YW = 96;
-const YH = 24;
+const YH = 28;
 const ZERO = 48;
 const HALF = 44;
 
@@ -332,6 +343,26 @@ export function mount(host, ctx) {
   wrap.className = "attain";
   wrap.style.setProperty("--attain-tint", barIsVoid ? p.inkDim : planTint);
 
+  /* The card surface takes the verdict.
+   *
+   * These four are the only portlets on the board whose whole job is a
+   * judgement — attained or missed against a certified plan — so they are the
+   * only ones that earn a sentiment-tinted surface rather than an accent-tinted
+   * one. Three washed red beside one washed green is the quarter, readable
+   * from across a room and before any figure resolves.
+   *
+   * Written onto the portlet element rather than the chart's own wrapper
+   * because the surface being tinted is .portlet-front, which is this node's
+   * ancestor — custom properties inherit down, so a value set here would never
+   * reach it. The colour comes from planTone() through toneColor(), which
+   * reads the drained palette in direct mode, so the wash disappears with
+   * every other tint on the board rather than needing its own branch. */
+  const card = host.closest(".portlet");
+  if (card) {
+    card.style.setProperty("--tone-color", barIsVoid ? p.inkDim : planTint);
+    card.dataset.surface = "tone";
+  }
+
   /* ---- hero numeral: the answer to "what happened" ---- */
   const hero = document.createElement("div");
   hero.className = "attain-hero";
@@ -387,7 +418,7 @@ export function mount(host, ctx) {
       bandNodes.push(node);
 
       if (b.tone !== "risk") return;
-      for (let xi = x(b.from) + 3.5; xi < x(b.to); xi += RULE_STEP) {
+      for (let xi = x(b.from) + 4; xi < x(b.to); xi += RULE_STEP) {
         const ruleNode = svgEl("path", {
           d: `M ${xi} ${CY - BAND_H / 2} V ${CY + BAND_H / 2}`,
           stroke: p.ink,
@@ -450,22 +481,25 @@ export function mount(host, ctx) {
   let tick = null;
   let tickHit = null;
   if (!barIsVoid) {
+    // 2 units wide rather than 1.6: the tick is the reference the four cards
+    // are read against and it was the thinnest mark on a card the reviewer
+    // could not read at laptop size.
     tick = svgEl("path", {
-      d: `M ${x(100)} 4 V 34`,
+      d: `M ${x(100)} 5 V 41`,
       stroke: isDirect ? p.axis : p.ink,
-      "stroke-width": 1.6,
+      "stroke-width": 2,
       class: "attain-tick"
     });
-    if (isDirect) tick.setAttribute("stroke-dasharray", "3 3");
+    if (isDirect) tick.setAttribute("stroke-dasharray", "3.5 3.5");
     marks.appendChild(tick);
 
     // padHit() refuses a mark that already carries a real stroke, so the tick
     // gets a transparent rect over it as its hit target instead.
     tickHit = svgEl("rect", {
-      x: x(100) - 5,
-      y: 4,
-      width: 10,
-      height: 30,
+      x: x(100) - 6,
+      y: 5,
+      width: 12,
+      height: 36,
       fill: "transparent",
       class: "attain-tick-hit"
     });
@@ -483,10 +517,12 @@ export function mount(host, ctx) {
    * meant to be noticed. */
   let planArrow = null;
   if (!isDirect) {
-    // 18 units: the tick is at 184.4 of a 210 viewBox, so this is the longest
+    // 22 units: the tick is at 184.4 of a 210 viewBox, so this is the longest
     // arrow that fits on the up side without being clipped, and the down side
-    // takes the same length.
-    planArrow = goodArrow(x(100), 39, dir, 18, 5.5, 3, p.ink);
+    // takes the same length. It was 18 and the head was 5.5 units, which at
+    // 1024 rendered as about 3px of arrowhead — a polarity signal nobody
+    // could see is not a polarity signal.
+    planArrow = goodArrow(x(100), 48, dir, 22, 7, 3.6, p.ink);
     marks.appendChild(planArrow);
   }
 
@@ -562,9 +598,9 @@ export function mount(host, ctx) {
   yoySvg.appendChild(yoyMarks);
 
   const yoyZero = svgEl("path", {
-    d: `M ${ZERO} 3 V 15`,
+    d: `M ${ZERO} 3 V 17`,
     stroke: p.axis,
-    "stroke-width": 0.9,
+    "stroke-width": 1.1,
     class: "attain-yoy-zero"
   });
   yoyMarks.appendChild(yoyZero);
@@ -572,9 +608,9 @@ export function mount(host, ctx) {
   // The path starts at zero and runs toward the sign, so strokeDraw grows it
   // outward in the correct direction with no origin bookkeeping.
   const yoyStub = svgEl("path", {
-    d: `M ${ZERO} 9 H ${ZERO + Math.sign(yoyValue || 1) * Math.max(mag, 0.8)}`,
+    d: `M ${ZERO} 10 H ${ZERO + Math.sign(yoyValue || 1) * Math.max(mag, 0.8)}`,
     stroke: yoyTint,
-    "stroke-width": 6,
+    "stroke-width": 8,
     "stroke-linecap": "butt",
     class: "attain-yoy-bar"
   });
@@ -587,7 +623,7 @@ export function mount(host, ctx) {
    * one. */
   let yoyArrow = null;
   if (!isDirect) {
-    yoyArrow = goodArrow(ZERO, 19.5, dirOf(yoyGood), 13, 4, 2.5, p.ink);
+    yoyArrow = goodArrow(ZERO, 22.5, dirOf(yoyGood), 15, 5, 3, p.ink);
     yoyMarks.appendChild(yoyArrow);
   }
 
