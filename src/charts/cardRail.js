@@ -42,13 +42,12 @@
 import { tierMeta, palette, toneColor } from "../palette.js";
 import { fadeIn, wait, veil } from "../anim.js";
 
-/* Authored tone -> the palette entry that paints it. Resolved through
- * palette() rather than a literal so the wash drains in direct mode with
- * every other tint on the board. `forward` is not a sentiment — it is "this
- * has not happened yet" — so it takes the neutral entry rather than borrowing
- * green or red and asserting a verdict on a plan. */
-function toneTint(tone, accent, isDirect, meta) {
-  if (isDirect) return meta.color;
+/* Authored tone -> the palette entry that paints it. One palette in both
+ * modes: a degraded card is washed by the same rule as a governed one, which
+ * is the whole inversion. `forward` is not a sentiment — it is "this has not
+ * happened yet" — so it takes the neutral entry rather than borrowing green or
+ * red and asserting a verdict on a plan. */
+function toneTint(tone, accent) {
   const p = palette();
   if (tone === "positive") return toneColor("positive");
   if (tone === "risk" || tone === "negative") return toneColor("risk");
@@ -69,8 +68,8 @@ export function mount(host, ctx) {
   const { metrics, tier, isDirect } = ctx;
   const meta = tierMeta(tier);
   const severed = isDirect && tier === "grey";
-  const accent = isDirect ? meta.color : ctx.accent;
-  const tint = toneTint(metrics.tone, accent, isDirect, meta);
+  const accent = ctx.accent;
+  const tint = toneTint(metrics.tone, accent);
 
   const card = host.closest(".portlet");
   if (card) {

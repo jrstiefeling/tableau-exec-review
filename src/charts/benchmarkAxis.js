@@ -183,7 +183,7 @@ export function mount(host, ctx) {
     const name = document.createElement("p");
     name.className = "bxa-name";
     name.textContent = row.label || "";
-    if (row.color && !isDirect) name.style.setProperty("--row-tint", row.color);
+    if (row.color) name.style.setProperty("--row-tint", row.color);
     rowEl.appendChild(name);
 
     const svg = chartRoot(PLOT.w, PLOT.h, {

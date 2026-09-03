@@ -183,7 +183,7 @@ function zeroBaseline({ accent, p, isDirect }) {
     const padded = pane === 1;
     const floor = padded ? 78 : 0;
     const ceiling = 100;
-    const tint = padded || isDirect ? p.inkDim : accent;
+    const tint = padded || accent;
 
     const base = svgEl("path", {
       d: `M ${x0} ${BASE_Y} H ${x1}`,
@@ -192,9 +192,9 @@ function zeroBaseline({ accent, p, isDirect }) {
       fill: "none"
     });
     // A truncated axis is drawn as truncated. That is the whole argument.
-    if (padded || isDirect) base.setAttribute("stroke-dasharray", "2 2");
+    if (padded) base.setAttribute("stroke-dasharray", "2 2");
     d.marks.appendChild(base);
-    (padded || isDirect ? d.dashes : d.lines).push(base);
+    (padded ? d.dashes : d.lines).push(base);
 
     const step = (x1 - x0 - 6) / (series.length - 1);
     const xs = series.map((_, i) => x0 + 3 + i * step);
@@ -227,7 +227,7 @@ export function mount(host, ctx) {
   const { metrics, tier, isDirect } = ctx;
   const meta = tierMeta(tier);
   const p = palette();
-  const accent = isDirect ? meta.color : ctx.accent;
+  const accent = ctx.accent;
 
   const list = document.createElement("ul");
   list.className = "rules";

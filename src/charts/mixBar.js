@@ -306,7 +306,7 @@ export function mount(host, ctx) {
 
   if (splitAvailable) {
     segments.forEach((seg) => {
-      const tint = isDirect ? meta.color : seg.color || ctx.accent;
+      const tint = seg.color || ctx.accent;
       const item = document.createElement("div");
       item.className = "mix-item";
       item.style.setProperty("--seg-color", tint);
@@ -327,7 +327,7 @@ export function mount(host, ctx) {
       yoy.className = "mix-item-yoy";
       yoy.style.setProperty(
         "--delta-tint",
-        isDirect ? meta.color : toneColor(toneOf(seg.yoy, seg.goodDirection || "up"))
+        toneColor(toneOf(seg.yoy, seg.goodDirection || "up"))
       );
       yoy.textContent = seg.yoyDisplay || "";
       item.appendChild(yoy);

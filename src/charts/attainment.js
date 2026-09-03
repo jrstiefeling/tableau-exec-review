@@ -179,9 +179,7 @@ export function bulletTrack(opts = {}) {
 
   const isVoid = Boolean(voidTint);
   const planPct = Number(plan) || 0;
-  const tint = isDirect && voidTint
-    ? voidTint
-    : (isDirect ? p.inkSoft : toneColor(planTone(planPct, good)));
+  const tint = isVoid ? voidTint : toneColor(planTone(planPct, good));
 
   const rail = svgEl("path", {
     d: `M ${track.x} ${cy} H ${track.x + track.w}`,
@@ -190,12 +188,12 @@ export function bulletTrack(opts = {}) {
     "stroke-linecap": "butt",
     class: "bullet-track"
   });
-  if (isDirect) rail.setAttribute("stroke-dasharray", "4 7");
+  if (isVoid) rail.setAttribute("stroke-dasharray", "4 7");
   marks.appendChild(rail);
 
   const bands = [];
   const rules = [];
-  if (!isDirect && withBands) {
+  if (!isVoid && withBands) {
     planBands(good).forEach((b) => {
       // The down-polarity risk region has zero width on a 0-110 domain. It is
       // still in the rule; there is simply no room for it, so it is not drawn.
@@ -259,8 +257,8 @@ export function bulletTrack(opts = {}) {
   if (!isVoid && reading < target) {
     gap = svgEl("path", {
       d: `M ${barEnd} ${cy} H ${x(target)}`,
-      stroke: isDirect ? p.ghost : p.ink,
-      "stroke-opacity": isDirect ? 0.9 : 0.42,
+      stroke: p.ink,
+      "stroke-opacity": 0.42,
       "stroke-width": gapWeight,
       "stroke-dasharray": gapWeight > 2 ? `${(gapWeight * 0.42).toFixed(1)} ${(gapWeight * 0.5).toFixed(1)}` : "2.5 3",
       class: "bullet-gap"
@@ -296,16 +294,16 @@ export function bulletTrack(opts = {}) {
   if (!isVoid) {
     tick = svgEl("path", {
       d: `M ${x(target)} ${cy - height * 0.34} V ${cy + height * 0.34}`,
-      stroke: isDirect ? p.axis : p.ink,
+      stroke: p.ink,
       "stroke-width": 1.6,
       class: "bullet-tick"
     });
-    if (isDirect) tick.setAttribute("stroke-dasharray", "3 3");
+    if (isVoid) tick.setAttribute("stroke-dasharray", "3 3");
     marks.appendChild(tick);
   }
 
   let arrow = null;
-  if (withArrow && !isDirect) {
+  if (withArrow && !isVoid) {
     arrow = goodArrow(x(target), cy + height * 0.44, dirOf(good), width * 0.14, width * 0.028, 2.4, p.ink);
     marks.appendChild(arrow);
   }
@@ -367,7 +365,7 @@ export function mount(host, ctx) {
   // Yellow keeps its bar: workable but ungoverned is the distinction the tier
   // system exists to draw, and flattening it here would erase it.
   const barIsVoid = isDirect && (tier === "red" || tier === "grey");
-  const planTint = isDirect ? meta.color : toneColor(planTone(planPct, good));
+  const planTint = toneColor(planTone(planPct, good));
 
   const wrap = document.createElement("div");
   wrap.className = "attain";
@@ -384,9 +382,11 @@ export function mount(host, ctx) {
    * Written onto the portlet element rather than the chart's own wrapper
    * because the surface being tinted is .portlet-front, which is this node's
    * ancestor — custom properties inherit down, so a value set here would never
-   * reach it. The colour comes from planTone() through toneColor(), which
-   * reads the drained palette in direct mode, so the wash disappears with
-   * every other tint on the board rather than needing its own branch. */
+   * reach it. The colour comes from planTone() through toneColor() in both
+   * modes, so a degraded card is washed by its OWN verdict — which is how
+   * attrition, short a month of arrears actuals, washes green at 69% of plan
+   * while the certified figure is 104%. The wash is the lie, rendered
+   * faithfully. */
   const card = host.closest(".portlet");
   if (card) {
     card.style.setProperty("--tone-color", barIsVoid ? p.inkDim : planTint);
@@ -421,7 +421,7 @@ export function mount(host, ctx) {
     "stroke-linecap": "butt",
     class: "attain-track"
   });
-  if (isDirect) track.setAttribute("stroke-dasharray", "4 7");
+  if (barIsVoid) track.setAttribute("stroke-dasharray", "4 7");
   marks.appendChild(track);
 
   /* Qualitative bands, mirrored by polarity. planBands() comes from the same
@@ -432,7 +432,7 @@ export function mount(host, ctx) {
    * hero band is the polarity, visible peripherally. */
   const bandNodes = [];
   const ruleNodes = [];
-  if (!isDirect) {
+  if (!barIsVoid) {
     planBands(good).forEach((b) => {
       if (b.to - b.from <= 0) return;
       const node = svgEl("rect", {
@@ -486,8 +486,8 @@ export function mount(host, ctx) {
     // eye reads that ratio without being asked to.
     gapTrace = svgEl("path", {
       d: `M ${barEnd} ${CY} H ${x(100)}`,
-      stroke: isDirect ? p.ghost : p.ink,
-      "stroke-opacity": isDirect ? 0.9 : 0.42,
+      stroke: p.ink,
+      "stroke-opacity": 0.42,
       "stroke-width": 1,
       "stroke-dasharray": "2.5 3",
       class: "attain-gap"
@@ -516,11 +516,11 @@ export function mount(host, ctx) {
     // could not read at laptop size.
     tick = svgEl("path", {
       d: `M ${x(100)} 5 V 41`,
-      stroke: isDirect ? p.axis : p.ink,
+      stroke: p.ink,
       "stroke-width": 2,
       class: "attain-tick"
     });
-    if (isDirect) tick.setAttribute("stroke-dasharray", "3.5 3.5");
+    if (barIsVoid) tick.setAttribute("stroke-dasharray", "3.5 3.5");
     marks.appendChild(tick);
 
     // padHit() refuses a mark that already carries a real stroke, so the tick
@@ -536,17 +536,20 @@ export function mount(host, ctx) {
     marks.appendChild(tickHit);
     ctx.tip(
       tickHit,
-      isDirect
-        ? "A target exists here, but nothing certifies which version of the plan it is or which direction is good."
+      barIsVoid
+        ? "No target reaches raw source. FinPlan lives in the planning system at OU and product-family grain and is re-versioned at every reforecast."
         : `Plan target · 100% · ${good === "down" ? "lower is better" : "higher is better"} (certified)`
     );
   }
 
-  /* Polarity as orientation. Only drawn when a semantic layer is asserting it:
-   * the absence of every arrow in direct mode is the degradation, and it is
-   * meant to be noticed. */
+  /* Polarity as orientation. Drawn in both modes, and deliberately so: the
+   * two SDMs do NOT declare measure polarity — this board was corrected once
+   * for claiming they do — so withdrawing the arrows in direct mode would
+   * attribute a guarantee to the layer that the layer does not make. What is
+   * withheld here is the plan TARGET, which really is absent from raw source,
+   * so the arrow goes only when the tick it points at goes. */
   let planArrow = null;
-  if (!isDirect) {
+  if (!barIsVoid) {
     // 22 units: the tick is at 184.4 of a 210 viewBox, so this is the longest
     // arrow that fits on the up side without being clipped, and the down side
     // takes the same length. It was 18 and the head was 5.5 units, which at
@@ -618,7 +621,7 @@ export function mount(host, ctx) {
   yoyRow.className = "attain-yoy";
 
   const yoyValue = Number(metrics.yoy) || 0;
-  const yoyTint = isDirect ? meta.color : toneColor(toneOf(yoyValue, yoyGood));
+  const yoyTint = toneColor(toneOf(yoyValue, yoyGood));
   const mag = (Math.min(Math.abs(yoyValue), 100) / 100) * HALF;
 
   const yoySvg = chartRoot(YW, YH, {
@@ -653,10 +656,8 @@ export function mount(host, ctx) {
    * underneath is what says which of those two leftward stubs is the good
    * one. */
   let yoyArrow = null;
-  if (!isDirect) {
-    yoyArrow = goodArrow(ZERO, 22.5, dirOf(yoyGood), 15, 5, 3, p.ink);
-    yoyMarks.appendChild(yoyArrow);
-  }
+  yoyArrow = goodArrow(ZERO, 22.5, dirOf(yoyGood), 15, 5, 3, p.ink);
+  yoyMarks.appendChild(yoyArrow);
 
   yoyRow.appendChild(yoySvg);
   const yoyLabelEl = document.createElement("span");

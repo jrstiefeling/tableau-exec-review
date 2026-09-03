@@ -226,14 +226,14 @@ export function mount(host, ctx) {
           width: Math.max(0.4, x1 - x0),
           height: ROLL.rowH,
           rx: 2,
-          fill: degraded ? meta.color : row.color || ctx.accent,
+          fill: row.color || ctx.accent,
           // Undifferentiated rather than guessed: without the taxonomy there
           // are no boundaries to draw, so the one block that survives carries
           // a dashed outline instead of six siblings.
-          "fill-opacity": degraded ? 0.16 : 0.86,
-          stroke: degraded ? meta.color : p.surface,
-          "stroke-width": degraded ? 1.2 : 1,
-          "stroke-dasharray": degraded ? "4 7" : null,
+          "fill-opacity": 0.86,
+          stroke: p.surface,
+          "stroke-width": 1,
+          "stroke-dasharray": null,
           "vector-effect": "non-scaling-stroke",
           class: "growth-block"
         });
@@ -255,7 +255,7 @@ export function mount(host, ctx) {
         // Painted from the palette rather than a token, because which way it
         // has to read depends on the mark under it: paper on a block filled at
         // 0.86, and the tier colour on a dashed one filled at 0.16.
-        label.style.color = degraded ? meta.color : p.surface;
+        label.style.color = p.surface;
         plot.appendChild(label);
         labels.push(label);
       });
@@ -300,7 +300,7 @@ export function mount(host, ctx) {
     function tie(x, top, bottom, kind) {
       const node = svgEl("path", {
         d: `M ${x} ${top} V ${bottom}`,
-        stroke: degraded ? meta.color : p.ink,
+        stroke: p.ink,
         "stroke-opacity": kind === "carry" ? 0.72 : 0.34,
         "stroke-width": kind === "carry" ? 1.2 : 1,
         fill: "none",
@@ -333,16 +333,10 @@ export function mount(host, ctx) {
       cell.className = "growth-colhead";
       cell.style.setProperty("--col", String(3 + c));
       if (seg.reference) cell.dataset.reference = "true";
-      // Struck rather than dropped: there is no certified segment dimension
-      // for these columns to name, and the point is that one was being used.
-      if (degraded) {
-        const struck = document.createElement("s");
-        struck.className = `strike strike-${tier}`;
-        struck.textContent = seg.short || seg.label;
-        cell.appendChild(struck);
-      } else {
-        cell.textContent = seg.short || seg.label;
-      }
+      // Not struck. The inferred segmentation names its columns with total
+      // confidence; that it named them from a different field than last
+      // quarter is not something the column head can know.
+      cell.textContent = seg.short || seg.label;
       ctx.tip(cell, degraded
         ? `${seg.label} — one of three candidate segment sources, with nothing ruling between them`
         : `${seg.label} · certified customer segment, resolved as of the period close`);
@@ -554,8 +548,8 @@ export function mount(host, ctx) {
     function spine(d) {
       const node = svgEl("path", {
         d,
-        stroke: degraded ? meta.color : p.inkDim,
-        "stroke-opacity": degraded ? 0.85 : 0.6,
+        stroke: p.inkDim,
+        "stroke-opacity": 0.6,
         "stroke-width": 1.2,
         fill: "none",
         "vector-effect": "non-scaling-stroke",
@@ -568,8 +562,8 @@ export function mount(host, ctx) {
     function tick(x, y) {
       const node = svgEl("path", {
         d: `M ${x} ${y} H ${x + RAIL.tick}`,
-        stroke: degraded ? meta.color : p.inkDim,
-        "stroke-opacity": degraded ? 0.85 : 0.8,
+        stroke: p.inkDim,
+        "stroke-opacity": 0.8,
         "stroke-width": 1,
         fill: "none",
         "vector-effect": "non-scaling-stroke",
@@ -590,7 +584,7 @@ export function mount(host, ctx) {
     const yoy = single ? row.yoy : (row.yoy || [])[c];
     const yoyDisplay = single ? row.yoyDisplay : (row.yoyDisplay || [])[c];
     const rowGood = row.goodDirection || good;
-    const barTint = degraded ? meta.color : toneColor(toneOf(yoy, rowGood));
+    const barTint = toneColor(toneOf(yoy, rowGood));
 
     const cell = document.createElement("div");
     cell.className = "growth-cell";
@@ -687,9 +681,9 @@ export function mount(host, ctx) {
         fill: p.surface,
         // Dashed without a certified ACV column: the stake is as contested as
         // the rate, and drawing it solid would say otherwise.
-        stroke: degraded ? meta.color : row.color || ctx.accent,
+        stroke: row.color || ctx.accent,
         "stroke-width": 1.6,
-        "stroke-dasharray": degraded ? "2 2.5" : null,
+        "stroke-dasharray": null,
         class: "growth-stake"
       });
       marks.appendChild(stake);
@@ -898,7 +892,7 @@ export function mount(host, ctx) {
         // The polarity comes from the measure, so a rate reads as the news it
         // is without anybody colouring a cell by hand.
         if (numeric !== null && numeric !== undefined && !Number.isNaN(Number(numeric))) {
-          td.style.color = degraded ? meta.color : toneColor(toneOf(Number(numeric), good));
+          td.style.color = toneColor(toneOf(Number(numeric), good));
         }
         tr.appendChild(td);
       });

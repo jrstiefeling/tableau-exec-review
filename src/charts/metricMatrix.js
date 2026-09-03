@@ -415,7 +415,7 @@ export function mount(host, ctx) {
     const domainMax = Number(landscape.domainMax) || 1;
     const format = landscape.format || {};
     const over = d ? d.gap < 0 : false;
-    const tone = isDirect ? p.inkSoft : toneColor(planTone(Number(cell.plan), cell.planGoodDirection || "up"));
+    const tone = toneColor(planTone(Number(cell.plan), cell.planGoodDirection || "up"));
 
     const plotCell = document.createElement("div");
     plotCell.className = "mmx-plot";
@@ -521,7 +521,7 @@ export function mount(host, ctx) {
 
     const yoyChip = document.createElement("span");
     yoyChip.className = "mmx-readyoy";
-    yoyChip.style.setProperty("--delta-tint", isDirect ? p.inkSoft : toneColor(toneOf(yoy, good)));
+    yoyChip.style.setProperty("--delta-tint", toneColor(toneOf(yoy, good)));
     yoyChip.textContent = cell.yoyDisplay || "";
     valueLine.appendChild(yoyChip);
     readCell.appendChild(valueLine);
@@ -573,7 +573,7 @@ export function mount(host, ctx) {
   function buildCell({ cell, col, row, r, c, column }) {
     const good = col.goodDirection || "up";
     const yoy = Number(cell.yoy);
-    const tint = isDirect ? p.inkSoft : toneColor(toneOf(yoy, good));
+    const tint = toneColor(toneOf(yoy, good));
 
     const el = document.createElement("div");
     el.className = "mmx-cell";

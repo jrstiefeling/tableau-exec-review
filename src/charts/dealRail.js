@@ -96,7 +96,7 @@ export function mount(host, ctx) {
    * amount columns. The rank chips come off and the bar tips go dashed — the
    * list is intact and its sequence is no longer a claim. */
   const rankIsVoid = isDirect;
-  const tint = isDirect ? meta.color : ctx.accent;
+  const tint = ctx.accent;
 
   const wrap = document.createElement("div");
   wrap.className = "deals";

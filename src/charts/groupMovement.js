@@ -125,17 +125,10 @@ export function mount(host, ctx) {
 
     const name = document.createElement("div");
     name.className = "movement-name";
-    // Struck rather than dropped: without a certified grouping there is no
-    // inside-this-group for a decomposition to be taken within, and the point
-    // is that one was being relied on.
-    if (degraded) {
-      const struck = document.createElement("s");
-      struck.className = `strike strike-${tier}`;
-      struck.textContent = row.label;
-      name.appendChild(struck);
-    } else {
-      name.textContent = row.label;
-    }
+    // Not struck. A strike says "do not read this", which is the one service
+    // no raw source performs — the inferred grouping arrives named, plausible
+    // and unqualified, and the panel renders it that way.
+    name.textContent = row.label;
     ctx.tip(name, degraded
       ? `${row.fullLabel} — grouping unresolved, so the lines below it are a selection rather than a partition`
       : `${row.fullLabel} · net ${row.netDisplay} across the ${row.parts.length} lines shown`);
@@ -146,7 +139,7 @@ export function mount(host, ctx) {
     // Sentiment is painted from the palette rather than keyed in CSS, which is
     // how every chart here does it and what lets the direct-mode drain arrive
     // through the same path as the normal palette.
-    net.style.color = degraded ? meta.color : toneColor(toneOf(row.net, good, { softBand: 0 }));
+    net.style.color = toneColor(toneOf(row.net, good, { softBand: 0 }));
     net.textContent = degraded ? "—" : row.netDisplay;
     ctx.tip(net, `Net of the ${row.parts.length} lines drawn here, ${row.fullLabel}. Not a group total: the panel decomposes the lines it names and claims nothing beyond them.`);
     head.appendChild(net);
@@ -174,7 +167,7 @@ export function mount(host, ctx) {
      * hairline is not a mark. What is left has to carry zero. */
     const rule = svgEl("line", {
       x1: zeroX, y1: 0, x2: zeroX, y2: BOX.h,
-      stroke: degraded ? meta.color : p.inkDim,
+      stroke: p.inkDim,
       "stroke-width": 1,
       "vector-effect": "non-scaling-stroke",
       class: "movement-rule"
@@ -204,11 +197,11 @@ export function mount(host, ctx) {
         const tone = toneOf(q.delta, good, { softBand: 0 });
         const rect = svgEl("rect", {
           x: x0, y: BOX.barTop, width: drawn, height: BOX.barH,
-          fill: degraded ? meta.color : toneColor(tone),
+          fill: toneColor(tone),
           // A gentle step outward from the rule, enough to separate adjacent
           // pieces alongside the hairline between them without the outermost
           // one reading as a different, fainter category.
-          "fill-opacity": degraded ? 0.34 : 1 - i * 0.11,
+          "fill-opacity": 1 - i * 0.11,
           class: "movement-piece",
           "data-tone": tone
         });
@@ -272,9 +265,7 @@ export function mount(host, ctx) {
         nm.textContent = q.short;
         const val = document.createElement("b");
         val.textContent = q.deltaDisplay;
-        val.style.color = degraded
-          ? meta.color
-          : toneColor(toneOf(q.delta, good, { softBand: 0 }));
+        val.style.color = toneColor(toneOf(q.delta, good, { softBand: 0 }));
         item.appendChild(nm);
         item.appendChild(val);
         parts.appendChild(item);
@@ -343,7 +334,7 @@ export function mount(host, ctx) {
       chip.className = "movement-keyitem";
       const swatch = document.createElement("i");
       swatch.className = "movement-swatch";
-      swatch.style.background = degraded ? meta.color : toneColor(item.tone);
+      swatch.style.background = toneColor(item.tone);
       chip.appendChild(swatch);
       chip.appendChild(document.createTextNode(item.text));
       key.appendChild(chip);

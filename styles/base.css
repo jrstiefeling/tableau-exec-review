@@ -90,43 +90,18 @@
   --gap: clamp(8px, 1.1vw, 16px);
 }
 
-body.direct-mode {
-  --ink-hero: #43464e;
-  --ink: #4a4d55;
-  --ink-soft: #7b7f88;
-  --ink-dim: #a0a4ac;
+/* There is no `body.direct-mode` token override, and the absence is the
+   argument. This block used to drain every colour on the board — ink, surface,
+   accent, and all three sentiment tones — so that losing the semantic layer
+   visibly took the colour off the page.
 
-  --surface: #eceae6;
-  --surface-raised: rgba(252, 252, 250, 0.82);
-  --surface-high: #f9f9f7;
-  --surface-solid: #f9f9f7;
+   It made the case honestly but backwards. A drained board tells the viewer
+   which figures to distrust, and that is precisely the service no raw source
+   provides. An agent reading Org62 or a lakehouse directly returns confident
+   numbers, correctly formatted, in range, and wrong. So the degraded board now
+   renders in exactly these colours, with exactly this sentiment logic, and what
+   differs is the figures. See docs/direct-mode-redesign.md §2. */
 
-  --line: rgba(23, 24, 28, 0.1);
-  --line-strong: rgba(23, 24, 28, 0.16);
-
-  --accent: #8b8f98;
-  --tab-accent: #8b8f98;
-  --glow: rgba(139, 143, 152, 0.14);
-
-  /* Every wash drains with its tone. The card tints, the panel wash and the
-     per-tab identity all resolve through these, so losing the semantic layer
-     takes the colour off the board through one path rather than a dozen. */
-  --pos: #8b8f89;
-  --pos-lift: rgba(139, 143, 137, 0.1);
-  --pos-wash: rgba(139, 143, 137, 0.04);
-
-  --warn: #9a917c;
-  --warn-lift: rgba(154, 145, 124, 0.1);
-  --warn-wash: rgba(154, 145, 124, 0.04);
-
-  --neg: #a3837c;
-  --neg-lift: rgba(163, 131, 124, 0.1);
-  --neg-wash: rgba(163, 131, 124, 0.04);
-
-  --shadow-card: 0 1px 2px rgba(23, 24, 28, 0.03), 0 4px 12px rgba(23, 24, 28, 0.04);
-  --shadow-lift: 0 12px 30px rgba(23, 24, 28, 0.09);
-  --shadow-pop: 0 24px 64px rgba(23, 24, 28, 0.14);
-}
 
 * {
   box-sizing: border-box;
@@ -170,11 +145,6 @@ body::before {
      cross-fade covers the swap. */
   opacity: 1;
   transition: opacity 0.8s var(--ease), filter 0.8s var(--ease);
-}
-
-body.direct-mode::before {
-  opacity: 0.3;
-  filter: grayscale(1);
 }
 
 /* Flex rather than grid rows: the notice bar is display:none most of the

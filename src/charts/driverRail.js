@@ -22,7 +22,7 @@ export function mount(host, ctx) {
   (metrics.drivers || []).forEach((driver) => {
     const li = document.createElement("li");
     li.className = "driver";
-    li.style.setProperty("--card-accent", isDirect ? meta.color : ctx.accent);
+    li.style.setProperty("--card-accent", ctx.accent);
 
     const button = document.createElement("button");
     button.type = "button";

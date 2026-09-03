@@ -22,38 +22,48 @@ const TRUSTED = {
   neutral: "#78808E"
 };
 
-/* Direct-only mode drains rather than inverts. Losing colour is the point:
- * a board with no semantic layer still renders, it just stops telling you
- * which way is good. On paper that reads as newsprint — everything still
- * legible, nothing still meaningful. */
-const DRAINED = {
-  ink: "#4A4D55",
-  inkSoft: "#7B7F88",
-  inkDim: "#A0A4AC",
-  grid: "rgba(23, 24, 28, 0.05)",
-  axis: "rgba(23, 24, 28, 0.15)",
-  track: "rgba(23, 24, 28, 0.07)",
-  ghost: "rgba(23, 24, 28, 0.17)",
-  surface: "#F9F9F7",
-  positive: "#8B8F89",
-  warn: "#9A917C",
-  risk: "#A3837C",
-  neutral: "#9A9EA6"
-};
+/* There is no second palette, and the absence is the argument.
+ *
+ * Direct mode used to drain: greyed ink, muted sentiment, dashed rails. That
+ * made the case honestly but backwards, because it told the viewer which
+ * figures to distrust. A real agent reading raw Salesforce or a lakehouse
+ * does not hand back faded numbers. It hands back confident ones, in range,
+ * formatted correctly, and wrong — and the board cannot know, because the
+ * board is not what discovered the error.
+ *
+ * So the degraded board renders at FULL confidence, in the same colours, with
+ * the same sentiment logic. What differs is the figures, computed from the
+ * governed ones through a documented failure mode, with the arithmetic in
+ * `shownFrom`. The only visible tell is a 15px dot in each portlet head.
+ *
+ * That is the whole point: a wrong answer looks exactly like a right one.
+ * If you want to know which is which, you have to ask the layer. */
 
-/* Trust tiers, shared with the sibling app's vocabulary:
- *   green  — governed, resolves to a certified semantic definition
- *   yellow — available but ungoverned; works, fails quietly
- *   red    — unavailable or wrong; competing values with no arbiter
- *   grey   — reconstructable only by hand, differently every time
- * Red and grey earn a hard X mark. Yellow never does: it means "workable,
- * just ungoverned", and marking it the same as "gone" would flatten the
- * distinction the whole tier system exists to draw. */
+/* Provenance, carried by the trust dot. Four states — three a FIGURE can
+ * occupy, plus narrative, which is the absence of a figure rather than a
+ * fourth kind of one:
+ *
+ *   certified     a governed measure from one of the two SDMs, with its
+ *                 declared grain, mandatory filters and additivity class
+ *   supplemented  a real, human-authored figure from OUTSIDE the layer — a
+ *                 Google Sheet, a direct query, a Snowflake table. A
+ *                 definition exists and a person stands behind it. Nothing
+ *                 enforces it, nothing versions it, and nothing guarantees it
+ *                 aggregates or means the same thing next quarter
+ *   inferred      an agent read raw schema and decided for itself what the
+ *                 measure means. Confident, plausible, unverifiable. Only
+ *                 ever reached in Direct to source
+ *   narrative     no figure. Prose from the source deck. Cannot be
+ *                 numerically wrong
+ *
+ * NOTHING carries an X any more. `inferred` least of all: a strike-through is
+ * the visual opposite of confidence, and confidence is exactly what an
+ * inferred figure has. The X was the drain in miniature. */
 export const TIERS = {
-  green: { color: "#12806A", label: "Governed", short: "Governed", x: false },
-  yellow: { color: "#92640A", label: "Ungoverned but available", short: "Ungoverned", x: false },
-  red: { color: "#C0483C", label: "Unavailable or contested", short: "Contested", x: true },
-  grey: { color: "#8D93A1", label: "Requires manual reconstruction", short: "Reconstruct", x: true }
+  green: { color: "#12806A", label: "Certified measure", short: "Certified", x: false },
+  yellow: { color: "#92640A", label: "Supplemented source", short: "Supplemented", x: false },
+  red: { color: "#C0483C", label: "Inferred by the agent", short: "Inferred", x: false },
+  grey: { color: "#8D93A1", label: "Authored narrative", short: "Narrative", x: false }
 };
 
 export function isDirect() {
@@ -61,7 +71,7 @@ export function isDirect() {
 }
 
 export function palette() {
-  return isDirect() ? DRAINED : TRUSTED;
+  return TRUSTED;
 }
 
 export function tierMeta(tier) {

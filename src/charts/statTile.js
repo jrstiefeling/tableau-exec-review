@@ -42,8 +42,8 @@ const GAP = 3;
 export function mount(host, ctx) {
   const { metrics, tier, isDirect } = ctx;
   const meta = tierMeta(tier);
-  const tint = isDirect ? meta.color : toneColor(toneOf(metrics.yoy, metrics.goodDirection || "up"));
-  const accent = isDirect ? meta.color : ctx.accent;
+  const tint = toneColor(toneOf(metrics.yoy, metrics.goodDirection || "up"));
+  const accent = ctx.accent;
 
   const value = Number(metrics.value);
   const prior = Number(metrics.priorValue);

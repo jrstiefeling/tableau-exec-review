@@ -45,7 +45,7 @@
 
 import { chartRoot, svgEl, group, smoothPath, linearScale } from "../svg.js";
 import { palette, toneColor, tierMeta } from "../palette.js";
-import { countUp, scramble, strokeDraw, dashDraw, fadeIn, stagger, wait, veil } from "../anim.js";
+import { countUp, scramble, strokeDraw, fadeIn, stagger, wait, veil } from "../anim.js";
 
 const W = 1000;
 const H = 200;
@@ -302,10 +302,7 @@ export function mount(host, ctx) {
 
   const hair = (attrs) => svgEl("path", { "vector-effect": "non-scaling-stroke", fill: "none", ...attrs });
 
-  const toneFor = (isExpanding) => {
-    if (isDirect) return p.inkSoft;
-    return toneColor(isExpanding ? "positive" : "risk");
-  };
+  const toneFor = (isExpanding) => toneColor(isExpanding ? "positive" : "risk");
 
   /* ---- the fan ----
    * Every line is a cubic from the shared origin to its own index on the
@@ -378,12 +375,11 @@ export function mount(host, ctx) {
    * moment. */
   const reference = hair({
     d: `M ${ORIGIN_X} ${yRef} H ${LABEL_X - 10}`,
-    stroke: isDirect ? p.axis : p.ink,
-    "stroke-opacity": isDirect ? 0.9 : 0.5,
+    stroke: p.ink,
+    "stroke-opacity": 0.5,
     "stroke-width": 1,
     class: "fan-reference"
   });
-  if (isDirect) reference.setAttribute("stroke-dasharray", "3 4");
   marks.appendChild(reference);
 
   const axis = hair({
@@ -440,17 +436,13 @@ export function mount(host, ctx) {
       // fill-opacity, not element opacity, so the build fades the node to 1
       // and settle() restores it to its authored translucency rather than
       // flooding the marginal panel.
-      fill: isDirect ? "none" : toneFor(isExpanding),
-      "fill-opacity": isDirect ? 0 : 0.34,
-      stroke: isDirect ? p.inkSoft : toneFor(isExpanding),
-      "stroke-opacity": isDirect ? 0.85 : 0.8,
-      "stroke-width": isDirect ? 1 : 1.1,
+      fill: toneFor(isExpanding),
+      "fill-opacity": 0.34,
+      stroke: toneFor(isExpanding),
+      "stroke-opacity": 0.8,
+      "stroke-width": 1.1,
       class: `fan-density is-${isExpanding ? "expanding" : "contracting"}`
     });
-    // Without a conformed identity the population the curve describes is not
-    // the population on the tile above it, so the curve loses its fill and
-    // keeps only a dashed outline: a shape with no claim to be a measurement.
-    if (isDirect) node.setAttribute("stroke-dasharray", "3 3");
     return node;
   }
 
@@ -501,7 +493,7 @@ export function mount(host, ctx) {
    * one position on the chart that every line shares. */
   const originMark = hair({
     d: `M ${ORIGIN_X} ${yOrigin - 13} V ${yOrigin + 13}`,
-    stroke: isDirect ? meta.color : p.ink,
+    stroke: p.ink,
     "stroke-opacity": 0.85,
     "stroke-width": 2,
     class: "fan-origin"
@@ -515,14 +507,14 @@ export function mount(host, ctx) {
    * stub that touched the origin would imply it was 100. */
   const exclusion = group({ class: "fan-exclusion" });
   const stubY = y(12);
-  const stubTint = isDirect ? p.inkDim : p.inkSoft;
+  const stubTint = p.inkSoft;
   exclusion.appendChild(hair({
     d: `M 56 ${stubY} H 108`,
     stroke: stubTint,
-    "stroke-opacity": isDirect ? 0.6 : 0.75,
+    "stroke-opacity": 0.75,
     "stroke-width": 5,
     "stroke-linecap": "butt",
-    "stroke-dasharray": isDirect ? "4 4" : null
+    "stroke-dasharray": null
   }));
   // A chevron rather than a filled triangle: under a non-uniform scale a
   // triangle's fill stretches with the box while two non-scaling strokes keep
@@ -530,7 +522,7 @@ export function mount(host, ctx) {
   exclusion.appendChild(hair({
     d: `M 106 ${stubY - 8} L 118 ${stubY} L 106 ${stubY + 8}`,
     stroke: stubTint,
-    "stroke-opacity": isDirect ? 0.6 : 0.85,
+    "stroke-opacity": 0.85,
     "stroke-width": 1.6,
     "stroke-linejoin": "round"
   }));
@@ -868,10 +860,7 @@ export function mount(host, ctx) {
     fadeIn(originLabel, { delay: 200, duration: 360, y: 0, x: -6, signal });
 
     await wait(220, signal);
-    // dashDraw where the dashes carry meaning, strokeDraw where they do not:
-    // strokeDraw consumes the dash pattern as its own reveal mechanism.
-    if (isDirect) dashDraw(reference, { duration: 520, signal });
-    else strokeDraw(reference, { duration: 620, signal });
+    strokeDraw(reference, { duration: 620, signal });
     fadeIn(exclusion, { delay: 140, duration: 380, y: 0, x: -8, signal });
     fadeIn(exclusionLabel, { delay: 240, duration: 380, y: 0, signal });
 
@@ -886,14 +875,8 @@ export function mount(host, ctx) {
     fadeIn(pctTicks, { delay: 160, duration: 360, y: 0, x: -5, signal });
 
     await wait(300, signal);
-    if (densityDown) {
-      if (isDirect) dashDraw(densityDown, { duration: 480, signal });
-      else fadeIn(densityDown, { duration: 520, y: 0, x: -8, signal });
-    }
-    if (densityUp) {
-      if (isDirect) dashDraw(densityUp, { delay: 90, duration: 480, signal });
-      else fadeIn(densityUp, { delay: 90, duration: 520, y: 0, x: -8, signal });
-    }
+    if (densityDown) fadeIn(densityDown, { duration: 520, y: 0, x: -8, signal });
+    if (densityUp) fadeIn(densityUp, { delay: 90, duration: 520, y: 0, x: -8, signal });
 
     await wait(280, signal);
     stagger([expandedLabel, referenceLabel, medianLabel, contractedLabel], {

@@ -172,7 +172,7 @@ export function mount(host, ctx) {
   const { metrics, tab, tier, isDirect } = ctx;
   const p = palette();
   const meta = tierMeta(tier);
-  const accent = isDirect ? meta.color : ctx.accent;
+  const accent = ctx.accent;
 
   // Authored on the spec, not inferred from the DOM: the panel that spans two
   // columns is an editorial decision about which measure this tab is about,
@@ -386,7 +386,6 @@ export function mount(host, ctx) {
   // Without a semantic layer nothing declares which way is good, so the rule
   // the bars diverge from stops being an asserted reference and is dashed the
   // way every other ungoverned reference on the board is.
-  if (isDirect) devZero.setAttribute("stroke-dasharray", "3 4");
   marks.appendChild(devZero);
 
   // 0.82 of the column pitch rather than 0.72: at the previous scale the bars
@@ -452,10 +451,10 @@ export function mount(host, ctx) {
           : roundedRectPath(x0, dir < 0 ? DEV_ZERO - h : DEV_ZERO, cellW, h, 1.4),
         // Sentiment from the measure's own polarity — the reason attrition's
         // falling figure reads as good news without a hand-coloured cell.
-        fill: isDirect ? meta.color : toneColor(toneOf(parsed, metrics.goodDirection || "up")),
+        fill: toneColor(toneOf(parsed, metrics.goodDirection || "up")),
         // A paint channel, so the build can drive these to element opacity 1
         // and settle() restores them to their authored translucency.
-        "fill-opacity": isDirect ? 0.5 : 0.88,
+        "fill-opacity": 0.88,
         class: `trend-dev${clamped ? " is-clamped" : ""}${i >= partialFrom ? " is-partial" : ""}`,
         "data-dir": dir < 0 ? "up" : "down"
       });
@@ -623,7 +622,7 @@ export function mount(host, ctx) {
       if (goodDirection && typeof raw === "string" && raw.includes("%")) {
         const numeric = parseFloat(raw);
         if (!Number.isNaN(numeric)) {
-          td.style.color = isDirect ? meta.color : toneColor(toneOf(numeric, goodDirection));
+          td.style.color = toneColor(toneOf(numeric, goodDirection));
         }
       }
       tr.appendChild(td);

@@ -5,7 +5,7 @@
  * Authors write the trusted content once and a directMode block describing
  * only what changes. Nothing in this app is authored twice. */
 
-import { tierColor, tierMeta } from "./palette.js";
+import { tierMeta } from "./palette.js";
 
 export const MODES = { TRUSTED: "trusted", DIRECT: "direct" };
 
@@ -65,17 +65,57 @@ export function effectivePortlet(portlet, mode) {
   };
 }
 
-/* In direct mode a portlet's accent is replaced by its trust tier colour, so
- * the board reads as tiers rather than as a palette. Trusted mode keeps the
- * authored accent, which is what carries the per-portlet identity. */
-export function resolveAccent(portlet, mode) {
-  if (mode !== MODES.DIRECT || !portlet.directMode) return portlet.accent;
-  return tierColor(portlet.directMode.tier);
+/* The accent is the authored one in both modes.
+ *
+ * This used to return the tier colour in direct mode, which repainted every
+ * portlet red or amber and made the degraded board self-evidently the
+ * untrustworthy one. Kept as a function rather than inlined because two
+ * callers reach for it and the signature is the seam where the old behaviour
+ * lived — a future reader should find the reason here, not a `git log`. */
+export function resolveAccent(portlet) {
+  return portlet.accent;
 }
 
+/* A portlet's provenance in the current mode, resolved by the WEAKEST
+ * LOAD-BEARING INPUT it has.
+ *
+ * `provenance` is where the figure comes from and does not change. `tier` is
+ * the state that provenance resolves to once the mode is known, and it is
+ * authored explicitly so it stays reviewable rather than being inferred from
+ * a rule nobody can see. The three cases:
+ *
+ *   certified    → green governed, red direct. The layer's guarantee is
+ *                  withdrawn and the agent infers in its place.
+ *   supplemented → amber governed. Direct is amber too when every input is
+ *                  supplemented, because there is no layer guarantee to
+ *                  withdraw; red when a certified input underneath it
+ *                  degrades, because inferred is weaker than supplemented.
+ *   narrative    → grey in both. No figure to be wrong.
+ *
+ * The four purely-supplemented portlets are the control group. When the
+ * toggle flips they do not move, and noticing that is how a viewer learns to
+ * read "which panels moved" as "which panels the layer was protecting". */
 export function tierOf(portlet, mode) {
-  if (mode !== MODES.DIRECT) return "green";
-  return (portlet.directMode && portlet.directMode.tier) || "yellow";
+  const dm = portlet.directMode;
+  if (mode !== MODES.DIRECT) return (dm && dm.provenance === "supplemented" && "yellow")
+    || (dm && dm.provenance === "narrative" && "grey")
+    || "green";
+  return (dm && dm.tier) || "yellow";
+}
+
+/* Whether a portlet's figures actually moved, and if so whether anything in
+ * the picture would tell you. Carried as a glyph INSIDE the trust dot rather
+ * than as a second chip beside it: provenance and detectability are two
+ * readings of one fact, and three affordances do not fit a portlet head at
+ * 1024 — the separate chip truncated the KPI titles.
+ *
+ *   silent    ! — wrong, and nothing in the picture would tell you
+ *   catchable ? — wrong by an amount a magnitude or shape check finds
+ *   none        the figure did not move
+ */
+export function detectOf(portlet, mode) {
+  if (mode !== MODES.DIRECT) return "none";
+  return (portlet.directMode && portlet.directMode.detectability) || "none";
 }
 
 /* The single most concrete "what would be wrong right now" line for a
