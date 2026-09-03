@@ -153,7 +153,13 @@ export function bulletTrack(opts = {}) {
     withBands = true,
     domainMax = DOMAIN_MAX,
     target = 100,
-    value = null
+    value = null,
+    // A hairline is the right weight for the shortfall on a hero card, where
+    // the bar is one of several marks and the gap is a qualifier. On the
+    // outlook band the shortfall is the reading — it is what the tab is about
+    // — so it is drawn at the bar's own weight and reads as a length that was
+    // not delivered rather than as a leader line.
+    gapWeight = 1
   } = opts;
 
   const p = palette();
@@ -255,8 +261,8 @@ export function bulletTrack(opts = {}) {
       d: `M ${barEnd} ${cy} H ${x(target)}`,
       stroke: isDirect ? p.ghost : p.ink,
       "stroke-opacity": isDirect ? 0.9 : 0.42,
-      "stroke-width": 1,
-      "stroke-dasharray": "2.5 3",
+      "stroke-width": gapWeight,
+      "stroke-dasharray": gapWeight > 2 ? `${(gapWeight * 0.42).toFixed(1)} ${(gapWeight * 0.5).toFixed(1)}` : "2.5 3",
       class: "bullet-gap"
     });
     marks.appendChild(gap);

@@ -20,6 +20,7 @@ import { mount as movementFan } from "./movementFan.js";
 import { mount as growthMatrix } from "./growthMatrix.js";
 import { mount as growthSpread } from "./growthSpread.js";
 import { mount as metricMatrix } from "./metricMatrix.js";
+import { mount as benchmarkAxis } from "./benchmarkAxis.js";
 import { mount as dealRail } from "./dealRail.js";
 
 export const CHARTS = {
@@ -34,6 +35,7 @@ export const CHARTS = {
   growthMatrix,
   growthSpread,
   metricMatrix,
+  benchmarkAxis,
   dealRail
 };
 

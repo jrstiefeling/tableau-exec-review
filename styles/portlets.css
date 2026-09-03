@@ -3116,7 +3116,7 @@
    colliding — the standard fix for a dense tick strip, and cheaper in height
    than the alternative of dropping half the legend. */
 .mmx-axis {
-  grid-column: 3;
+  grid-column: var(--mmx-col, 3);
   grid-row: var(--mmx-row);
   position: relative;
   max-width: var(--mmx-mark);
@@ -3195,6 +3195,480 @@
   margin: 0;
   font-size: clamp(9px, 0.7vw, 10.5px);
   line-height: 1.34;
+  color: var(--ink-dim);
+}
+
+/* ------------------------- the plan landscape ----------------------------- */
+
+/* One column of the matrix leaves the cell grid and becomes two: a bar on a
+   shared dollar scale, and the readout beside it. The template widens to hold
+   both, and every other rule above still applies — same rail, same row rules,
+   same label gutter, because these are the same rows. */
+.mmx[data-landscape="true"] .mmx-grid {
+  grid-template-columns:
+    clamp(20px, 2vw, 28px)
+    minmax(112px, 190px)
+    minmax(0, 2.1fr)
+    clamp(112px, 11.4vw, 154px)
+    repeat(var(--mmx-cols, 2), minmax(0, 1fr));
+}
+
+.mmx-plot,
+.mmx-read {
+  grid-column: var(--mmx-col);
+  grid-row: var(--mmx-row);
+  min-width: 0;
+  padding: clamp(3px, 0.5vh, 7px) 0;
+}
+
+.mmx-plot:not([data-row-index="0"]),
+.mmx-read:not([data-row-index="0"]) {
+  border-top: 1px solid var(--line);
+}
+
+/* The plot is its own positioning context: the tick label and the alternate
+   basis are DOM placed over the SVG off the same scale the marks were drawn
+   with, so neither has to measure anything. Centred rather than stretched,
+   because the bullet fits its box by ratio and the row is taller than it. */
+.mmx-plot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mmx-landbullet {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mmx-landbullet.is-void {
+  opacity: 0.6;
+}
+
+/* The target's own label, over the bar rather than under it, so three of them
+   never queue up against the tick strip at the foot. It flips to the left of
+   its tick past the midpoint: at $120.7M on a $125M scale a right-hand label
+   would hang off the column. */
+.mmx-landticklab {
+  position: absolute;
+  top: 0;
+  left: var(--tick-x);
+  margin-left: 5px;
+  font-size: clamp(8px, 0.62vw, 9.5px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.mmx-landticklab[data-flip="true"] {
+  margin-left: 0;
+  transform: translateX(-100%);
+  padding-right: 5px;
+}
+
+.mmx-landticklab em,
+.mmx-readgap em {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.82em;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-left: 4px;
+}
+
+/* The alternate basis on the dollar axis. A hollow diamond, not a second bar:
+   it is a second stated reading of the same measure, and giving it a length
+   would make it a competing quantity rather than a competing basis. */
+.mmx-landalt {
+  position: absolute;
+  top: 50%;
+  left: var(--alt-x);
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  transform: rotate(45deg);
+  border: 1.6px solid var(--ink-dim);
+  background: var(--surface);
+  border-radius: 1.5px;
+}
+
+/* In landscape the growth strip rules two columns rather than one, so it
+   spans them and drops the mark-width cap it wears in the square matrix. That
+   buys back the ±100% labels the short tiers otherwise have to drop, and it
+   stops the strip reading as a stray mark under one column when it is the
+   ruler for both. */
+.mmx[data-landscape="true"] .mmx-axis {
+  grid-column: var(--mmx-col) / -1;
+  max-width: none;
+}
+
+.mmx[data-landscape="true"] .mmx-axis-tick[data-kind="inner"] {
+  display: inline;
+}
+
+/* The dollar strip, under the column it is the ruler for. */
+.mmx-landaxis {
+  grid-column: 3;
+  grid-row: var(--mmx-row);
+  position: relative;
+  height: 14px;
+  margin-top: 3px;
+}
+
+.mmx-landtick {
+  position: absolute;
+  top: 2px;
+  left: var(--tick-x);
+  transform: translateX(-50%);
+  line-height: 1;
+  font-size: 7.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.mmx-landtick[data-edge="start"] { left: 0; transform: none; }
+.mmx-landtick[data-edge="end"] { left: auto; right: 0; transform: none; }
+
+/* The readout. Four facts on three lines: the figure and its Y/Y share one,
+   because a rate is a property of the figure it qualifies. */
+.mmx-read {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+}
+
+.mmx-readvalue {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mmx-readnum {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 1.44vw, 23px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: var(--lh-display-num);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mmx-readnum[data-contested="true"] {
+  font-size: clamp(12px, 1.05vw, 15px);
+  letter-spacing: -0.01em;
+}
+
+.mmx-readyoy {
+  font-size: clamp(8.5px, 0.64vw, 10px);
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--delta-tint, var(--ink-soft));
+  font-variant-numeric: tabular-nums;
+  transition: color 0.5s var(--ease);
+}
+
+.mmx-readplan,
+.mmx-readgap {
+  margin: 0;
+  font-size: clamp(8.5px, 0.64vw, 10px);
+  font-weight: 700;
+  line-height: 1.26;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.mmx-readplan { color: var(--plan-tint, var(--ink-soft)); }
+.mmx-readgap { color: var(--gap-tint, var(--ink-soft)); }
+
+.mmx-readplan[data-void="true"] {
+  color: var(--ink-dim);
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* --------------------- the alternate basis, named ------------------------- */
+
+/* A second stated value for the same measure was being carried in 8px grey
+   inside a cell. It is a finding about measure identity, which is the argument
+   the whole board is making, so it gets a strip and a readable size. Each
+   entry carries the glyph of the mark that holds it, so the strip is a legend
+   for marks already on the page rather than a restatement of them. */
+.mmx-altstrip {
+  flex: none;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: clamp(10px, 1.3vw, 22px);
+  row-gap: 2px;
+  padding-top: 5px;
+  border-top: 1px solid var(--line);
+  font-size: clamp(9px, 0.7vw, 10.5px);
+  line-height: 1.3;
+  color: var(--ink-soft);
+}
+
+.mmx-altstrip-label {
+  font-size: clamp(8px, 0.6vw, 9px);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.mmx-altitem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.mmx-altitem b {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.mmx-altglyph {
+  flex: none;
+  display: block;
+}
+
+.mmx-altglyph[data-kind="diamond"] {
+  width: 9px;
+  height: 9px;
+  transform: rotate(45deg);
+  border: 1.6px solid var(--ink-dim);
+  background: var(--surface);
+  border-radius: 1px;
+}
+
+.mmx-altglyph[data-kind="tick"] {
+  width: 2px;
+  height: 11px;
+  background: repeating-linear-gradient(
+    180deg,
+    var(--line-strong) 0 2px,
+    transparent 2px 4px
+  );
+}
+
+/* ---------------------------- benchmark axes ------------------------------ */
+
+/* Several subjects on one axis per measure, so each subject is read against
+   its own benchmark and against the others at the same time. The axes sit side
+   by side rather than stacked: two stacked axes need roughly twice the height
+   this band can afford, and the readings are short enough to halve the width
+   without crowding the plot. */
+.bxa {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3px, 0.7vh, 9px);
+}
+
+.bxa-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--bxa-axes, 2), minmax(0, 1fr));
+  column-gap: clamp(16px, 2.4vw, 44px);
+}
+
+/* One grid per axis, not three: the tick strip is a cell in the same column as
+   the plots it rules, so it cannot drift out of alignment with them. */
+.bxa-axis {
+  min-width: 0;
+  display: grid;
+  grid-template-columns:
+    clamp(86px, 8.6vw, 124px)
+    minmax(0, 1fr)
+    clamp(48px, 5vw, 70px);
+  grid-auto-rows: minmax(0, 1fr);
+  grid-template-rows: auto;
+  align-items: center;
+  column-gap: clamp(6px, 0.8vw, 12px);
+}
+
+.bxa-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+}
+
+.bxa-title {
+  margin: 0;
+  font-size: clamp(8.5px, 0.66vw, 10px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+  transition: color 0.5s var(--ease);
+}
+
+.bxa-sub {
+  margin: 0;
+  min-width: 0;
+  font-size: clamp(8px, 0.6vw, 9px);
+  color: var(--ink-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bxa-row {
+  display: contents;
+}
+
+.bxa-name {
+  grid-column: 1;
+  margin: 0;
+  font-size: clamp(9px, 0.72vw, 10.5px);
+  font-weight: 700;
+  line-height: 1.18;
+  color: var(--row-tint, var(--ink));
+  transition: color 0.5s var(--ease);
+}
+
+.bxa-plotwrap {
+  grid-column: 2;
+  position: relative;
+  min-width: 0;
+}
+
+/* Stretched, not fitted: the plot is a scale and its ends have to land on the
+   tick strip's ends. Every mark on it carries a non-scaling stroke, and the
+   dots are placed by the same scale the ticks are, so the non-uniform stretch
+   moves them together. */
+.bxa-plot {
+  display: block;
+  width: 100%;
+  height: clamp(26px, 4.4vh, 36px);
+}
+
+/* Above the dot rather than below it, so the last row's labels never collide
+   with the tick strip underneath them. */
+.bxa-histlab {
+  position: absolute;
+  top: 0;
+  left: var(--hist-x);
+  transform: translateX(-50%);
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink-dim);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.bxa-histlab[data-edge="start"] { left: 0; transform: none; }
+.bxa-histlab[data-edge="end"] { left: auto; right: 0; transform: none; }
+
+.bxa-read {
+  grid-column: 3;
+  min-width: 0;
+  text-align: right;
+}
+
+/* The readings are what the band exists to make legible — they were about 40
+   by 10 pixels inside a matrix cell — so they are set at hero scale. */
+.bxa-val {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(17px, 1.6vw, 26px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  color: var(--val-tint, var(--ink));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: color 0.5s var(--ease);
+}
+
+/* Wraps rather than clips. The governed form is short — "−0.1× vs hist" — but
+   the severed one is a phrase, and the readout column is sized for the numeral
+   above it rather than for the longest thing that can appear beneath it. */
+.bxa-delta {
+  margin: 0;
+  font-size: clamp(8px, 0.62vw, 9.5px);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink-soft);
+}
+
+.bxa-strip {
+  grid-column: 2;
+  position: relative;
+  height: 12px;
+  margin-top: 1px;
+  border-top: 1px solid var(--line);
+}
+
+.bxa-tick {
+  position: absolute;
+  top: 2px;
+  left: var(--tick-x);
+  transform: translateX(-50%);
+  line-height: 1;
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--ink-dim);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.bxa-tick[data-edge="start"] { left: 0; transform: none; }
+.bxa-tick[data-edge="end"] { left: auto; right: 0; transform: none; }
+
+/* A subject with no reading on either axis has no position to draw, and an
+   empty track at the origin would be a reading of zero. Named once, with the
+   reason, instead. */
+.bxa-void {
+  flex: none;
+  margin: 0;
+  font-size: clamp(8.5px, 0.65vw, 10px);
+  line-height: 1.3;
+  color: var(--ink-dim);
+}
+
+.bxa-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bxa-key {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.7px solid var(--ink-dim);
+  background: var(--surface-solid, #fff);
+}
+
+.bxa-caption {
+  margin: 0;
+  font-size: clamp(8.5px, 0.65vw, 10px);
+  line-height: 1.3;
   color: var(--ink-dim);
 }
 
@@ -3385,6 +3859,193 @@
   color: var(--ink-dim);
 }
 
+/* --------------------- the deals against the gap -------------------------- */
+
+/* Same portlet, different scale. Where the ranked rail measures five deals
+   against each other — a 1.4x range with a tie at each end, so length mostly
+   renders the ties — this measures them against the shortfall they exist to
+   close. The fill is what these five would take out of it; the space at the
+   end is what would still have to be found. */
+.deals[data-mode="gap"] {
+  gap: clamp(4px, 0.8vh, 10px);
+}
+
+.deals-gaphead {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 9px;
+  row-gap: 1px;
+}
+
+.deals-gaptotal {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 1.85vw, 30px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: var(--lh-display-num);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.deals-gapclaim {
+  margin: 0;
+  flex: 1 1 128px;
+  min-width: 0;
+  font-size: clamp(8.5px, 0.68vw, 10.5px);
+  font-weight: 700;
+  line-height: 1.28;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.deals-gapclaim em {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.78em;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-left: 5px;
+}
+
+.deals-gapclaim[data-void="true"] {
+  font-weight: 500;
+  font-style: italic;
+  color: var(--ink-dim);
+}
+
+/* Without a gap the track is the authored total, which has no space at its
+   end — so the dashed edge says the scale is the sum of what is on it rather
+   than a target it is measured against. */
+.deals-gaptrack[data-void="true"] {
+  background: none;
+  outline: 1px dashed var(--line-strong);
+  outline-offset: 1px;
+}
+
+/* The track is the gap, so its full width is a quantity rather than a
+   container. Every offset and width below is authored arithmetic handed to the
+   layout engine, which is what keeps the two ties exact. */
+.deals-gaptrack {
+  position: relative;
+  flex: none;
+  height: clamp(17px, 2.8vh, 26px);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.deals-seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--seg-from) / var(--deal-scale) * 100%);
+  width: calc(var(--deal-value) / var(--deal-scale) * 100%);
+  display: grid;
+  place-items: center;
+  border-right: 1.5px solid var(--surface-solid, #fff);
+  background: color-mix(
+    in srgb,
+    var(--deal-tint) calc(94% - var(--seg-index) * 13%),
+    #ffffff
+  );
+  transition: background 0.5s var(--ease);
+}
+
+.deals-seglabel {
+  font-size: clamp(7.5px, 0.6vw, 9px);
+  font-weight: 700;
+  color: #fff;
+  opacity: 0.94;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Space, not a sixth segment. It is the absence of a deal, and drawing it as
+   one would put a deal nobody has on the same footing as five that exist. */
+/* Anchored to the end rather than centred in the space it names. The space is
+   whatever the five deals leave, which at 20% of a 250px track is about 50px
+   — narrower than the label at any legible size, so a centred label straddles
+   the last segment's edge. End-anchored it is bounded by the same rule the
+   track is, and it reads as a remainder measured back from the target. */
+.deals-residual {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--seg-from) / var(--deal-scale) * 100%);
+  right: 0;
+  display: grid;
+  align-items: center;
+  justify-items: end;
+  padding-right: 5px;
+  font-size: clamp(7.5px, 0.6vw, 9px);
+  font-weight: 700;
+  color: var(--residual-tint, var(--ink-soft));
+  white-space: nowrap;
+}
+
+.deals-gapend {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  right: -1px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--ink);
+}
+
+.deals-list {
+  list-style: none;
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-auto-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.deals-list li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 0;
+  font-size: clamp(8.5px, 0.72vw, 10.5px);
+}
+
+.deals-swatch {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: color-mix(
+    in srgb,
+    var(--deal-tint) calc(94% - var(--seg-index) * 13%),
+    #ffffff
+  );
+  transition: background 0.5s var(--ease);
+}
+
+.deals-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deals-value {
+  font-weight: 700;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 /* ------------------------------- short screens ---------------------------- */
 
 /* This matrix was the worst offender on the board, and it failed twice in the
@@ -3420,33 +4081,17 @@
     grid-template-rows: auto repeat(3, minmax(80px, 1fr)) auto;
   }
 
-  /* One line per pair: "Velocity 15% [—o—] 17% hist".
-     The dumbbell is a 148x14 viewBox — 10.6:1 — so at 78px of mark it draws
-     7px tall and sits inside a 12px line box with room over. Stacked under
-     its own label it cost 26px a pair, and there are two pairs in each of the
-     four richest cells: 24 of the missing 43px. Beside its labels it is also
-     in the same label-then-mark order as every other row on the board. */
-  /* The mark column shrinks and the two label columns do not. A dumbbell that
-     gives up 20px still puts its two dots in the right proportion of its
-     domain; "flat on history" that gives up 20px reads "flat on histor…". */
-  .mmx-pair {
-    grid-template-columns:
-      max-content
-      minmax(34px, var(--mmx-mark))
-      max-content;
-    align-items: center;
-    column-gap: 5px;
+  /* The landscape rows carry a bar, a tick label over it and a three-line
+     readout beside it, which is a shorter stack than the four-rank cell this
+     replaced — so the floor comes down with it rather than holding the rows
+     apart at a height none of them needs. */
+  .mmx[data-landscape="true"] .mmx-grid {
+    grid-template-rows: auto repeat(3, minmax(54px, 1fr)) auto;
   }
 
-  .mmx-pair-svg {
-    grid-column: 2;
-    grid-row: 1;
-    max-width: none;
-  }
-
-  .mmx-pair-hist-label {
-    grid-column: 3;
-    grid-row: 1;
+  .mmx-altstrip {
+    padding-top: 4px;
+    column-gap: clamp(8px, 1.1vw, 16px);
   }
 
   /* The origin, and nothing else.
@@ -3491,12 +4136,31 @@
     grid-template-rows: auto repeat(3, minmax(68px, 1fr)) auto;
   }
 
+  .mmx[data-landscape="true"] .mmx-grid {
+    grid-template-rows: auto repeat(3, minmax(46px, 1fr)) auto;
+  }
+
   .mmx-foot {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: baseline;
     column-gap: clamp(12px, 1.6vw, 26px);
     row-gap: 1px;
+  }
+
+  /* The band below the hero is two portlets of about five short rows each, so
+     it is the one that can give height back without losing a reading. The
+     plots come down and the type does not. */
+  .bxa-plot {
+    height: clamp(24px, 4.4vh, 36px);
+  }
+
+  .bxa {
+    gap: 3px;
+  }
+
+  .deals[data-mode="gap"] {
+    gap: 4px;
   }
 }
 

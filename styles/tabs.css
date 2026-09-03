@@ -549,34 +549,38 @@
 
 /* -------------------------- outlook tab grid (4) -------------------------- */
 
-/* Two columns with a spanning rail, the same idea as the trend tab one row
-   deeper: header strip over the matrix on the left, the deals rail full height
-   on the right. Both renderers were built against this — the matrix's cells
-   want 96px rows and the rail spends its slack on leading — and stacking the
-   three bands full-width instead gave the matrix 270px where it needs 352 and
-   the rail 188px where it needs 272, which is where the overflow came from. */
+/* Two full-width bands, where there used to be a header strip, a matrix and a
+   spanning rail in two columns.
+
+   The header strip is gone: its three tiles restated the matrix's Analytics
+   row one band above it, so a fifth of the tab's height was spent saying
+   $105M, $79.5M and $25.5M twice. That reclaim, plus the ~24px the deleted
+   footer status bar returned to every tab, is what pays for the second band
+   here — the benchmark axes, which are four dumbbells that used to be the
+   smallest marks on the page and are now the second thing on it.
+
+   The hero carries more rows of its own than the old matrix did, so it takes
+   the larger share; the support band holds two portlets that are each about
+   five short rows, so it takes the smaller one. */
 .panel[data-tab="q3-outlook"] .panel-bands {
-  grid-template-columns: minmax(0, 1fr) minmax(176px, 0.235fr);
-  grid-template-rows: minmax(0, 0.34fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1.55fr) minmax(0, 1fr);
 }
 
-.band[data-layout="outlook-head"] {
+.band[data-layout="outlook-hero"] {
   grid-column: 1;
   grid-row: 1;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.band[data-layout="outlook-matrix"] {
-  grid-column: 1;
-  grid-row: 2;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
 }
 
-.band[data-layout="outlook-deals"] {
-  grid-column: 2;
-  grid-row: 1 / -1;
-  grid-template-columns: minmax(0, 1fr);
+/* The benchmark axes want width — two shared axes side by side — and the
+   deals bar wants only enough for a track and five short rows, so the split is
+   uneven rather than halved. */
+.band[data-layout="outlook-support"] {
+  grid-column: 1;
+  grid-row: 2;
+  grid-template-columns: minmax(0, 1fr) minmax(258px, 0.42fr);
   grid-template-rows: minmax(0, 1fr);
 }
 
@@ -711,12 +715,13 @@
     font-size: clamp(21px, 2.1vw, 31px);
   }
 
-  /* The matrix gives, not the header strip. Measured at 1024x768 the matrix
-     has 479px against the 352 its cells need, and a header tile with a hero
-     numeral, a delta chip, a centre-anchored bar, a caption and a footnote is
-     a fixed stack of about 164px with nothing in it that can lose a line. */
+  /* The support band gives, not the hero. It holds two portlets whose content
+     is a floor rather than a stack that scales — two benchmark axes and a
+     five-row legend, about 168px between them — where the hero has three rows
+     each carrying a bar, a target label and a three-line readout, and every
+     pixel it loses comes off a mark somebody is meant to compare. */
   .panel[data-tab="q3-outlook"] .panel-bands {
-    grid-template-rows: minmax(0, 0.4fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr);
   }
 }
 
@@ -773,15 +778,13 @@
     letter-spacing: 0.13em;
   }
 
-  /* The outlook tab's split, one notch the other way from the 860 tier.
-     The three head tiles are a fixed stack — label, hero numeral, delta,
-     caption — with nothing in them that can lose a line, and the attrition
-     caption ("Rising year over year on a lower-is-better measure") is two
-     lines at 238px however the band is sized. So the head keeps what it
-     needs and the matrix takes the rest, having found its own 30px inside
-     the axis strip and the footnotes. */
+  /* The outlook tab's split, one notch the other way from the 860 tier. The
+     support band's content is a floor — two axes of two rows and a five-row
+     legend do not compress further — so as the viewport shortens it takes a
+     slightly larger share by arithmetic, and the ratio follows rather than
+     fights it. */
   .panel[data-tab="q3-outlook"] .panel-bands {
-    grid-template-rows: minmax(0, 0.45fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1.38fr) minmax(0, 1fr);
   }
 }
 
@@ -803,8 +806,7 @@
 
   /* Two rows sized to their content, not to a share of a band that is itself
      only 200px tall — otherwise each KPI tile gets about 100px and clips. */
-  .band[data-layout="hero"],
-  .band[data-layout="outlook-head"] {
+  .band[data-layout="hero"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: none;
     grid-auto-rows: minmax(168px, auto);
@@ -842,9 +844,8 @@
      Repeating the attribute selector is deliberate: a media query adds no
      specificity, so a bare `.band` here would lose to the placement rules
      above. */
-  .band[data-layout="outlook-head"],
-  .band[data-layout="outlook-matrix"],
-  .band[data-layout="outlook-deals"],
+  .band[data-layout="outlook-hero"],
+  .band[data-layout="outlook-support"],
   .panel[data-tab="exec"] .band[data-layout="hero"],
   .panel[data-tab="exec"] .band[data-layout="mix"],
   .panel[data-tab="exec"] .band[data-layout="narrative"],
@@ -859,7 +860,7 @@
      rather than the extra apology. */
   .band[data-layout="seg-main"],
   .band[data-layout="perf-main"],
-  .band[data-layout="outlook-matrix"],
+  .band[data-layout="outlook-hero"],
   .band[data-layout="distribution"] {
     grid-auto-rows: minmax(260px, auto);
   }

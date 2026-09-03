@@ -1,36 +1,46 @@
-/* Q3 outlook as a 3 x 3 matrix of composed metric cells.
+/* Q3 outlook as one row-keyed band: a plan landscape on a dollar scale, with
+ * the remaining measures' Y/Y beside it on the same rows.
  *
- * The cells on this tab are not one number each. An ACV cell carries up to six
- * facts — the figure, its Y/Y, a second stated basis for the same measure, the
- * FinPlan attainment, and two paired comparisons — so the cell needs a grammar
- * that can rank facts rather than a chart type. Five ranks, each subordinate to
- * the one above it by size and by kind of channel, so the ordering survives a
- * squint: the numeral, the Y/Y stub, the attainment bullet, the dumbbells, the
- * week-over-week note.
+ * The matrix used to carry four encodings in every ACV cell — a Y/Y stub, a
+ * percent-of-plan bullet, a velocity dumbbell and a coverage dumbbell — and
+ * read as clutter rather than as a comparison. Two of those four were never
+ * cell content in the first place. Velocity and coverage are properties of a
+ * *row*: they say something about the motion, not about the motion's ACV, and
+ * putting them inside the ACV cell was a category error that cost them their
+ * legibility. They now have a band of their own, on shared axes, in
+ * benchmarkAxis.js.
  *
- * Nothing on the matrix tiles. Hierarchy is the containment rail in the label
- * gutter — a bracket spanning a parent's children — which is a claim about the
- * taxonomy rather than about arithmetic, and which never computes a residual.
- * The rows carry no total to divide by and the renderer never sums a column,
- * because the only thing tiling would add here is a residual nobody asked for.
+ * What is left is the ranking that always worked. Rank 1 is the numeral, rank
+ * 2 the Y/Y stub on the board's shared symlog axis, and the alternate basis —
+ * a second stated value for the same measure — is a dashed hollow tick on that
+ * same axis in trendPanel.js's run-rate-ghost vocabulary, now named in a
+ * readable strip at the foot instead of in 8px grey inside the cell.
  *
- * Three encodings are borrowed rather than invented. Y/Y is `growthFraction`,
- * the same symlog scale the product and segment tabs use, so +32% here is the
- * same proportion of its axis as +32% there. Attainment is `bulletTrack` from
- * attainment.js — the same 0-110 domain, the same `planBands`, the same ink
- * target tick and the same reach-to-plan contract as the exec hero cards, just
- * smaller. And the alternate basis is drawn in trendPanel.js's run-rate-ghost
- * vocabulary: a dashed hollow tick in `p.ghost` on the same axis as the primary
- * reading. A second copy of any of the three would be a second grammar for the
- * reader to learn and a second place for the rules to drift.
+ * `metrics.landscape` turns one column into the band's hero. That column stops
+ * being a cell and becomes two: a bar on a shared dollar scale with a target
+ * tick at the derived plan, and a readout carrying the value, its Y/Y, the
+ * authored attainment and the derived gap. The bar is bulletTrack from
+ * attainment.js on a dollar domain rather than a percent one — the same
+ * continuous run from zero to the target, solid where it was delivered and
+ * dashed where it was not, the same ink tick standing proud of it, and the
+ * same stepped cap where a motion is over plan. One target grammar on the
+ * board, at two scales.
+ *
+ * Plan and gap are derived here, never authored: plan = commit ÷ attainment,
+ * gap = plan − commit, both exact, both drawn with the board's derived tag.
+ * The renderer states them per row and never adds them up. Summing them would
+ * be arithmetic the source does not support, and a bridge or waterfall built
+ * on them would assert a decomposition that does not hold.
+ *
+ * Nothing here tiles. Hierarchy is the containment rail in the label gutter —
+ * a bracket spanning a parent's children — which is a claim about the taxonomy
+ * rather than about arithmetic, and which never computes a residual.
  *
  * Every field except `display` and `yoy` is optional, and an absent field
- * renders as absent — never as zero and never as a placeholder. The Attrition
- * and NNAOV cells are visibly lighter than the ACV column because fewer facts
- * are known about them, and that is information. */
+ * renders as absent — never as zero and never as a placeholder. */
 
-import { chartRoot, svgEl, group, linearScale } from "../svg.js";
-import { palette, toneOf, toneColor, tierMeta } from "../palette.js";
+import { chartRoot, svgEl, group } from "../svg.js";
+import { palette, toneOf, toneColor, planTone, tierMeta } from "../palette.js";
 import { growthFraction, growthX, DECADE_FRACTIONS, CORE, CORE_FRACTION } from "./growth.js";
 import { bulletTrack } from "./attainment.js";
 import {
@@ -43,12 +53,10 @@ import {
  * measurement pass. */
 const STUB = { w: 132, h: 18, zero: 66, half: 54, cy: 9, barH: 5 };
 
-const BULLET = { w: 148, h: 22, pad: 6 };
-
-/* The dumbbell axis. 16 and 132 leave room at both ends for a 3.8-unit dot, so
- * a reading at either extreme of its domain still draws a whole dot inside the
- * box rather than a clipped half-moon. */
-const PAIR = { w: 148, h: 14, x0: 16, x1: 132, cy: 7 };
+/* The landscape plot. Wide enough that a bar and its dashed reach-to-plan are
+ * both readable at a third of the band's width, and short enough that three of
+ * them plus their labels fit the row height the band can afford. */
+const LAND = { w: 420, h: 34, pad: 7 };
 
 const RAIL = { w: 34, rowH: 100, x0: 8, step: 11, tick: 7 };
 
@@ -69,20 +77,63 @@ function stubPercent(value) {
   return (((STUB.zero + (f === null ? 0 : f) * STUB.half) / STUB.w) * 100).toFixed(3);
 }
 
+/* Derived, exactly, from two authored figures: the commit and the attainment
+ * percentage stated beside it. Returns null rather than a zero when either is
+ * missing, because a row with no authored attainment has no derivable plan and
+ * a plan of zero would be a claim. */
+function derive(cell) {
+  const value = Number(cell.value);
+  const pct = Number(cell.plan) / 100;
+  if (!Number.isFinite(value) || !Number.isFinite(pct) || pct === 0) return null;
+  const plan = value / pct;
+  return { value, plan, gap: plan - value };
+}
+
+/* Formats a derived figure in the unit the authored figures are already in, so
+ * a derived $120.7M sits in the same notation as an authored $105M. The shape
+ * is authored in `landscape.format` rather than inferred, because guessing a
+ * unit's notation from a sample of display strings is how a board ends up
+ * printing "$120.69M" beside "$105M". */
+function fmt(n, format = {}) {
+  const decimals = format.decimals == null ? 1 : format.decimals;
+  const body = Math.abs(n).toFixed(decimals).replace(/\.0+$/, "");
+  return `${format.prefix || ""}${body}${format.suffix || ""}`;
+}
+
 export function mount(host, ctx) {
   const { metrics, tier, isDirect } = ctx;
   const p = palette();
   const meta = tierMeta(tier);
 
-  const columns = metrics.columns || [];
+  const allColumns = metrics.columns || [];
   const rows = metrics.rows || [];
+
+  /* The landscape column leaves the cell grid and becomes the band's hero, so
+   * its dollar figure is stated once here rather than restated in a cell two
+   * columns to the right. */
+  const landscape = metrics.landscape || null;
+  const landIndex = landscape
+    ? allColumns.findIndex((col) => col.id === landscape.column)
+    : -1;
+  const landColumn = landIndex >= 0 ? allColumns[landIndex] : null;
+  const columns = landColumn ? allColumns.filter((col, i) => i !== landIndex) : allColumns;
+
+  /* Grid columns: rail, labels, then either [plot, readout] or nothing, then
+   * one per remaining measure. Placement is data, not styling — the renderer
+   * knows where each node belongs and hands that to CSS as a custom property,
+   * the same way mixBar.js hands the layout its segment widths. */
+  const COL_PLOT = 3;
+  const COL_READ = 4;
+  const colStart = landColumn ? 5 : 3;
 
   const wrap = document.createElement("div");
   wrap.className = "mmx";
+  if (landColumn) wrap.dataset.landscape = "true";
 
   const grid = document.createElement("div");
   grid.className = "mmx-grid";
   grid.style.setProperty("--mmx-rows", String(rows.length));
+  grid.style.setProperty("--mmx-cols", String(columns.length));
   wrap.appendChild(grid);
 
   /* ---- the containment rail ----
@@ -134,26 +185,34 @@ export function mount(host, ctx) {
   grid.appendChild(railSvg);
 
   /* ---- column headers ---- */
-  // Grid placement is data, not styling: the renderer knows which row and
-  // column each node belongs to and hands that to CSS as a custom property,
-  // the same way mixBar.js hands the layout its segment widths.
-  const colHeads = columns.map((col, c) => {
-    const el = document.createElement("p");
-    el.className = "mmx-colhead";
-    el.style.setProperty("--mmx-col", String(c + 3));
-    el.textContent = col.label;
+  const colHeads = [];
+  if (landColumn) {
+    colHeads.push(headEl(landscape.plotLabel || landColumn.label, COL_PLOT));
+    colHeads.push(headEl(landscape.readLabel || `${landColumn.label} attainment`, COL_READ));
+  }
+  columns.forEach((col, c) => {
+    const el = headEl(col.label, c + colStart);
     ctx.tip(
       el,
       `${col.label} — ${(col.goodDirection || "up") === "down" ? "lower is better" : "higher is better"}`
     );
+    colHeads.push(el);
+  });
+
+  function headEl(label, column) {
+    const el = document.createElement("p");
+    el.className = "mmx-colhead";
+    el.style.setProperty("--mmx-col", String(column));
+    el.textContent = label;
     grid.appendChild(el);
     return el;
-  });
+  }
 
   /* ---- rows ---- */
   const rowLabels = [];
   const rowSubs = [];
   const cellNodes = [];
+  const landNodes = [];
 
   rows.forEach((row, r) => {
     const level = Number(row.level) || 0;
@@ -179,17 +238,50 @@ export function mount(host, ctx) {
     }
     grid.appendChild(labelWrap);
 
+    if (landColumn) {
+      landNodes.push(buildLandscape({
+        cell: (row.cells || [])[landIndex] || {}, col: landColumn, row, r
+      }));
+    }
+
     columns.forEach((col, c) => {
-      cellNodes.push(buildCell({ cell: (row.cells || [])[c] || {}, col, row, r, c }));
+      const sourceIndex = allColumns.indexOf(col);
+      cellNodes.push(buildCell({
+        cell: (row.cells || [])[sourceIndex] || {}, col, row, r, c: c + (landColumn ? 1 : 0),
+        column: c + colStart
+      }));
     });
   });
 
-  /* ---- axis strip ----
-   * Rendered once, under the leftmost data column, rather than repeated in
-   * nine cells. The gridlines are the legend; this names them. */
+  /* ---- axis strips ----
+   * Rendered once under the column they are the ruler for, rather than
+   * repeated in every cell. The dollar strip belongs to the landscape; the
+   * growth strip to the first Y/Y column. */
+  let landAxis = null;
+  const landTicks = [];
+  if (landColumn) {
+    landAxis = document.createElement("div");
+    landAxis.className = "mmx-landaxis";
+    landAxis.style.setProperty("--mmx-row", String(rows.length + 2));
+    (landscape.ticks || []).forEach((tick) => {
+      const el = document.createElement("span");
+      el.className = "mmx-landtick";
+      const v = Number(tick.value);
+      const domainMax = Number(landscape.domainMax) || 1;
+      el.style.setProperty("--tick-x", `${landX(v, domainMax)}%`);
+      if (v <= 0) el.dataset.edge = "start";
+      if (v >= domainMax) el.dataset.edge = "end";
+      el.textContent = tick.label ?? String(v);
+      landAxis.appendChild(el);
+      landTicks.push(el);
+    });
+    grid.appendChild(landAxis);
+  }
+
   const axis = document.createElement("div");
   axis.className = "mmx-axis";
   axis.style.setProperty("--mmx-row", String(rows.length + 2));
+  axis.style.setProperty("--mmx-col", String(colStart));
 
   const coreSwatch = document.createElement("span");
   coreSwatch.className = "mmx-axis-core";
@@ -206,12 +298,6 @@ export function mount(host, ctx) {
   const axisTicks = [-1000, -100, 0, 100, 1000].map((v) => {
     const el = document.createElement("span");
     el.className = "mmx-axis-tick";
-    /* Three kinds, not two. Zero is separated out from the ±100% pair because
-     * the laptop tier drops the pair and keeps zero: the strip is 90px wide
-     * there, which is not enough for five labels on two lines — they were
-     * overrunning the strip's own 22px and printing over the footnote below
-     * it. Zero is the one label that cannot be inferred from the note, since
-     * the note names the rule and the decades but not where the origin is. */
     el.dataset.kind = v === 0 ? "zero" : Math.abs(v) >= 1000 ? "outer" : "inner";
     if (v === -1000) el.dataset.edge = "start";
     if (v === 1000) el.dataset.edge = "end";
@@ -221,6 +307,58 @@ export function mount(host, ctx) {
     return el;
   });
   grid.appendChild(axis);
+
+  /* ---- the alternate basis, named ----
+   * A second stated value for the same measure is a finding about measure
+   * identity, which is the argument this whole board is making, and it was
+   * being carried in 8px grey inside a cell. Here it gets a strip of its own
+   * at a size somebody reads, with each entry tied to the mark that carries it
+   * — the diamond on the dollar axis, the ghost tick in the Y/Y stub.
+   *
+   * Stated, never differenced. Computing the disagreement would be
+   * reconciliation, and the board's decision is to render the sources
+   * faithfully and let the reader see two numbers. */
+  const altEntries = [];
+  rows.forEach((row, r) => {
+    (row.cells || []).forEach((cell, c) => {
+      if (!cell || !cell.altBasis) return;
+      altEntries.push({ row, r, col: allColumns[c], cell, alt: cell.altBasis });
+    });
+  });
+
+  let altStrip = null;
+  const altItems = [];
+  if (altEntries.length && !isDirect) {
+    altStrip = document.createElement("p");
+    altStrip.className = "mmx-altstrip";
+
+    const stripLabel = document.createElement("b");
+    stripLabel.className = "mmx-altstrip-label";
+    stripLabel.textContent = metrics.altBasisLabel || "Second stated basis";
+    altStrip.appendChild(stripLabel);
+
+    altEntries.forEach((entry) => {
+      const item = document.createElement("span");
+      item.className = "mmx-altitem";
+
+      const glyph = document.createElement("i");
+      glyph.className = "mmx-altglyph";
+      // Diamond where the basis also has a position on the dollar axis, ghost
+      // tick where it only has one on the growth axis.
+      glyph.dataset.kind = landColumn && entry.col === landColumn ? "diamond" : "tick";
+      item.appendChild(glyph);
+
+      const text = document.createElement("span");
+      const name = document.createElement("b");
+      name.textContent = `${entry.alt.label} ${entry.alt.display}`;
+      text.append(`${entry.col ? entry.col.label : ""} `, name, ` · ${entry.alt.yoyDisplay}`);
+      item.appendChild(text);
+
+      altStrip.appendChild(item);
+      altItems.push(item);
+    });
+    wrap.appendChild(altStrip);
+  }
 
   /* ---- foot ---- */
   const foot = document.createElement("div");
@@ -248,20 +386,191 @@ export function mount(host, ctx) {
   wrap.appendChild(buildDetail());
   host.appendChild(wrap);
 
-  /* Every animated node, including every conditional one. The flat-dumbbell
-   * branch, the absent altBasis, the absent pairs, the absent plan and the
-   * notched overrun cap are all nodes whose beat may never run, and settle()
-   * is the only thing standing between them and invisibility. */
+  /* Every animated node, including every conditional one. The absent altBasis,
+   * the absent plan, the notched overrun cap and the whole landscape branch
+   * are nodes whose beat may never run, and settle() is the only thing
+   * standing between them and invisibility. */
   const curtain = veil([
     railSpines, railTicks, colHeads, rowLabels, rowSubs,
     cellNodes.map((n) => n.veil),
-    coreSwatch, axisTicks, axisNote, caption
+    landNodes.map((n) => n.veil),
+    landTicks, coreSwatch, axisTicks, altItems, axisNote, caption
   ]);
   curtain.hide();
 
+  function landX(v, domainMax) {
+    const inner = LAND.w - LAND.pad * 2;
+    return (((LAND.pad + (v / domainMax) * inner) / LAND.w) * 100).toFixed(3);
+  }
+
+  /* ------------------------------ landscape ------------------------------- */
+
+  /* The hero: commit as a bar, the derived plan as a target tick, and the
+   * distance between them as the same dashed run every attainment card on this
+   * board uses for "this length was not delivered". */
+  function buildLandscape({ cell, col, row, r }) {
+    const d = derive(cell);
+    const good = col.goodDirection || "up";
+    const yoy = Number(cell.yoy);
+    const domainMax = Number(landscape.domainMax) || 1;
+    const format = landscape.format || {};
+    const over = d ? d.gap < 0 : false;
+    const tone = isDirect ? p.inkSoft : toneColor(planTone(Number(cell.plan), cell.planGoodDirection || "up"));
+
+    const plotCell = document.createElement("div");
+    plotCell.className = "mmx-plot";
+    plotCell.dataset.rowIndex = String(r);
+    plotCell.style.setProperty("--mmx-row", String(r + 2));
+    plotCell.style.setProperty("--mmx-col", String(COL_PLOT));
+
+    /* Direct mode drops the plan bar and the tick entirely rather than drawing
+     * them against a candidate spread. The commit is one of three defensible
+     * numbers there, so the gap to plan would be three different gaps, and a
+     * single hatched region would be picking one of them silently. What
+     * survives is the bar, because a length is arithmetic. */
+    let bullet = null;
+    if (d && !isDirect) {
+      bullet = bulletTrack({
+        plan: Number(cell.plan),
+        good: cell.planGoodDirection || "up",
+        isDirect,
+        width: LAND.w,
+        height: LAND.h,
+        pad: LAND.pad,
+        // A dollar axis has no sentiment regions to band: 40% of the way along
+        // a $125M scale is not "risk", it is $50M.
+        withBands: false,
+        withArrow: false,
+        // The shortfall is the reading on this band, so it is drawn at the
+        // bar's own weight rather than as a hairline under it.
+        gapWeight: Math.max(4, LAND.h * 0.36),
+        domainMax,
+        target: d.plan,
+        value: d.value,
+        label: `${row.label} ${col.label} ${cell.display} against a derived plan of ${fmt(d.plan, format)}`
+      });
+      bullet.svg.classList.add("mmx-landbullet");
+      // The bar carries the motion's own colour rather than a sentiment tone.
+      // Which motion this is stays a categorical fact; how it is doing against
+      // plan is already carried by the tick, the dashed run and the readout.
+      if (bullet.bar && row.color) bullet.bar.setAttribute("stroke", row.color);
+      plotCell.appendChild(bullet.svg);
+    } else {
+      const voidTrack = chartRoot(LAND.w, LAND.h, { class: "mmx-landbullet is-void" });
+      voidTrack.setAttribute("aria-hidden", "true");
+      voidTrack.removeAttribute("role");
+      const marks = group();
+      voidTrack.appendChild(marks);
+      marks.appendChild(svgEl("path", {
+        d: `M ${LAND.pad} ${LAND.h / 2} H ${LAND.w - LAND.pad}`,
+        stroke: p.track,
+        "stroke-width": Math.max(6, LAND.h * 0.5),
+        "stroke-dasharray": "4 7",
+        "stroke-linecap": "butt",
+        class: "mmx-landvoid"
+      }));
+      plotCell.appendChild(voidTrack);
+    }
+
+    /* The plan tick's own label, in the DOM over the SVG, positioned off the
+     * same scale the tick was placed with. It flips to the left of the tick
+     * past the midpoint so it never runs off the column's right edge. */
+    let tickLabel = null;
+    if (d && !isDirect) {
+      tickLabel = document.createElement("span");
+      tickLabel.className = "mmx-landticklab";
+      const tx = Number(landX(d.plan, domainMax));
+      tickLabel.style.setProperty("--tick-x", `${tx}%`);
+      tickLabel.dataset.flip = String(tx > 62);
+      tickLabel.append(`${landscape.targetWord || "plan"} ${fmt(d.plan, format)}`);
+      const derivedTag = document.createElement("em");
+      derivedTag.textContent = "derived";
+      tickLabel.appendChild(derivedTag);
+      plotCell.appendChild(tickLabel);
+    }
+
+    /* The alternate basis, on the dollar axis this time rather than only on
+     * the growth one: a hollow diamond where the second stated basis sits. */
+    let altMark = null;
+    const alt = cell.altBasis;
+    if (alt && Number.isFinite(Number(alt.value)) && !isDirect) {
+      altMark = document.createElement("span");
+      altMark.className = "mmx-landalt";
+      altMark.style.setProperty("--alt-x", `${landX(Number(alt.value), domainMax)}%`);
+      ctx.tip(altMark, `${alt.label}: ${alt.display}, ${alt.yoyDisplay} — a second stated basis for the same measure, on the same scale`);
+      plotCell.appendChild(altMark);
+    }
+
+    grid.appendChild(plotCell);
+
+    /* The readout. One column carrying what the bar cannot say in position
+     * alone: the figure, its Y/Y, the authored attainment, and the derived
+     * gap, tagged as derived where it is. */
+    const readCell = document.createElement("div");
+    readCell.className = "mmx-read";
+    readCell.dataset.rowIndex = String(r);
+    readCell.style.setProperty("--mmx-row", String(r + 2));
+    readCell.style.setProperty("--mmx-col", String(COL_READ));
+
+    const valueLine = document.createElement("p");
+    valueLine.className = "mmx-readvalue";
+    const valueEl = document.createElement("span");
+    valueEl.className = "mmx-readnum";
+    if (isDirect) valueEl.dataset.contested = "true";
+    valueLine.appendChild(valueEl);
+
+    const yoyChip = document.createElement("span");
+    yoyChip.className = "mmx-readyoy";
+    yoyChip.style.setProperty("--delta-tint", isDirect ? p.inkSoft : toneColor(toneOf(yoy, good)));
+    yoyChip.textContent = cell.yoyDisplay || "";
+    valueLine.appendChild(yoyChip);
+    readCell.appendChild(valueLine);
+
+    const planLine = document.createElement("p");
+    planLine.className = "mmx-readplan";
+    planLine.style.setProperty("--plan-tint", tone);
+    planLine.textContent = isDirect ? "no plan basis" : (cell.planDisplay || "");
+    if (isDirect) planLine.dataset.void = "true";
+    readCell.appendChild(planLine);
+
+    let gapLine = null;
+    if (d && !isDirect) {
+      gapLine = document.createElement("p");
+      gapLine.className = "mmx-readgap";
+      gapLine.style.setProperty("--gap-tint", over ? toneColor("positive") : tone);
+      gapLine.append(`${over ? "+" : "−"}${fmt(Math.abs(d.gap), format)} ${over ? (landscape.overWord || "over") : (landscape.gapWord || "gap")}`);
+      const derivedTag = document.createElement("em");
+      derivedTag.textContent = "derived";
+      gapLine.appendChild(derivedTag);
+      readCell.appendChild(gapLine);
+    }
+
+    grid.appendChild(readCell);
+
+    ctx.tip(plotCell, isDirect
+      ? "No plan basis: nothing a direct read can reach states which FinPlan version this quarter is graded against, so there is no target, and the gap to it cannot be derived from a commit that is itself one of three candidates."
+      : `${row.label} ${cell.display} · plan ${fmt(d.plan, format)} derived from the authored ${cell.plan}% · ${over ? "over by" : "short by"} ${fmt(Math.abs(d.gap), format)}`);
+
+    return {
+      r,
+      valueEl,
+      display: cell.display || "",
+      bullet,
+      tickLabel,
+      altMark,
+      yoyChip,
+      planLine,
+      gapLine,
+      veil: [
+        bullet ? bullet.svg : null, bullet ? bullet.all : null,
+        tickLabel, altMark, valueEl, yoyChip, planLine, gapLine
+      ]
+    };
+  }
+
   /* -------------------------------- cells --------------------------------- */
 
-  function buildCell({ cell, col, row, r, c }) {
+  function buildCell({ cell, col, row, r, c, column }) {
     const good = col.goodDirection || "up";
     const yoy = Number(cell.yoy);
     const tint = isDirect ? p.inkSoft : toneColor(toneOf(yoy, good));
@@ -271,11 +580,11 @@ export function mount(host, ctx) {
     el.dataset.rowIndex = String(r);
     el.dataset.col = col.id;
     el.style.setProperty("--mmx-row", String(r + 2));
-    el.style.setProperty("--mmx-col", String(c + 3));
+    el.style.setProperty("--mmx-col", String(column));
 
-    /* Rank 1 — the value. No graphical encoding: dollars of ACV, dollars of
-     * attrition and dollars of NNAOV are three measures at three magnitudes,
-     * and any scale shared across them would assert something false. */
+    /* Rank 1 — the value. No graphical encoding: dollars of attrition and
+     * dollars of NNAOV are two measures at two magnitudes, and any scale
+     * shared across them would assert something false. */
     const valueEl = document.createElement("div");
     valueEl.className = "mmx-value";
     if (isDirect) valueEl.dataset.contested = "true";
@@ -351,12 +660,12 @@ export function mount(host, ctx) {
     /* The alternate basis: a second stated basis for the same measure, drawn
      * in the run-rate-ghost vocabulary trendPanel.js already uses — a dashed
      * hollow tick on the same axis, in p.ghost. No badge, no tone and no
-     * comparison arrow; the two readings sit on one axis. */
+     * comparison arrow; the two readings sit on one axis, and the strip at the
+     * foot of the band names them. */
     const alt = cell.altBasis;
     const altX = alt ? growthX(Number(alt.yoy), STUB.zero, STUB.half) : null;
     let ghostTick = null;
-    let altEl = null;
-    if (alt && altX !== null) {
+    if (alt && altX !== null && !isDirect) {
       ghostTick = svgEl("path", {
         d: `M ${altX} 3.5 V ${STUB.h - 3.5}`,
         stroke: p.ghost,
@@ -385,78 +694,6 @@ export function mount(host, ctx) {
         : `${good === "down" ? "Lower is better" : "Higher is better"} (certified)`
     ].filter(Boolean).join(" · "));
 
-    if (alt) {
-      altEl = document.createElement("p");
-      altEl.className = "mmx-alt";
-      altEl.textContent = `${alt.label}: ${alt.display} · ${alt.yoyDisplay}`;
-      el.appendChild(altEl);
-    }
-
-    /* Rank 3 — FinPlan attainment, on the exec board's own bullet grammar.
-     * Red and grey have no defensible plan basis, so bulletTrack's own void
-     * branch draws a dashed empty track and a tier-tinted X: what went is the
-     * denominator, not the reading. */
-    let bullet = null;
-    let planLabel = null;
-    if (cell.plan != null) {
-      bullet = bulletTrack({
-        plan: cell.plan,
-        good: cell.planGoodDirection || "up",
-        isDirect,
-        voidTint: isDirect && (tier === "red" || tier === "grey") ? meta.color : null,
-        width: BULLET.w,
-        height: BULLET.h,
-        pad: BULLET.pad,
-        label: `${row.label} ${col.label} — ${cell.planDisplay || ""}`,
-        // The arrow anchors at x(100), which on a 148-unit track sits 18 units
-        // from the right edge — shorter than the arrow itself, so it would run
-        // outside the viewBox. The tick and the bands carry the polarity here,
-        // and all three authored cells are up-polarity in any case.
-        withArrow: false
-      });
-      bullet.svg.classList.add("mmx-bullet");
-
-      const planRow = document.createElement("div");
-      planRow.className = "mmx-plan-row";
-      planRow.appendChild(bullet.svg);
-
-      planLabel = document.createElement("span");
-      planLabel.className = "mmx-plan-label";
-      planLabel.textContent = isDirect ? "no plan basis" : cell.planDisplay || "";
-      if (isDirect) planLabel.dataset.void = "true";
-      planRow.appendChild(planLabel);
-      el.appendChild(planRow);
-
-      ctx.tip(
-        bullet.svg,
-        isDirect
-          ? "No plan basis: nothing a direct read can reach states which FinPlan version this quarter is graded against, so there is no target and no bands."
-          : `${cell.planDisplay} · target 100% · higher is better (certified)`
-      );
-    }
-
-    /* Rank 4 — the paired comparisons, as dumbbells. A parenthetical asks the
-     * reader to do the subtraction; a dumbbell shows them the gap and its
-     * direction. */
-    const pairNodes = (cell.pairs || []).map((pair) => buildPair(pair, row));
-    if (pairNodes.length) {
-      const pairs = document.createElement("div");
-      pairs.className = "mmx-pairs";
-      pairNodes.forEach((n) => pairs.appendChild(n.row));
-      el.appendChild(pairs);
-    }
-
-    /* Rank 5 — the authored week-over-week note, on the two cells that carry
-     * one. Its rarity is informative, so the seven cells without one get
-     * nothing rather than a placeholder. */
-    let noteEl = null;
-    if (cell.note) {
-      noteEl = document.createElement("p");
-      noteEl.className = "mmx-note";
-      noteEl.textContent = cell.note;
-      el.appendChild(noteEl);
-    }
-
     grid.appendChild(el);
 
     return {
@@ -471,139 +708,9 @@ export function mount(host, ctx) {
       negative,
       chip,
       ghostTick,
-      altEl,
-      bullet,
-      planLabel,
-      pairs: pairNodes,
-      noteEl,
       veil: [
-        valueEl, stubSvg, stubZero, coreBand, decadeLines, stubBar, ghostTick, chip,
-        altEl, bullet ? bullet.svg : null, bullet ? bullet.all : null, planLabel,
-        pairNodes.map((n) => n.veil), noteEl
+        valueEl, stubSvg, stubZero, coreBand, decadeLines, stubBar, ghostTick, chip
       ]
-    };
-  }
-
-  /* A paired comparison: hollow dot for the benchmark, filled dot for the
-   * reading, stem tinted by the direction of the change. */
-  function buildPair(pair, row) {
-    const px = linearScale([0, Number(pair.domainMax) || 1], [PAIR.x0, PAIR.x1]);
-    const good = pair.goodDirection || "up";
-    const dh = px(Number(pair.hist));
-    const dc = px(Number(pair.value));
-    const better = good === "down" ? dc < dh : dc > dh;
-
-    // Without the semantic layer there is nothing for the hollow dot to be:
-    // `hist` is a governed same-day-of-quarter reading against the prior
-    // period, not the prior period's closing number, and nothing in a direct
-    // read states which day it was taken on. So the benchmark falls back to
-    // the axis origin and the link between the two dots is cut.
-    const severed = isDirect;
-    const histX = severed ? PAIR.x0 : dh;
-
-    // Flat is a statement about a benchmark, so it is only knowable while the
-    // benchmark is: severed, the row is neither flat nor not-flat.
-    const flat = !severed && Number(pair.hist) === Number(pair.value);
-
-    const rowEl = document.createElement("div");
-    rowEl.className = "mmx-pair";
-    if (flat) rowEl.dataset.flat = "true";
-    if (severed) rowEl.dataset.severed = "true";
-
-    const label = document.createElement("span");
-    label.className = "mmx-pair-label";
-    label.textContent = `${pair.label} ${pair.valueDisplay || ""}`.trim();
-    rowEl.appendChild(label);
-
-    const svg = chartRoot(PAIR.w, PAIR.h, {
-      label: severed
-        ? `${row.label} ${pair.label} ${pair.valueDisplay} — no benchmark without the semantic layer`
-        : `${row.label} ${pair.label} ${pair.valueDisplay} against ${pair.histDisplay}`,
-      class: "mmx-pair-svg"
-    });
-    const marks = group();
-    svg.appendChild(marks);
-
-    /* Equal is a real finding on a benchmark comparison, so flat is a case and
-     * not a failure: a filled core inside the hollow ring it coincides with,
-     * no stem, and a label that reads "flat on history". */
-    let stem = null;
-    if (!flat && !severed) {
-      stem = svgEl("path", {
-        d: `M ${Math.min(dh, dc)} ${PAIR.cy} H ${Math.max(dh, dc)}`,
-        stroke: toneColor(better ? "positive" : "risk"),
-        "stroke-width": 2,
-        "stroke-linecap": "round",
-        fill: "none",
-        class: "mmx-pair-stem"
-      });
-      marks.appendChild(stem);
-    }
-
-    // Hollow, because it is the benchmark and not the reading. Severed, it
-    // keeps the ring and loses the position, so the shape still says
-    // "benchmark" while sitting where no benchmark was read.
-    const histDot = svgEl("circle", {
-      cx: histX,
-      cy: PAIR.cy,
-      r: 3.4,
-      fill: p.surface,
-      stroke: severed ? meta.color : p.inkDim,
-      "stroke-width": 1.5,
-      "stroke-dasharray": severed ? "2 2" : null,
-      class: "mmx-pair-hist"
-    });
-    marks.appendChild(histDot);
-
-    // The severed-link X, the same vocabulary the broken lineage arrow and the
-    // void bullet use: both ends exist and the thing that joined them does not.
-    let severMark = null;
-    if (severed) {
-      severMark = group({ class: "mmx-pair-sever" });
-      const cx = (histX + dc) / 2;
-      const rr = 2.8;
-      [[-1, -1], [-1, 1]].forEach(([sx, sy]) => severMark.appendChild(svgEl("path", {
-        d: `M ${cx + sx * rr} ${PAIR.cy + sy * rr} L ${cx - sx * rr} ${PAIR.cy - sy * rr}`,
-        stroke: meta.color,
-        "stroke-width": 1.4,
-        "stroke-linecap": "round"
-      })));
-      marks.appendChild(severMark);
-    }
-
-    const nowDot = svgEl("circle", {
-      cx: dc,
-      cy: PAIR.cy,
-      r: flat ? 1.9 : 3.8,
-      fill: severed || flat ? p.inkSoft : toneColor(better ? "positive" : "risk"),
-      class: "mmx-pair-now"
-    });
-    marks.appendChild(nowDot);
-
-    const hist = document.createElement("span");
-    hist.className = "mmx-pair-hist-label";
-    hist.textContent = severed
-      ? "no benchmark"
-      : (flat ? "flat on history" : pair.histDisplay || "");
-
-    rowEl.appendChild(svg);
-    rowEl.appendChild(hist);
-
-    ctx.tip(
-      svg,
-      severed
-        ? `${pair.label} ${pair.valueDisplay} — the benchmark is a governed same-day-of-quarter reading against the prior period, and a direct read cannot say which day it was taken on.`
-        : `${pair.label} ${pair.valueDisplay} against ${pair.histDisplay}${flat ? " — equal" : ""}`
-    );
-
-    return {
-      row: rowEl,
-      flat,
-      severed,
-      stem,
-      histDot,
-      nowDot,
-      veil: [svg, stem, histDot, severMark, nowDot, label, hist]
     };
   }
 
@@ -619,19 +726,19 @@ export function mount(host, ctx) {
     const thead = document.createElement("thead");
     const headRow = document.createElement("tr");
     headRow.appendChild(cellEl("th", "", "trend-table-rowlabel"));
-    columns.forEach((col) => headRow.appendChild(cellEl("th", col.label)));
+    allColumns.forEach((col) => headRow.appendChild(cellEl("th", col.label)));
     thead.appendChild(headRow);
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
     const line = (label, pick) => {
       const anywhere = rows.some((row) =>
-        columns.some((col, c) => pick((row.cells || [])[c]) != null));
+        allColumns.some((col, c) => pick((row.cells || [])[c]) != null));
       if (!anywhere) return;
       rows.forEach((row) => {
         const tr = document.createElement("tr");
         tr.appendChild(cellEl("th", `${row.label} · ${label}`, "trend-table-rowlabel"));
-        columns.forEach((col, c) => {
+        allColumns.forEach((col, c) => {
           const value = pick((row.cells || [])[c]);
           tr.appendChild(cellEl("td", value == null || value === "" ? "—" : value));
         });
@@ -639,24 +746,35 @@ export function mount(host, ctx) {
       });
     };
 
+    const format = landscape ? landscape.format || {} : {};
     line(metrics.unit || "value", (cell) => (cell ? cell.display : null));
     line("Y/Y", (cell) => (cell ? cell.yoyDisplay : null));
-    line("Plan", (cell) => (cell && cell.planDisplay ? cell.planDisplay : null));
+    line("Plan attainment", (cell) => (cell && cell.planDisplay ? cell.planDisplay : null));
+    // Derived, and named as derived in the table too — this is the one surface
+    // where the arithmetic itself is worth stating.
+    line("Plan (derived)", (cell) => {
+      const d = cell ? derive(cell) : null;
+      return d ? `${fmt(d.plan, format)} = ${cell.display} ÷ ${cell.plan}%` : null;
+    });
+    line("Gap to plan (derived)", (cell) => {
+      const d = cell ? derive(cell) : null;
+      if (!d) return null;
+      return `${d.gap < 0 ? "+" : "−"}${fmt(Math.abs(d.gap), format)}`;
+    });
     line("Alternate basis", (cell) =>
       cell && cell.altBasis
         ? `${cell.altBasis.label}: ${cell.altBasis.display}, ${cell.altBasis.yoyDisplay}`
         : null);
-    line("Velocity and coverage", (cell) =>
-      cell && (cell.pairs || []).length
-        ? cell.pairs.map((pr) => `${pr.label} ${pr.valueDisplay} vs ${pr.histDisplay}`).join(" · ")
-        : null);
-    line("Week over week", (cell) => (cell && cell.note ? cell.note : null));
     table.appendChild(tbody);
     detail.appendChild(table);
 
     const note = document.createElement("p");
     note.className = "trend-table-note";
-    note.textContent = `Y/Y is drawn on the board's shared growth axis — linear inside ±${CORE}%, logarithmic beyond it, with a rule at every decade. Attainment is drawn on the same 0-110% plan domain as the exec hero cards, so the two boards' plan ticks mean the same thing.`;
+    note.textContent = `Y/Y is drawn on the board's shared growth axis — linear inside ±${CORE}%, logarithmic beyond it, with a rule at every decade.${
+      landscape
+        ? " Plan and gap are derived from the authored commit and the authored attainment percentage, exactly, and are stated per row: the three derived plans do not sum to the roll-up's own and are never added."
+        : ""
+    }`;
     detail.appendChild(note);
 
     return detail;
@@ -681,9 +799,51 @@ export function mount(host, ctx) {
     stagger([...rowLabels, ...rowSubs], { step: 50, duration: 320, y: 3, signal });
     stagger(colHeads, { step: 70, duration: 320, y: 3, signal });
 
-    /* 2 — the values, column by column. The numeral is the answer to "what is
-     * Q3 tracking to", so it arrives before anything that qualifies it. */
-    await wait(260, signal);
+    /* 2 — the landscape's rulers, then its bars. This is the hero, so it goes
+     * first and it goes at length: the track, the bar growing left to right,
+     * the ink tick dropping in, then exactly one of the two reach-to-plan
+     * marks. Embedded's bar visibly crosses its tick and steps up; that is the
+     * moment on this tab. */
+    await wait(240, signal);
+    landNodes.forEach((n) => {
+      const delay = n.r * ROW_STEP;
+      const b = n.bullet;
+      if (!b) return;
+      stagger([b.track, ...b.bands, ...b.rules], {
+        delay, step: 40, maxTotal: 200, duration: 280, y: 0, signal
+      });
+      if (b.bar) strokeDraw(b.bar, { delay: delay + 180, duration: 620, signal });
+      if (b.tick) strokeDraw(b.tick, { delay: delay + 640, duration: 280, signal });
+      // dashDraw, never strokeDraw: these dashes mean "this length was not
+      // delivered", and strokeDraw would consume the dash pattern as its own
+      // reveal mechanism.
+      if (b.gap) dashDraw(b.gap, { delay: delay + 780, duration: 420, signal });
+      if (b.overrun) {
+        const notched = b.overrun.classList.contains("is-notched");
+        if (notched) fadeIn(b.overrun, { delay: delay + 760, duration: 380, y: 0, x: -4, signal });
+        else strokeDraw(b.overrun, { delay: delay + 780, duration: 360, signal });
+      }
+    });
+
+    /* 3 — the readout beside it. The numeral is the answer to "what is Q3
+     * tracking to", so it arrives before anything that qualifies it, and the
+     * derived gap arrives last because it is a conclusion. */
+    await wait(200, signal);
+    landNodes.forEach((n) => {
+      const delay = n.r * ROW_STEP;
+      fadeIn(n.valueEl, { delay, duration: 420, y: 8, signal });
+      if (contested) scramble(n.valueEl, candidates, n.display, { delay: delay + 120, signal });
+      else countUp(n.valueEl, n.display, { delay: delay + 120, duration: 900, signal });
+      fadeIn(n.yoyChip, { delay: delay + 340, duration: 320, y: 0, x: -6, signal });
+      fadeIn(n.planLine, { delay: delay + 420, duration: 320, y: 3, signal });
+      if (n.gapLine) fadeIn(n.gapLine, { delay: delay + 520, duration: 340, y: 3, signal });
+      if (n.tickLabel) fadeIn(n.tickLabel, { delay: delay + 700, duration: 320, y: 0, signal });
+    });
+    stagger(landTicks, { delay: 260, step: 50, duration: 300, y: 3, signal });
+
+    /* 4 — the remaining measures, column by column, to the right of the hero
+     * and after it, so the band reads in the order the sweep travels. */
+    await wait(420, signal);
     cellNodes.forEach((n) => {
       const delay = n.c * COL_STEP + n.r * ROW_STEP;
       fadeIn(n.valueEl, { delay, duration: 420, y: 8, signal });
@@ -691,7 +851,7 @@ export function mount(host, ctx) {
       else countUp(n.valueEl, n.display, { delay: delay + 120, duration: 900, signal });
     });
 
-    /* 3 — Y/Y. The ruler before the measurement, then the bar growing outward
+    /* 5 — Y/Y. The ruler before the measurement, then the bar growing outward
      * from zero in its own direction, so the sign is legible before the hue is
      * read. */
     await wait(300, signal);
@@ -710,67 +870,21 @@ export function mount(host, ctx) {
       fadeIn(n.chip, { delay: delay + 320, duration: 320, y: 0, x: n.negative ? 6 : -6, signal });
     });
 
-    /* 4 — the alternate basis, after the primary tick, so the ghost reads as a
-     * second reading of the same axis rather than a competing first one. */
+    /* 6 — the alternate basis, after every primary reading, so the second
+     * stated value reads as a second reading of the same axis rather than as a
+     * competing first one. Both of its marks and the strip that names them
+     * arrive together. */
     await wait(520, signal);
     cellNodes.forEach((n) => {
       if (!n.ghostTick) return;
-      const delay = n.c * COL_STEP + n.r * ROW_STEP;
-      dashDraw(n.ghostTick, { delay, duration: 340, signal });
-      if (n.altEl) fadeIn(n.altEl, { delay: delay + 120, duration: 340, y: 3, signal });
+      dashDraw(n.ghostTick, { delay: n.c * COL_STEP + n.r * ROW_STEP, duration: 340, signal });
     });
+    landNodes.forEach((n) => {
+      if (n.altMark) fadeIn(n.altMark, { delay: n.r * ROW_STEP, duration: 340, y: 0, scaleFrom: 0.4, signal });
+    });
+    stagger(altItems, { delay: 160, step: 90, duration: 360, y: 4, signal });
 
-    /* 5 — the FinPlan bullet. The track and its bands first (the ruler), then
-     * the target tick top-to-bottom, then the bar left-to-right, then exactly
-     * one of the reach-to-plan marks. The 128% cell visibly crosses its tick
-     * and steps up; that is the moment on this tab. */
-    await wait(240, signal);
-    cellNodes.forEach((n) => {
-      if (!n.bullet) return;
-      const b = n.bullet;
-      const delay = n.c * COL_STEP + n.r * ROW_STEP;
-      stagger([b.track, ...b.bands, ...b.rules], {
-        delay, step: 40, maxTotal: 220, duration: 280, y: 0, signal
-      });
-      if (b.tick) strokeDraw(b.tick, { delay: delay + 180, duration: 260, signal });
-      if (b.bar) strokeDraw(b.bar, { delay: delay + 300, duration: 420, signal });
-      // dashDraw, never strokeDraw: these dashes mean "this length was not
-      // delivered", and strokeDraw would consume the dash pattern as its own
-      // reveal mechanism.
-      if (b.gap) dashDraw(b.gap, { delay: delay + 640, duration: 380, signal });
-      if (b.overrun) {
-        // The notched cap past the domain end is a filled path carrying no
-        // stroke, so there is no dash pattern for strokeDraw to run along.
-        const notched = b.overrun.classList.contains("is-notched");
-        if (notched) fadeIn(b.overrun, { delay: delay + 620, duration: 360, y: 0, x: -4, signal });
-        else strokeDraw(b.overrun, { delay: delay + 640, duration: 340, signal });
-      }
-      if (b.voidMark) {
-        Array.from(b.voidMark.children).forEach((path, i) =>
-          strokeDraw(path, { delay: delay + 380 + i * 110, duration: 260, signal })
-        );
-        fadeIn(b.voidMark, { delay: delay + 380, duration: 200, y: 0, signal });
-      }
-      if (n.planLabel) fadeIn(n.planLabel, { delay: delay + 700, duration: 320, y: 0, x: -5, signal });
-    });
-
-    /* 6 — the dumbbells: here is where we were, here is the move, here is
-     * where we are. A flat row has no move, so it skips the stem entirely and
-     * settle() restores what the beat never touched. */
-    await wait(620, signal);
-    cellNodes.forEach((n) => {
-      n.pairs.forEach((pair, i) => {
-        const delay = n.c * COL_STEP + n.r * ROW_STEP + i * 90;
-        fadeIn(pair.histDot, { delay, duration: 300, y: 0, scaleFrom: 0.4, signal });
-        if (pair.stem) strokeDraw(pair.stem, { delay: delay + 160, duration: 360, signal });
-        fadeIn(pair.nowDot, { delay: delay + 320, duration: 300, y: 0, scaleFrom: 0.4, signal });
-      });
-    });
-
-    await wait(420, signal);
-    cellNodes.forEach((n) => {
-      if (n.noteEl) fadeIn(n.noteEl, { delay: n.c * COL_STEP, duration: 340, y: 4, signal });
-    });
+    await wait(320, signal);
     fadeIn(coreSwatch, { duration: 320, y: 0, signal });
     stagger(axisTicks, { step: 60, duration: 320, y: 3, signal });
     fadeIn(axisNote, { delay: 140, duration: 400, y: 5, signal });

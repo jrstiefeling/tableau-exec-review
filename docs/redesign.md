@@ -387,6 +387,17 @@ exist; they now name `Sls_Forecasting_Metrics_Expanded`, `businessPreferences`,
 and the `<TBD: …>` markers this board uses for facts the source documents do
 not contain.
 
+The same card's flow-versus-stock rule had the same shape of problem one
+section up: the argument was sound and the exemplar could not carry it, because
+the measure it was anchored on is excluded from both models in writing, and a
+measure the layer does not hold is not a measure the layer stopped anyone from
+annualising. It is re-anchored on Open Pipe, which SPEC exempts from
+period-to-date treatment by name — so the rule now runs ACV, which carries a
+PTD flag because it accumulates, against a balance the layer explicitly
+declares as a balance, and the guarantee it claims is one the documentation
+actually provides. The section keeps its structure, both thumbnails and the
+FY27 H1 run-rate-ghost mechanic; only the measure it names moved.
+
 **The Five Year axis labels were illegible, and the cause was above the
 chart.** Everything below a panel's head is `flex: none` and the SVG takes the
 remainder, so the head's height *is* the chart's height — and the head was

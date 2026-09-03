@@ -89,11 +89,13 @@ The same gesture runs the Five Year tab's driver rail: each of the six drivers l
 
 The sharpest single argument on the board is on the Five Year Trend tab, and it is easy to miss.
 
-Look at how FY27 H1 is plotted on **ACV** versus on **AOV**.
+Look at how FY27 H1 is plotted on a flow versus on a balance.
 
-ACV is a *flow* — it accumulates across a period, so half a year is not comparable to a full one. Its H1 point is drawn detached, behind a break, with a dashed run-rate ghost showing what it annualises to.
+**ACV** is a *flow* — it accumulates across a period, so half a year is not comparable to a full one. Its H1 point is drawn detached, behind a break, with a dashed run-rate ghost showing what it annualises to.
 
-AOV is a *stock* — a balance read at a point in time, so an H1 reading sits on exactly the same footing as any year-end reading. Its H1 point joins the line normally, and it is never offered a run-rate, because doubling a balance is meaningless.
+**Open Pipe** is a *balance* — read at a point in time, so an H1 reading sits on exactly the same footing as any year-end reading. A balance joins the line normally and is never offered a run-rate, because doubling a balance is meaningless.
+
+The layer draws that line by naming measures rather than by declaring a type: ACV carries a period-to-date flag because it accumulates, and the documentation exempts Open Pipe from period-to-date treatment in writing. So a balance the layer declares as a balance is not the same thing as one a chart author decided to treat as one.
 
 A spreadsheet cannot tell those two rows apart. Both are five numbers in a line. Nothing in the raw data distinguishes them. The distinction lives in the measure, and it is the difference between a correct chart and a confidently wrong one built from the same correct numbers.
 
@@ -108,7 +110,7 @@ Roughly five minutes.
 3. **Click the trust dot on NNAOV.** Walk the flip: definition, grain, lineage, row-level scope. "This is the back of the tile, not a governance page somebody has to go find."
 4. **Press <kbd>3</kbd> for Performance by Segment.** Twenty-eight cells, one growth scale. "Tableau Next is up 1060% in PubSec and down at the bottom of the tab in dollars. Both facts are in one cell, because length is the rate and area is the stake."
 5. **Press <kbd>5</kbd> for the Five Year Trend.** Let the seven panels build. Hover driver 6, then driver 4. "Accounting treatment lights one panel. Competitive landscape lights five. One of those is a cause and one is a shape of the whole year."
-6. **Compare ACV and AOV at FY27 H1.** The stock-versus-flow tell above. This is the moment worth slowing down for.
+6. **Look at how FY27 H1 is plotted on ACV.** Detached, behind a break, with a dashed run-rate ghost — and read the flow-versus-balance rule in the (i) beside it. The tell above. This is the moment worth slowing down for.
 7. **Open the (i) on that tab.** Read the additivity rule out loud. "Two of these four rules are the layer's and two are ours, and the card says which. That is the difference between governance and a house style."
 8. **Press <kbd>K</kbd>.** Let the board rebuild in the drained palette. Sit in it. "Nothing broke. It still renders. It just stopped telling you anything you could defend in this room."
 9. **Point at any narrative tag.** Every one is struck through. "Twenty-six claims, and not one of them has a number left to check it against."

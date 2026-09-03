@@ -1,29 +1,62 @@
-/* The top five open deals, as a ranked lollipop rail on a zero-based linear
- * dollar scale.
+/* The top five open deals, against the thing they are for.
  *
- * Linear, not the board's symlog growth scale, and the distinction is the
- * point of having two scales. These are five comparable magnitudes in one unit
- * across a 1.4x range, with no polarity and no rate — exactly the case linear
- * from zero was made for. The symlog scale exists to stop three orders of
- * magnitude collapsing into a nub, and that problem does not exist here;
- * applying it anyway would be applying a rule for its own sake. The rail
- * states which scale it is on, so the board gets to have two.
+ * Five deals spanning $3M to $2.1M is a 1.4x range, and two of the five are
+ * tied at each end of it, so a length encoding of rank spends its one channel
+ * rendering ties. That was the old rail: five near-identical bars, correct and
+ * uninformative. The interesting question about five deals worth $12.5M is not
+ * their order, it is what they do to the quarter.
+ *
+ * So the scale is the quarter's derived gap to plan, and the five deals are
+ * laid end to end along it. The bar's fill is how much of the shortfall these
+ * five would close if every one of them landed, and the space left at its end
+ * is what would still have to be found. Ties stop being a defect: two $3M
+ * deals are two identical segments, which is what they are.
+ *
+ * `metrics.gap` states the two authored figures the gap derives from — the
+ * commit and its attainment percentage — rather than importing a number from
+ * another portlet, so this renderer stays self-contained and the derivation
+ * stays visible in the data file. Plan and gap are computed here, exactly, and
+ * carry the board's derived tag wherever they are drawn.
+ *
+ * The comparison crosses a measure boundary and says so: the deals are open
+ * pipe and the gap is derived from a commit. It is a comparison of size, not a
+ * sum, and the caption states that rather than leaving it implied.
+ *
+ * Without a gap — in direct mode, where the attainment has no denominator and
+ * so the gap would be three different gaps — the portlet falls back to the
+ * ranked lollipop rail on a zero-based linear dollar scale. The deals survive;
+ * what they are measured against does not.
  *
  * The bars are DOM, not SVG. `growFrom` animates DOM elements as readily as
  * marks, and keeping the bars in the DOM buys the one property this portlet
- * cannot afford to lose: the width
- * is `calc(var(--deal-value) / <scaleMax> * 100%)`, resolved once by the
- * layout engine, so two deals authored at the same value are the same number
- * of pixels by construction rather than by a rounding step that happens to
- * agree. Bank of America and Aetna are both $3M and US Bank and US GOV are
- * both $2.1M; the order is authored and the equality is a fact.
+ * cannot afford to lose: every width is `calc(var(--deal-value) /
+ * var(--deal-scale) * 100%)`, resolved once by the layout engine, so two deals
+ * authored at the same value are the same number of pixels by construction
+ * rather than by a rounding step that happens to agree.
  *
  * Colour is the accent, never sentiment. A deal size has no direction of good,
  * and tinting these by tone would invent one. */
 
 import { chartRoot, svgEl } from "../svg.js";
-import { palette, tierMeta } from "../palette.js";
+import { palette, tierMeta, toneColor } from "../palette.js";
 import { countUp, strokeDraw, fadeIn, growFrom, stagger, wait, veil } from "../anim.js";
+
+/* Derived, exactly, from the two authored figures the gap block states. */
+function deriveGap(gap) {
+  if (!gap || !gap.basis) return null;
+  const value = Number(gap.basis.value);
+  const pct = Number(gap.basis.plan) / 100;
+  if (!Number.isFinite(value) || !Number.isFinite(pct) || pct === 0) return null;
+  const plan = value / pct;
+  const size = plan - value;
+  return size > 0 ? { plan, size } : null;
+}
+
+function fmt(n, format = {}) {
+  const decimals = format.decimals == null ? 1 : format.decimals;
+  const body = Math.abs(n).toFixed(decimals).replace(/\.0+$/, "");
+  return `${format.prefix || ""}${body}${format.suffix || ""}`;
+}
 
 export function mount(host, ctx) {
   const { metrics, tier, isDirect } = ctx;
@@ -32,6 +65,29 @@ export function mount(host, ctx) {
 
   const deals = metrics.deals || [];
   const scaleMax = Number(metrics.scaleMax) || 1;
+
+  /* The gap is the scale when there is one. In direct mode there is not: the
+   * attainment has no denominator a direct read can reach, and the commit it
+   * would be derived from is itself one of three candidates, so the gap would
+   * be three different gaps. Rather than pick one of them silently, the scale
+   * falls back to the authored total.
+   *
+   * The composition survives that, and survives this portlet's own direct-mode
+   * finding as well. What goes ungoverned here is the *ordering* — the gap
+   * between third and fifth place is smaller than the gap between the four
+   * candidate amount columns — and a total laid end to end is invariant to the
+   * order of its parts. The bar says the same thing whichever sequence the
+   * segments are in, which is the one honest thing left to say about five
+   * amounts nobody can rank. */
+  const gapSpec = metrics.gap;
+  const gapMode = Boolean(gapSpec && gapSpec.basis);
+  const gap = isDirect ? null : deriveGap(gapSpec);
+  const gapFormat = (gapSpec && gapSpec.format) || {};
+  // Exact arithmetic on the authored amounts, which is also the check that the
+  // authored total is the sum it claims to be.
+  const dealsTotal = deals.reduce((sum, deal) => sum + (Number(deal.value) || 0), 0);
+  const scale = gap ? gap.size : dealsTotal;
+  const residual = gap ? gap.size - dealsTotal : 0;
 
   /* Yellow is workable but ungoverned, and it is the tier that never earns an
    * X. So nothing here goes missing: all five accounts and all five amounts
@@ -46,6 +102,9 @@ export function mount(host, ctx) {
   wrap.className = "deals";
   wrap.style.setProperty("--deal-tint", tint);
   if (rankIsVoid) wrap.dataset.void = "true";
+  wrap.dataset.mode = gapMode ? "gap" : "rank";
+
+  if (gapMode) return mountGap();
 
   /* The rail holds far more height than five rows need, so the rows sit as one
    * centred block inside a taller well. The block is its own element rather
@@ -177,17 +236,195 @@ export function mount(host, ctx) {
       tr.appendChild(td);
       tbody.appendChild(tr);
     });
+
+    if (gap) {
+      [
+        ["Plan (derived)", `${fmt(gap.plan, gapFormat)} = ${fmt(Number(gapSpec.basis.value), gapFormat)} ÷ ${gapSpec.basis.plan}%`],
+        [`${gapSpec.label || "Gap to plan"} (derived)`, fmt(gap.size, gapFormat)],
+        ["These five against it (derived)", `${fmt(dealsTotal, gapFormat)}, ${Math.round((dealsTotal / gap.size) * 100)}%`],
+        ["Still to find (derived)", fmt(residual, gapFormat)]
+      ].forEach(([label, value]) => {
+        const tr = document.createElement("tr");
+        const th = document.createElement("th");
+        th.className = "trend-table-rowlabel";
+        th.textContent = label;
+        const td = document.createElement("td");
+        td.textContent = value;
+        tr.appendChild(th);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      });
+    }
+
     table.appendChild(tbody);
     detail.appendChild(table);
 
     const note = document.createElement("p");
     note.className = "trend-table-note";
-    note.textContent = isDirect
-      ? `${metrics.totalDisplay || ""} · Bars run on a zero-based linear scale to ${metrics.unit || ""}${scaleMax}.`
-      : `${metrics.totalDisplay || ""} · Bars run on a zero-based linear scale to ${metrics.unit || ""}${scaleMax}, so equal amounts draw equal lengths.`;
+    note.textContent = gapMode
+      ? `${metrics.totalDisplay || ""} · Segments run on ${gap ? `the derived ${gapSpec.label || "gap"}` : "the authored total"}, so equal amounts draw equal lengths.${gap ? " The deals are open pipe and the gap is derived from a commit — a comparison of size, not a sum." : ""}`
+      : isDirect
+        ? `${metrics.totalDisplay || ""} · Bars run on a zero-based linear scale to ${metrics.unit || ""}${scaleMax}.`
+        : `${metrics.totalDisplay || ""} · Bars run on a zero-based linear scale to ${metrics.unit || ""}${scaleMax}, so equal amounts draw equal lengths.`;
     detail.appendChild(note);
 
     return detail;
+  }
+
+  /* --------------------------- the gap composition -------------------------- */
+
+  function mountGap() {
+    const head = document.createElement("div");
+    head.className = "deals-gaphead";
+
+    // The authored total on its own. `totalDisplay` is a sentence — "$12.5M
+    // across five deals" — which is right under a ranked list and wrong as the
+    // band's one numeral, and the five deals are enumerated directly below in
+    // any case.
+    const totalDisplay = gapSpec.totalDisplay || metrics.totalDisplay || "";
+    const totalEl = document.createElement("p");
+    totalEl.className = "deals-gaptotal";
+    head.appendChild(totalEl);
+
+    /* The one claim the portlet exists to make, and every figure in it is
+     * either authored or derived here from authored ones. */
+    const claim = document.createElement("p");
+    claim.className = "deals-gapclaim";
+    if (gap) {
+      claim.append(`${Math.round((dealsTotal / gap.size) * 100)}% of the ${fmt(gap.size, gapFormat)} ${gapSpec.label || "gap to plan"}`);
+      const derivedTag = document.createElement("em");
+      derivedTag.textContent = "derived";
+      claim.appendChild(derivedTag);
+    } else {
+      claim.textContent = gapSpec.voidClaim || "no derivable gap to lay these against";
+      claim.dataset.void = "true";
+    }
+    head.appendChild(claim);
+    wrap.appendChild(head);
+
+    /* The track is the gap. Every segment's width and offset is authored
+     * arithmetic handed to the layout engine rather than a number this
+     * renderer rounds, which is what keeps the two ties exact. */
+    const track = document.createElement("div");
+    track.className = "deals-gaptrack";
+    track.style.setProperty("--deal-scale", String(scale));
+    if (!gap) track.dataset.void = "true";
+
+    let acc = 0;
+    const segNodes = deals.map((deal, i) => {
+      const seg = document.createElement("span");
+      seg.className = "deals-seg";
+      seg.style.setProperty("--seg-from", String(acc));
+      seg.style.setProperty("--deal-value", String(Number(deal.value) || 0));
+      seg.style.setProperty("--seg-index", String(i));
+      acc += Number(deal.value) || 0;
+
+      const segLabel = document.createElement("span");
+      segLabel.className = "deals-seglabel";
+      segLabel.textContent = deal.display || "";
+      seg.appendChild(segLabel);
+
+      track.appendChild(seg);
+      ctx.tip(seg, `${deal.account} · ${deal.display} · rank ${i + 1} of five, on one certified ACV definition`);
+      return seg;
+    });
+
+    /* What would still have to be found. Space, not a sixth segment: it is the
+     * absence of a deal, and drawing it as one would put a deal nobody has on
+     * the same footing as five that exist. Without a gap there is no space —
+     * the bar is the total and ends where the total does. */
+    let residualEl = null;
+    if (gap) {
+      residualEl = document.createElement("span");
+      residualEl.className = "deals-residual";
+      residualEl.style.setProperty("--seg-from", String(dealsTotal));
+      residualEl.textContent = `${fmt(residual, gapFormat)}${gapSpec.residualWord ? ` ${gapSpec.residualWord}` : ""}`;
+      residualEl.style.setProperty("--residual-tint", toneColor("risk"));
+      track.appendChild(residualEl);
+      ctx.tip(residualEl, `${fmt(gap.size, gapFormat)} derived gap less ${fmt(dealsTotal, gapFormat)} across these five leaves ${fmt(residual, gapFormat)}`);
+    }
+
+    const end = document.createElement("span");
+    end.className = "deals-gapend";
+    track.appendChild(end);
+    wrap.appendChild(track);
+
+    /* The five, as a legend for the segments they are. Same swatch tint by
+     * index, so a row and its segment are the same object read twice. */
+    const list = document.createElement("ol");
+    list.className = "deals-list";
+    const rowNodes = deals.map((deal, i) => {
+      const li = document.createElement("li");
+
+      const swatch = document.createElement("span");
+      swatch.className = "deals-swatch";
+      swatch.style.setProperty("--seg-index", String(i));
+      li.appendChild(swatch);
+
+      const name = document.createElement("span");
+      name.className = "deals-name";
+      name.textContent = deal.account || "";
+      li.appendChild(name);
+
+      const value = document.createElement("span");
+      value.className = "deals-value";
+      li.appendChild(value);
+
+      list.appendChild(li);
+      ctx.tip(li, `${deal.account} · ${deal.display} · rank ${i + 1} of five, on one certified ACV definition`);
+      return { li, swatch, name, value, display: deal.display || "" };
+    });
+    wrap.appendChild(list);
+
+    const caption = document.createElement("p");
+    caption.className = "deals-caption";
+    caption.textContent = metrics.gapCaption || metrics.caption || "";
+    wrap.appendChild(caption);
+
+    wrap.appendChild(buildDetail());
+    host.appendChild(wrap);
+
+    const curtain = veil([
+      totalEl, claim, segNodes, residualEl, end,
+      // Every conditional node is in the list, the residual included: it
+      // exists in one mode only, and settle() is what stops a mode's own
+      // marks being left invisible.
+      rowNodes.map((n) => [n.swatch, n.name, n.value]), caption
+    ]);
+    curtain.hide();
+
+    async function build(signal) {
+      /* 1 — the scale's own end, before anything is measured against it, and
+       * the total that is about to be laid along it. */
+      fadeIn(end, { duration: 320, y: 0, signal });
+      fadeIn(totalEl, { duration: 400, y: 6, signal });
+      countUp(totalEl, totalDisplay, { delay: 90, duration: 820, signal });
+
+      /* 2 — the deals, in rank order, each starting where the last ended, so
+       * the bar reads as accumulation against the gap rather than as five
+       * independent lengths. */
+      await wait(260, signal);
+      segNodes.forEach((seg, i) =>
+        growFrom(seg, { axis: "x", origin: "left center", delay: i * 130, duration: 480, signal }));
+
+      /* 3 — the residual, once there is a fill for it to be the remainder of,
+       * and the claim that names it. */
+      await wait(760, signal);
+      if (residualEl) fadeIn(residualEl, { duration: 420, y: 0, x: 8, signal });
+      fadeIn(claim, { delay: 120, duration: 400, y: 4, signal });
+
+      /* 4 — the legend, then the caption. */
+      await wait(200, signal);
+      rowNodes.forEach((n, i) => {
+        fadeIn(n.swatch, { delay: i * 70, duration: 280, y: 0, scaleFrom: 0.5, signal });
+        fadeIn(n.name, { delay: i * 70, duration: 300, y: 3, signal });
+        fadeIn(n.value, { delay: i * 70 + 60, duration: 300, y: 0, x: -5, signal });
+        countUp(n.value, n.display, { delay: i * 70 + 60, duration: 560, signal });
+      });
+      fadeIn(caption, { delay: 320, duration: 420, y: 5, signal });
+    }
+
+    return { build, prime: curtain.hide, settle: curtain.settle };
   }
 
   /* Every animated node, the rank chips included — they exist in one mode only
