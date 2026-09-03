@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Q3 Outlook — G3 · The divergence · Direct to source</title>
+<style>
+/* ---- brand faces (styles/fonts.css) ---- */
+@font-face{font-family:"Avant Garde For Salesforce";src:url("../../../fonts/AvantGardeForSalesforceW05-Dm.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:block}
+@font-face{font-family:"Salesforce Sans";src:url("../../../fonts/SalesforceSans-Regular.woff2") format("woff2");font-weight:100 400;font-style:normal;font-display:block}
+@font-face{font-family:"Salesforce Sans";src:url("../../../fonts/SalesforceSans-Semibold.woff2") format("woff2");font-weight:500 600;font-style:normal;font-display:block}
+@font-face{font-family:"Salesforce Sans";src:url("../../../fonts/SalesforceSans-Bold.woff2") format("woff2");font-weight:700 900;font-style:normal;font-display:block}
+
+/* ---- tokens (styles/base.css) ---- */
+:root{
+  --ink-hero:#0d0f13;--ink:#14161a;--ink-soft:#4d525c;--ink-dim:#6b7280;
+  --surface:#f4f2ed;--surface-raised:rgba(255,255,255,.9);--surface-solid:#fff;
+  --line:rgba(20,22,26,.13);--line-strong:rgba(20,22,26,.22);
+  --accent:#1c6e8c;--tab-accent:#92640a;
+  --pos:#0f7a5e;--warn:#a06b05;--neg:#c0392b;
+  --tier-green:#12806a;--tier-yellow:#92640a;--tier-red:#c0483c;--tier-grey:#8d93a1;--on-tier:#fff;
+  --shadow-card:0 1px 2px rgba(23,24,28,.04),0 6px 18px rgba(23,24,28,.06);
+  --font-display:"Avant Garde For Salesforce","Century Gothic",sans-serif;
+  --font-body:"Salesforce Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);--radius:14px;--gap:clamp(8px,1.1vw,16px);
+  --lh-display-num:1.12;--lh-display-text:1.22;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;overflow:hidden;background:var(--surface);color:var(--ink);
+  font-family:var(--font-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1,"lnum" 1}
+body::before{content:"";position:fixed;inset:-30%;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(52% 46% at 14% 6%,color-mix(in srgb,var(--tab-accent) 16%,transparent),transparent 72%),
+    radial-gradient(46% 42% at 88% 84%,rgba(192,57,43,.075),transparent 74%),
+    radial-gradient(60% 30% at 50% 100%,rgba(15,122,94,.05),transparent 76%)}
+.app{position:relative;z-index:1;height:100dvh;display:flex;flex-direction:column}
+
+/* ---- topbar ---- */
+.topbar{position:relative;flex:none;display:flex;align-items:center;gap:clamp(12px,2vw,28px);
+  padding:clamp(7px,1.2vh,15px) clamp(16px,2.4vw,32px);border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.24))}
+.topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--tab-accent) 62%,transparent),color-mix(in srgb,var(--tab-accent) 12%,transparent) 62%,transparent)}
+.topbar-id{flex:1 1 auto;display:flex;align-items:center;gap:11px;min-width:0}
+.topbar-mark{width:24px;height:24px;flex:none;display:block}
+.topbar-titles{min-width:0;display:flex;flex-direction:column;row-gap:.18em}
+.topbar-eyebrow{margin:0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);white-space:nowrap}
+.topbar-name{margin:0;font-family:var(--font-display);font-size:clamp(15px,1.3vw,18px);font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+.tabnav{position:relative;flex:none;display:flex;align-items:center;gap:4px;padding:4px;
+  border:1px solid var(--line);border-radius:999px;background:var(--surface-raised)}
+.tabnav-btn{position:relative;z-index:1;display:inline-flex;align-items:center;padding:7px 16px;
+  border-radius:999px;color:var(--ink-dim);font-size:13px;font-weight:500;white-space:nowrap}
+.tabnav-btn.is-active{color:var(--ink)}
+.tabnav-btn.is-active::before{content:"";position:absolute;inset:-4px -1px;z-index:-1;border-radius:999px;
+  background:color-mix(in srgb,var(--tab-accent) 14%,var(--surface-solid));
+  border:1px solid color-mix(in srgb,var(--tab-accent) 52%,transparent);box-shadow:var(--shadow-card)}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;flex:none}
+.mode-switch{display:inline-flex;align-items:center;gap:7px;padding:3px 4px 3px 11px;
+  border:1px solid var(--line-strong);border-radius:999px;background:var(--surface-raised);font-size:11.5px;white-space:nowrap}
+.mode-switch-state{font-weight:600;color:var(--ink)}
+.trust-legend-dot{width:8px;height:8px;border-radius:50%;background:var(--tier-green);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--tier-green) 22%,transparent)}
+.trust-legend-dot[data-tier="red"]{background:var(--tier-red);box-shadow:0 0 0 3px color-mix(in srgb,var(--tier-red) 22%,transparent)}
+.mode-switch-btn{padding:5px 12px;border-radius:999px;background:color-mix(in srgb,var(--ink) 5%,transparent);color:var(--ink-dim);font-size:11.5px;font-weight:500}
+
+/* ---- panel ---- */
+.panel{position:absolute;inset:clamp(10px,1.6vh,20px) clamp(14px,2.2vw,30px);display:flex;flex-direction:column;gap:clamp(8px,1.3vh,16px)}
+.stage{position:relative;flex:1;min-height:0;overflow:hidden}
+.panel-head{position:relative;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;flex:none}
+.panel-kicker{position:relative;margin:0;padding-left:13px;font-size:10px;letter-spacing:.15em;
+  text-transform:uppercase;color:color-mix(in srgb,var(--tab-accent) 82%,var(--ink));font-weight:700}
+.panel-kicker::before{content:"";position:absolute;left:0;top:.18em;bottom:.18em;width:3px;border-radius:2px;background:var(--tab-accent)}
+.panel-headline{margin:0;font-family:var(--font-display);font-size:clamp(18px,1.9vw,27px);font-weight:600;
+  letter-spacing:-.015em;color:var(--ink-hero);line-height:var(--lh-display-text)}
+.panel-info{flex:none;display:grid;place-items:center;width:19px;height:19px;border-radius:50%;
+  border:1.4px solid color-mix(in srgb,var(--tab-accent) 48%,var(--line-strong));
+  background:color-mix(in srgb,var(--tab-accent) 7%,transparent);color:color-mix(in srgb,var(--tab-accent) 78%,var(--ink))}
+.panel-info-glyph{font-family:var(--font-display);font-size:11px;font-weight:600;line-height:var(--lh-display-num)}
+.panel-bands{flex:1;min-height:0;display:grid;gap:var(--gap);grid-template-rows:minmax(0,var(--hero-fr,1.5fr)) minmax(0,1fr)}
+
+/* ---- portlet card ---- */
+.portlet{position:relative;min-width:0;min-height:0}
+.pf{position:absolute;inset:0;display:flex;flex-direction:column;gap:7px;padding:clamp(9px,.95vw,14px);
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(168deg,color-mix(in srgb,var(--accent) 6%,transparent),transparent 64%),var(--surface-raised);
+  box-shadow:var(--shadow-card);overflow:hidden}
+.pf::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 22%,transparent) 58%,transparent)}
+.portlet-head{display:flex;align-items:flex-start;gap:8px;flex:none}
+.portlet-titles{min-width:0;display:flex;align-items:baseline;flex-wrap:wrap;column-gap:7px;row-gap:0}
+.portlet-label{margin:0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:color-mix(in srgb,var(--accent) 76%,var(--ink))}
+.portlet-sublabel{margin:0;font-size:11px;color:var(--ink-dim);line-height:1.3}
+.portlet-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex:none}
+.portlet-expand,.trust-dot{position:relative;display:grid;place-items:center;width:22px;height:22px;
+  border-radius:7px;border:1px solid var(--line-strong);background:transparent}
+.portlet-expand span{width:9px;height:9px;border:1.5px solid var(--ink-dim);border-left-color:transparent;
+  border-bottom-color:transparent;border-radius:1px;transform:rotate(45deg) translate(-1px,1px)}
+.trust-dot{border-color:color-mix(in srgb,var(--tier-color) 60%,transparent);background:color-mix(in srgb,var(--tier-color) 12%,transparent)}
+.trust-dot::before{content:"";width:11px;height:11px;border-radius:50%;background:var(--tier-color);
+  box-shadow:0 0 0 2.5px color-mix(in srgb,var(--tier-color) 16%,transparent)}
+.trust-dot em{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;
+  color:var(--on-tier);font-size:8px;font-weight:800;line-height:1}
+.portlet[data-tier="green"]{--tier-color:var(--tier-green)}
+.portlet[data-tier="yellow"]{--tier-color:var(--tier-yellow)}
+.portlet[data-tier="red"]{--tier-color:var(--tier-red)}
+.portlet-body{flex:1;min-height:0;display:flex;flex-direction:column}
+
+/* ---- shared marks ---- */
+.rail{grid-column:1;display:block;width:100%;height:100%;align-self:stretch}
+.stub{display:block;width:100%;max-width:var(--mark,132px);height:auto}
+
+/* ---- the shared growth axis furniture ---- */
+.gx-grid{position:absolute;inset:0;pointer-events:none}
+.gx-rule{position:absolute;top:2px;bottom:2px;width:1px;
+  background:repeating-linear-gradient(180deg,color-mix(in srgb,var(--ink) 15%,transparent) 0 2px,transparent 2px 4.5px)}
+.gx-rule.is-core{background:repeating-linear-gradient(180deg,color-mix(in srgb,var(--ink) 9%,transparent) 0 1.5px,transparent 1.5px 4px)}
+.gx-zero{position:absolute;top:0;bottom:0;left:50%;width:1px;background:color-mix(in srgb,var(--ink) 34%,transparent)}
+.gx-axis{position:relative;height:12px;border-top:1px solid var(--line);padding-top:1px}
+.gx-tick{position:absolute;transform:translateX(-50%);font-size:8.5px;font-weight:600;color:var(--ink-dim);white-space:nowrap}
+.gx-tick.is-zero{color:var(--ink-soft);font-weight:700}
+.gx-axis.is-compact .gx-tick{font-size:7.5px}
+.gx-axis.is-compact .gx-tick:not(.is-zero){display:none}
+
+.alt-strip{margin:5px 0 0;display:flex;align-items:center;flex-wrap:wrap;column-gap:clamp(9px,1.2vw,20px);row-gap:1px;
+  padding-top:5px;border-top:1px solid var(--line);flex:none;
+  font-size:clamp(9px,.7vw,10.5px);color:var(--ink-soft);line-height:1.3}
+.alt-strip>b{font-weight:700;color:var(--ink-dim);font-size:clamp(8px,.6vw,9px);letter-spacing:.08em;text-transform:uppercase}
+.alt-strip>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.alt-strip span b{font-weight:700;color:var(--ink)}
+.alt-tick{width:2px;height:11px;flex:none;background:repeating-linear-gradient(180deg,var(--line-strong) 0 2px,transparent 2px 4px)}
+.alt-strip>em{font-style:normal;margin-left:auto;font-size:clamp(8px,.6vw,9px);color:var(--ink-dim);text-align:right}
+.alt-strip.is-void>span{color:var(--ink-dim)}
+
+/* ======================= G1 — growth by motion ======================= */
+.hero-g1{--hero-fr:1.48fr}
+.gm{flex:1;min-height:0;display:flex;flex-direction:column;
+  --tmpl:24px clamp(122px,12vw,164px) clamp(48px,4.8vw,62px) minmax(0,1fr) clamp(44px,4.4vw,58px) clamp(60px,5.8vw,78px)}
+.gm-head,.gm-axisrow{display:grid;grid-template-columns:var(--tmpl);gap:clamp(6px,.8vw,12px);align-items:end}
+.gm-head{margin-bottom:2px;flex:none}
+.gm-colhead{margin:0;font-size:clamp(8px,.62vw,9.5px);font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-dim);white-space:nowrap}
+.gm-colhead-r{text-align:right}
+.gm-rows{flex:1;min-height:0;display:grid;grid-template-columns:var(--tmpl);
+  grid-template-rows:repeat(9,minmax(0,1fr));row-gap:0;column-gap:clamp(6px,.8vw,12px)}
+.gm-rows>.rail{grid-row:1/span 9}
+.gm-motion{grid-column:2;grid-row:var(--r)/span 3;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px}
+.gm-motion.has-rule{border-top:1px solid var(--line)}
+.gm-motion[data-level="1"]{padding-left:9px}
+.gm-motion[data-level="0"] .gm-name{font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);font-size:clamp(9.5px,.74vw,11px)}
+.gm-name{margin:0;font-size:clamp(9.5px,.78vw,11.5px);font-weight:600;line-height:1.2;color:var(--ink)}
+.gm-sub{margin:1px 0 0;font-size:clamp(8.5px,.62vw,9.5px);font-weight:500;color:var(--ink-dim);line-height:1.2}
+.gm-meas{grid-column:3;grid-row:var(--r);margin:0;align-self:center;font-size:clamp(8.5px,.66vw,10px);
+  font-weight:700;color:var(--ink-soft);letter-spacing:.03em;white-space:nowrap}
+.gm-plot{grid-column:4;grid-row:var(--r);position:relative;align-self:stretch;min-width:0}
+.gm-bar{position:absolute;top:50%;transform:translateY(-50%);height:clamp(9px,1.6vh,13px);border-radius:1.5px}
+.gm-alt{position:absolute;top:14%;bottom:14%;width:2px;margin-left:-1px;
+  background:repeating-linear-gradient(180deg,var(--ink-dim) 0 2px,transparent 2px 4px)}
+.gm-chip{grid-column:5;grid-row:var(--r);margin:0;align-self:center;text-align:right;
+  font-size:clamp(9px,.72vw,11px);font-weight:700;white-space:nowrap;line-height:1.1}
+.gm-val{grid-column:6;grid-row:var(--r);margin:0;align-self:center;text-align:right;
+  font-family:var(--font-display);font-size:clamp(12px,1.05vw,16px);font-weight:600;letter-spacing:-.025em;
+  color:var(--ink-hero);line-height:var(--lh-display-num);white-space:nowrap}
+.gm-axisrow{margin-top:2px;flex:none}
+.gm-axisrow .gx-axis{grid-column:4}
+
+/* ======================= G2 — level and direction ======================= */
+.hero-g2{--hero-fr:1.4fr}
+.ld{flex:1;min-height:0;display:flex;flex-direction:column;--mark:clamp(66px,6.8vw,104px);
+  --tmpl:24px clamp(124px,12vw,168px) minmax(0,1fr) clamp(112px,11.2vw,152px) clamp(50px,5vw,66px) repeat(2,clamp(92px,9.2vw,126px))}
+.ld-head,.ld-axisrow{display:grid;grid-template-columns:var(--tmpl);gap:clamp(6px,.72vw,11px);align-items:end}
+.ld-head{margin-bottom:3px;flex:none}
+.ld-colhead{grid-column:var(--c,auto);margin:0;font-size:clamp(8px,.62vw,9.5px);font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ld-rows{flex:1;min-height:0;display:grid;grid-template-columns:var(--tmpl);
+  grid-template-rows:repeat(3,minmax(0,1fr));row-gap:0;column-gap:clamp(6px,.72vw,11px)}
+.ld-rows>.rail{grid-row:1/span 3}
+.ld-c{grid-row:var(--r);min-width:0;align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding:clamp(3px,.7vh,9px) 0}
+.ld-c.has-rule{border-top:1px solid var(--line)}
+.ld-label{grid-column:2;gap:1px}
+.ld-label[data-level="1"]{padding-left:9px}
+.ld-label[data-level="0"] .ld-name{font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);font-size:clamp(9.5px,.74vw,11px)}
+.ld-name{margin:0;font-size:clamp(9.5px,.78vw,11.5px);font-weight:600;line-height:1.2;color:var(--ink)}
+.ld-sub{margin:1px 0 0;font-size:clamp(8.5px,.62vw,9.5px);font-weight:500;color:var(--ink-dim);line-height:1.2}
+.ld-level{grid-column:3;position:relative;display:block!important;height:auto}
+.ld-level::after{content:"";display:block;height:34px}
+.ld-lgrid{position:absolute;left:0;right:0;top:6px;bottom:4px;background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 9%,transparent) 0 1px,transparent 1px 20%)}
+.ld-lbar{position:absolute;left:0;top:9px;height:18px;border-radius:2px}
+.ld-dia{position:absolute;top:11.5px;width:13px;height:13px;margin-left:-6.5px;display:block;overflow:visible}
+.ld-dir{grid-column:4;position:relative;display:block!important;height:auto}
+.ld-dir::after{content:"";display:block;height:34px}
+.ld-dbar{position:absolute;top:11px;height:14px;border-radius:1.5px}
+.ld-read{grid-column:5;align-items:flex-start}
+.ld-yoy{margin:0;font-size:clamp(9.5px,.76vw,11.5px);font-weight:700;line-height:1.2;white-space:nowrap}
+.ld-cell{grid-column:var(--c);gap:2px}
+.ld-cellval{margin:0;font-family:var(--font-display);font-size:clamp(13px,1.16vw,19px);font-weight:600;
+  letter-spacing:-.025em;line-height:var(--lh-display-num);color:var(--ink-hero);white-space:nowrap}
+.ld-stubrow{display:grid;grid-template-columns:minmax(0,var(--mark)) max-content;align-items:center;column-gap:clamp(3px,.42vw,6px)}
+.ld-chip{font-size:clamp(8.5px,.66vw,10px);font-weight:700;line-height:1;white-space:nowrap}
+.ld-axisrow{margin-top:2px;flex:none}
+.ld-axis{grid-column:3;position:relative;height:12px;border-top:1px solid var(--line);padding-top:1px}
+.ld-axtick{position:absolute;transform:translateX(-50%);font-size:8.5px;font-weight:600;color:var(--ink-dim)}
+.ld-axtick:first-child{transform:none}
+.ld-axtick:last-child{transform:translateX(-100%)}
+.ld-axisrow .gx-axis{grid-column:4}
+.ld-axnote{grid-column:6/span 2;font-size:clamp(7.5px,.58vw,9px);color:var(--ink-dim);line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ======================= G3 — the divergence ======================= */
+.hero-g3{--hero-fr:1.42fr}
+.dv{flex:1;min-height:0;display:flex;flex-direction:column;--dvlab:clamp(96px,9.6vw,132px)}
+.dv-keys{flex:none;display:flex;align-items:center;gap:clamp(8px,1.2vw,22px);flex-wrap:wrap;
+  padding-bottom:5px;border-bottom:1px solid var(--line)}
+.dv-key{display:flex;align-items:center;gap:6px;min-width:0;flex:1 1 clamp(176px,19vw,246px)}
+.dv-swatch{width:9px;height:9px;border-radius:2px;flex:none}
+.dv-key[data-level="0"] .dv-swatch{border-radius:50%}
+.dv-keytext{min-width:0;flex:1}
+.dv-keyname{margin:0;font-size:clamp(9px,.72vw,10.5px);font-weight:700;line-height:1.18;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dv-key[data-level="0"] .dv-keyname{letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.dv-keybar{position:relative;margin:2px 0 0;height:8px;
+  background:color-mix(in srgb,var(--ink) 5%,transparent);border-radius:2px}
+.dv-keybar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px}
+.dv-keyval{flex:none;font-family:var(--font-display);font-size:clamp(10px,.86vw,13px);font-weight:600;
+  letter-spacing:-.02em;color:var(--ink-hero);line-height:1;align-self:flex-end;padding-bottom:1px}
+.dv-keynote{margin:0 0 0 auto;flex:none;font-size:clamp(7px,.55vw,8.5px);color:var(--ink-dim);line-height:1.24;text-align:right;letter-spacing:.02em}
+.dv-lanes{flex:1;min-height:0;display:grid;grid-template-rows:repeat(3,minmax(0,1fr))}
+.dv-lane{min-height:0;display:grid;grid-template-columns:var(--dvlab) minmax(0,1fr);
+  column-gap:clamp(8px,1vw,16px);align-items:center}
+.dv-lane+.dv-lane{border-top:1px solid var(--line)}
+.dv-lanelab{min-width:0}
+.dv-lanename{margin:0;font-family:var(--font-display);font-size:clamp(13px,1.15vw,18px);font-weight:600;
+  letter-spacing:-.015em;color:var(--ink-hero);line-height:1.1}
+.dv-lanepol{margin:1px 0 0;font-size:clamp(8px,.6vw,9.5px);font-weight:600;color:var(--ink-dim);line-height:1.2}
+.dv-plot{position:relative;align-self:stretch;min-width:0}
+.dv-worse,.dv-better{position:absolute;top:50%;transform:translateY(-50%);font-size:8px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--ink) 26%,transparent)}
+.dv-worse{left:0}
+.dv-better{right:0}
+.dv-spread{position:absolute;top:50%;transform:translateY(-50%);height:4px;border-radius:2px;
+  background:color-mix(in srgb,var(--ink) 11%,transparent)}
+.dv-roll{position:absolute;top:22%;bottom:22%;width:2px;margin-left:-1px;background:var(--ink-hero);border-radius:1px}
+.dv-rolllab{position:absolute;top:4%;margin-left:6px;font-size:clamp(8px,.62vw,9.5px);font-weight:600;
+  color:var(--ink-soft);white-space:nowrap;line-height:1.1}
+.dv-rolllab[data-flip="true"]{margin-left:0;transform:translateX(-100%);padding-right:6px}
+.dv-rolllab b{font-weight:700}
+.dv-alt{position:absolute;top:30%;bottom:30%;width:2px;margin-left:-1px;
+  background:repeating-linear-gradient(180deg,var(--ink-dim) 0 2px,transparent 2px 4px)}
+.dv-dot{position:absolute;top:50%;width:clamp(13px,1.5vh,17px);height:clamp(13px,1.5vh,17px);
+  border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 2.5px var(--surface-solid)}
+.dv-dotlab{position:absolute;bottom:4%;display:flex;align-items:baseline;gap:5px;white-space:nowrap;line-height:1.1}
+.dv-dotlab[data-side="l"]{transform:translateX(-100%);padding-right:9px}
+.dv-dotlab[data-side="r"]{padding-left:9px}
+.dv-dotlab b{font-size:clamp(9.5px,.8vw,12px);font-weight:700}
+.dv-dotlab em{font-style:normal;font-size:clamp(8px,.62vw,9.5px);font-weight:600;color:var(--ink-soft)}
+.dv-axisrow{flex:none;display:grid;grid-template-columns:var(--dvlab) minmax(0,1fr);column-gap:clamp(8px,1vw,16px);margin-top:2px}
+.dv-axisrow .gx-axis{grid-column:2}
+
+/* ======================= the sufficiency panel ======================= */
+.sf{flex:1;min-height:0;display:flex;flex-direction:column;gap:clamp(2px,.5vh,7px)}
+.sf-lede{margin:0;flex:none;font-size:clamp(9.5px,.78vw,12px);font-weight:600;color:var(--ink);line-height:1.26}
+.sf-lede span{font-weight:700}
+.sf-pair{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(10px,1.6vw,30px)}
+.sf-axis{min-width:0;display:grid;align-items:center;
+  grid-template-columns:clamp(48px,5vw,70px) clamp(34px,3.6vw,48px) minmax(0,1fr) clamp(78px,7.8vw,104px);
+  grid-template-rows:auto minmax(0,1fr) minmax(0,1fr) auto;column-gap:clamp(4px,.6vw,9px)}
+.sf-axhead{grid-column:1/-1;display:flex;align-items:baseline;gap:6px;min-width:0;line-height:1.15}
+.sf-axname{margin:0;font-size:clamp(8.5px,.66vw,10px);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);white-space:nowrap}
+.sf-axsub{margin:0;font-size:clamp(7.5px,.58vw,9px);color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sf-name{grid-column:1;margin:0;font-size:clamp(8.5px,.66vw,10px);font-weight:700;line-height:1.16}
+.sf-val{grid-column:2;margin:0;font-family:var(--font-display);font-size:clamp(15px,1.42vw,23px);font-weight:600;
+  letter-spacing:-.03em;line-height:var(--lh-display-num);color:var(--ink-hero);text-align:right}
+.sf-plot{grid-column:3;position:relative;align-self:stretch;min-width:0}
+.sf-track{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:2px;border-radius:1px;
+  background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.sf-rule{position:absolute;left:50%;top:14%;bottom:14%;width:2px;margin-left:-1px;background:var(--ink-hero);border-radius:1px}
+.sf-rule.is-unstated{background:repeating-linear-gradient(180deg,var(--ink-hero) 0 3px,transparent 3px 6px)}
+.sf-bar{position:absolute;top:50%;transform:translateY(-50%);height:clamp(8px,1.2vh,11px);border-radius:1.5px}
+.sf-cap{position:absolute;top:26%;bottom:26%;width:3px;margin-left:-1.5px;border-radius:1.5px}
+.sf-flat{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;
+  background:var(--ink-soft);box-shadow:0 0 0 2.5px var(--surface-solid)}
+.sf-verdict{grid-column:4;margin:0;display:flex;align-items:baseline;column-gap:5px;flex-wrap:wrap;line-height:1.16}
+.sf-verdict b{font-size:clamp(9px,.74vw,11px);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.sf-verdict em{font-style:normal;font-size:clamp(7.5px,.6vw,9.5px);font-weight:600;color:var(--ink-soft);white-space:nowrap}
+.sf-ticks{grid-column:3;position:relative;height:10px;border-top:1px solid var(--line);padding-top:1px}
+.sf-tick{position:absolute;transform:translateX(-50%);font-size:7.5px;font-weight:600;color:var(--ink-dim);white-space:nowrap}
+.sf-tick.is-zero{font-weight:700;color:var(--ink-soft)}
+.sf-foot{margin:0;flex:none;font-size:clamp(7.5px,.6vw,9.5px);color:var(--ink-dim);line-height:1.3}
+
+/* ======================= the deals rail ======================= */
+.dz{flex:1;min-height:0;display:flex;flex-direction:column}
+.dz-headline{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;flex:none}
+.dz-total{margin:0;font-family:var(--font-display);font-size:clamp(19px,1.7vw,26px);font-weight:600;
+  letter-spacing:-.03em;line-height:1.14;color:var(--ink-hero)}
+.dz-claim{margin:0;font-size:clamp(8.5px,.68vw,10px);font-weight:700;color:var(--ink-soft);line-height:1.25}
+.dz-claim em{font-style:normal;font-weight:500;color:var(--ink-dim);font-size:7.5px;
+  letter-spacing:.07em;text-transform:uppercase;margin-left:5px}
+.dz-track{position:relative;flex:none;height:clamp(15px,2.2vh,22px);margin-top:4px;border-radius:3px;overflow:hidden}
+.dz-seg{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--accent) calc(94% - var(--d)*13%),#ffffff);
+  border-right:1.5px solid var(--surface-solid);display:grid;place-items:center}
+.dz-seg span{font-size:8px;font-weight:700;color:#fff;opacity:.92}
+.dz-list{list-style:none;margin:5px 0 0;padding:0;flex:1;min-height:0;display:grid;grid-template-rows:repeat(5,minmax(0,1fr));overflow:hidden}
+.dz-list li{display:flex;align-items:center;gap:7px;font-size:clamp(8px,.66vw,10.5px);min-height:0}
+.dz-rank{width:9px;height:9px;border-radius:2px;flex:none;background:color-mix(in srgb,var(--accent) calc(94% - var(--d)*13%),#ffffff)}
+.dz-acct{flex:1;min-width:0;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dz-val{font-weight:700;color:var(--ink-soft)}
+.dz-cap{margin:3px 0 0;flex:none;font-size:clamp(7px,.56vw,9px);color:var(--ink-dim);line-height:1.3}
+
+/* ======================= band 2 ======================= */
+.band-support{display:grid;gap:var(--gap);grid-template-columns:minmax(0,1fr) minmax(252px,.4fr)}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="topbar-id"><svg class="topbar-mark" viewBox="0 0 24 24" aria-hidden="true">
+<g fill="#63a5b9"><rect x="3.05" y="4.2" width="4.2" height="1.9"/><rect x="4.2" y="3.05" width="1.9" height="4.2"/><rect x="16.75" y="4.2" width="4.2" height="1.9"/><rect x="17.9" y="3.05" width="1.9" height="4.2"/><rect x="3.05" y="17.9" width="4.2" height="1.9"/><rect x="4.2" y="16.75" width="1.9" height="4.2"/><rect x="16.75" y="17.9" width="4.2" height="1.9"/><rect x="17.9" y="16.75" width="1.9" height="4.2"/></g>
+<g fill="#4e79a7"><rect x="0.15" y="10.9" width="5.5" height="2.2"/><rect x="1.8" y="9.25" width="2.2" height="5.5"/><rect x="18.35" y="10.9" width="5.5" height="2.2"/><rect x="20" y="9.25" width="2.2" height="5.5"/></g>
+<g fill="#576eb2"><rect x="9.25" y="1.8" width="5.5" height="2.2"/><rect x="10.9" y="0.15" width="2.2" height="5.5"/><rect x="9.25" y="20" width="5.5" height="2.2"/><rect x="10.9" y="18.35" width="2.2" height="5.5"/></g>
+<g fill="#e8762d"><rect x="6.4" y="10.15" width="11.2" height="3.7"/><rect x="10.15" y="6.4" width="3.7" height="11.2"/></g></svg>
+    <div class="topbar-titles">
+      <p class="topbar-eyebrow">Tableau MCP · Semantic Layer</p>
+      <p class="topbar-name">Analytics Business Review</p>
+    </div>
+  </div>
+  <nav class="tabnav">
+    <span class="tabnav-btn">Exec</span>
+    <span class="tabnav-btn">Product</span>
+    <span class="tabnav-btn">Segment</span>
+    <span class="tabnav-btn is-active">Q3 Outlook</span>
+    <span class="tabnav-btn">Five Year</span>
+  </nav>
+  <div class="topbar-actions">
+    <span class="mode-switch">
+      <span class="mode-switch-state">Direct to source</span>
+      <span class="trust-legend-dot" data-tier="red"></span>
+      <span class="mode-switch-btn">Governed</span>
+    </span>
+  </div>
+</header>
+<main class="stage">
+  <div class="panel">
+<div class="panel-head">
+  <p class="panel-kicker">Q3 FY27 outlook</p>
+  <h2 class="panel-headline">Q3 tracks to $105M with attrition running 20% ahead of last year</h2>
+  <span class="panel-info"><span class="panel-info-glyph">i</span></span>
+</div>
+    <div class="panel-bands hero-g3">
+<section class="portlet band-hero hero-g3" data-tier="red" style="--accent:#92640A">
+  <div class="pf">
+    <div class="portlet-head">
+      <div class="portlet-titles">
+        <p class="portlet-label">Q3 growth by motion</p>
+        <p class="portlet-sublabel">One axis per measure, oriented so better is to the right — where the two motions sit against the roll-up</p>
+      </div>
+      <div class="portlet-tools"><span class="portlet-expand"><span></span></span><span class="trust-dot"><em>!</em></span></div>
+    </div>
+    <div class="portlet-body"><div class="dv">
+    <div class="dv-keys"><div class="dv-key" data-level="0">
+      <span class="dv-swatch" style="background:#1C6E8C"></span>
+      <div class="dv-keytext"><p class="dv-keyname">Analytics</p>
+        <p class="dv-keybar"><i style="width:75.76%;background:#1C6E8C"></i></p></div>
+      <span class="dv-keyval">$95M</span>
+    </div><div class="dv-key" data-level="1">
+      <span class="dv-swatch" style="background:#2F5FA8"></span>
+      <div class="dv-keytext"><p class="dv-keyname">Agentic Analytics Platform</p>
+        <p class="dv-keybar"><i style="width:54.48%;background:#2F5FA8"></i></p></div>
+      <span class="dv-keyval">$68.1M</span>
+    </div><div class="dv-key" data-level="1">
+      <span class="dv-swatch" style="background:#12806A"></span>
+      <div class="dv-keytext"><p class="dv-keyname">Embedded Agentic Analytics</p>
+        <p class="dv-keybar"><i style="width:21.28%;background:#12806A"></i></p></div>
+      <span class="dv-keyval">$26.6M</span>
+    </div><p class="dv-keynote">ACV commit<br>$0–$125M scale</p></div>
+    <div class="dv-lanes"><div class="dv-lane">
+      <div class="dv-lanelab">
+        <p class="dv-lanename">ACV</p>
+        <p class="dv-lanepol">higher is better</p>
+      </div>
+      <div class="dv-plot">
+        <div class="gx-grid"><span class="gx-rule is-core" style="left:39.00%"></span><span class="gx-rule is-core" style="left:61.00%"></span><span class="gx-rule" style="left:21.27%"></span><span class="gx-rule" style="left:78.73%"></span><span class="gx-rule" style="left:3.55%"></span><span class="gx-rule" style="left:96.45%"></span><span class="gx-zero"></span></div>
+        <span class="dv-worse">worse</span><span class="dv-better">better</span>
+        <div class="dv-spread" style="left:32.59%;width:33.35%"></div>
+        <div class="dv-roll" style="left:35.88%"></div>
+        <span class="dv-rolllab" data-flip="false" style="left:35.88%">Analytics <b style="color:#C0483C">-15% Y/Y</b> · $95M</span>
+        
+        <span class="dv-dot" style="left:32.59%;background:#2F5FA8"></span>
+          <span class="dv-dotlab" data-side="l" style="left:32.59%"><b style="color:#C0483C">-23% Y/Y</b><em>$68.1M</em></span><span class="dv-dot" style="left:65.94%;background:#12806A"></span>
+          <span class="dv-dotlab" data-side="r" style="left:65.94%"><b style="color:#12806A">+19% Y/Y</b><em>$26.6M</em></span>
+      </div>
+    </div><div class="dv-lane">
+      <div class="dv-lanelab">
+        <p class="dv-lanename">Attrition</p>
+        <p class="dv-lanepol">lower is better · axis mirrored</p>
+      </div>
+      <div class="dv-plot">
+        <div class="gx-grid"><span class="gx-rule is-core" style="left:39.00%"></span><span class="gx-rule is-core" style="left:61.00%"></span><span class="gx-rule" style="left:21.27%"></span><span class="gx-rule" style="left:78.73%"></span><span class="gx-rule" style="left:3.55%"></span><span class="gx-rule" style="left:96.45%"></span><span class="gx-zero"></span></div>
+        <span class="dv-worse">worse</span><span class="dv-better">better</span>
+        <div class="dv-spread" style="left:64.62%;width:8.62%"></div>
+        <div class="dv-roll" style="left:66.34%"></div>
+        <span class="dv-rolllab" data-flip="true" style="left:66.34%">Analytics <b style="color:#12806A">-20% Y/Y</b> · $53.0M</span>
+        
+        <span class="dv-dot" style="left:64.62%;background:#2F5FA8"></span>
+          <span class="dv-dotlab" data-side="l" style="left:64.62%"><b style="color:#12806A">-16% Y/Y</b><em>$49.0M</em></span><span class="dv-dot" style="left:73.24%;background:#12806A"></span>
+          <span class="dv-dotlab" data-side="r" style="left:73.24%"><b style="color:#12806A">-49% Y/Y</b><em>$4M</em></span>
+      </div>
+    </div><div class="dv-lane">
+      <div class="dv-lanelab">
+        <p class="dv-lanename">NNAOV</p>
+        <p class="dv-lanepol">higher is better</p>
+      </div>
+      <div class="dv-plot">
+        <div class="gx-grid"><span class="gx-rule is-core" style="left:39.00%"></span><span class="gx-rule is-core" style="left:61.00%"></span><span class="gx-rule" style="left:21.27%"></span><span class="gx-rule" style="left:78.73%"></span><span class="gx-rule" style="left:3.55%"></span><span class="gx-rule" style="left:96.45%"></span><span class="gx-zero"></span></div>
+        <span class="dv-worse">worse</span><span class="dv-better">better</span>
+        <div class="dv-spread" style="left:77.10%;width:7.00%"></div>
+        <div class="dv-roll" style="left:56.60%"></div>
+        <span class="dv-rolllab" data-flip="true" style="left:56.60%">Analytics <b style="color:#12806A">6% Y/Y</b> · $47.6M</span>
+        
+        <span class="dv-dot" style="left:77.10%;background:#2F5FA8"></span>
+          <span class="dv-dotlab" data-side="l" style="left:77.10%"><b style="color:#12806A">81% Y/Y</b><em>$15.9M</em></span><span class="dv-dot" style="left:84.10%;background:#12806A"></span>
+          <span class="dv-dotlab" data-side="r" style="left:84.10%"><b style="color:#12806A">+201% Y/Y</b><em>$43.9M</em></span>
+      </div>
+    </div></div>
+    <div class="dv-axisrow"><span></span><div class="gx-axis"><span class="gx-tick" style="left:3.55%">−1000%</span><span class="gx-tick" style="left:21.27%">−100%</span><span class="gx-tick" style="left:39.00%">−10%</span><span class="gx-tick is-zero" style="left:50.00%">0</span><span class="gx-tick" style="left:61.00%">+10%</span><span class="gx-tick" style="left:78.73%">+100%</span><span class="gx-tick" style="left:96.45%">+1000%</span></div></div>
+    <p class="alt-strip is-void"><b>Second stated basis</b><span>drops with the arbitration — there is nothing left to arbitrate between</span><em>Y/Y on a stated scale — with no plan to read attainment against</em></p>
+  </div></div>
+  </div>
+</section>
+<div class="band-support">
+<section class="portlet p-suf" data-tier="red" style="--accent:#1C6E8C">
+  <div class="pf">
+    <div class="portlet-head">
+      <div class="portlet-titles">
+        <p class="portlet-label">Pipeline sufficiency by motion</p>
+        <p class="portlet-sublabel">Coverage and velocity against their historical benchmarks</p>
+      </div>
+      <div class="portlet-tools"><span class="portlet-expand"><span></span></span><span class="trust-dot"><em>!</em></span></div>
+    </div>
+    <div class="portlet-body"><div class="sf">
+    <p class="sf-lede"><span style="color:#12806A">Both motions above</span> their benchmark on both measures.</p>
+    <div class="sf-pair"><div class="sf-axis">
+      <div class="sf-axhead"><p class="sf-axname">Coverage</p><p class="sf-axsub">open pipe ÷ commit, a multiplier</p></div>
+      <p class="sf-name" style="color:#2F5FA8">Platform</p>
+        <p class="sf-val">2.6×</p>
+        <div class="sf-plot">
+          <div class="sf-track"></div>
+          <div class="sf-rule is-unstated"></div>
+          <div class="sf-bar" style="left:50.00%;width:15.00%;background:#12806A"></div>
+               <span class="sf-cap" style="left:65.00%;background:#12806A"></span>
+        </div>
+        <p class="sf-verdict" style="color:#12806A"><b>above</b><em>+0.3× vs prior qtr</em></p><p class="sf-name" style="color:#12806A">Embedded Agentic Analytics</p>
+        <p class="sf-val">3.2×</p>
+        <div class="sf-plot">
+          <div class="sf-track"></div>
+          <div class="sf-rule is-unstated"></div>
+          <div class="sf-bar" style="left:50.00%;width:40.00%;background:#12806A"></div>
+               <span class="sf-cap" style="left:90.00%;background:#12806A"></span>
+        </div>
+        <p class="sf-verdict" style="color:#12806A"><b>above</b><em>+0.8× vs prior qtr</em></p>
+      <div class="sf-ticks"><span class="sf-tick" style="left:0.00%">−1.0×</span><span class="sf-tick" style="left:25.00%">−0.5×</span><span class="sf-tick is-zero" style="left:50.00%">benchmark</span><span class="sf-tick" style="left:75.00%">+0.5×</span><span class="sf-tick" style="left:100.00%">+1.0×</span></div>
+    </div><div class="sf-axis">
+      <div class="sf-axhead"><p class="sf-axname">Velocity</p><p class="sf-axsub">pace of deals through the pipeline</p></div>
+      <p class="sf-name" style="color:#2F5FA8">Platform</p>
+        <p class="sf-val">15%</p>
+        <div class="sf-plot">
+          <div class="sf-track"></div>
+          <div class="sf-rule is-unstated"></div>
+          <div class="sf-bar" style="left:50.00%;width:15.63%;background:#12806A"></div>
+               <span class="sf-cap" style="left:65.63%;background:#12806A"></span>
+        </div>
+        <p class="sf-verdict" style="color:#12806A"><b>above</b><em>+1% vs prior qtr</em></p><p class="sf-name" style="color:#12806A">Embedded Agentic Analytics</p>
+        <p class="sf-val">16%</p>
+        <div class="sf-plot">
+          <div class="sf-track"></div>
+          <div class="sf-rule is-unstated"></div>
+          <div class="sf-bar" style="left:50.00%;width:31.25%;background:#12806A"></div>
+               <span class="sf-cap" style="left:81.25%;background:#12806A"></span>
+        </div>
+        <p class="sf-verdict" style="color:#12806A"><b>above</b><em>+2% vs prior qtr</em></p>
+      <div class="sf-ticks"><span class="sf-tick" style="left:3.13%">−3%</span><span class="sf-tick is-zero" style="left:50.00%">benchmark</span><span class="sf-tick" style="left:96.88%">+3%</span></div>
+    </div></div>
+    <p class="sf-foot">0 is each motion's own historical benchmark, over a window no measure states — here the prior quarter — no measure says which window a benchmark is over.. Coverage and velocity are non-additive, so the Analytics roll-up carries neither.</p>
+  </div></div>
+  </div>
+</section>
+<section class="portlet p-deals" data-tier="red" style="--accent:#1C6E8C">
+  <div class="pf">
+    <div class="portlet-head">
+      <div class="portlet-titles">
+        <p class="portlet-label">Q3 top ACV deals</p>
+        <p class="portlet-sublabel">Five largest open opportunities</p>
+      </div>
+      <div class="portlet-tools"><span class="portlet-expand"><span></span></span><span class="trust-dot"><em>!</em></span></div>
+    </div>
+    <div class="portlet-body"><div class="dz">
+    <div class="dz-headline">
+      <p class="dz-total">$12.6M</p>
+      <p class="dz-claim">across five deals<em>authored total</em></p>
+    </div>
+    <div class="dz-track"><div class="dz-seg" style="left:0.00%;width:23.81%;--d:0"><span>$3M</span></div><div class="dz-seg" style="left:23.81%;width:23.81%;--d:1"><span>$3M</span></div><div class="dz-seg" style="left:47.62%;width:19.05%;--d:2"><span>$2.4M</span></div><div class="dz-seg" style="left:66.67%;width:18.25%;--d:3"><span>$2.3M</span></div><div class="dz-seg" style="left:84.92%;width:15.08%;--d:4"><span>$1.9M</span></div></div>
+    <ol class="dz-list"><li><span class="dz-rank" style="--d:0"></span><span class="dz-acct">Bank of America</span><span class="dz-val">$3M</span></li><li><span class="dz-rank" style="--d:1"></span><span class="dz-acct">Aetna</span><span class="dz-val">$3M</span></li><li><span class="dz-rank" style="--d:2"></span><span class="dz-acct">US Bank</span><span class="dz-val">$2.4M</span></li><li><span class="dz-rank" style="--d:3"></span><span class="dz-acct">Charles Schwab</span><span class="dz-val">$2.3M</span></li><li><span class="dz-rank" style="--d:4"></span><span class="dz-acct">US GOV</span><span class="dz-val">$1.9M</span></li></ol>
+    <p class="dz-cap">Ranked on whichever amount column the query reached for. The five amounts sum to the authored total exactly — the one closed partition on this tab, and the whole of the rail&rsquo;s scale.</p>
+  </div></div>
+  </div>
+</section>
+</div>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>
